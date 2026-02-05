@@ -23,7 +23,11 @@ import {
   Award,
   History,
   BarChart3,
-  Info
+  Info,
+  Mail,
+  Lock,
+  UserPlus,
+  Briefcase
 } from 'lucide-react';
 import { UserPlan, UserProfile } from './types.ts';
 import { ADMIN_EMAIL } from './constants.ts';
@@ -89,6 +93,7 @@ const DailyTipNotification = ({ area }: { area: string }) => {
 const AppContent: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const location = useLocation();
 
   useEffect(() => {
@@ -108,55 +113,161 @@ const AppContent: React.FC = () => {
     localStorage.setItem('techpro_user', JSON.stringify(updatedUser));
   };
 
+  const handleGoogleLogin = () => {
+    // Simulação de login com Google
+    const googleUser: UserProfile = {
+      id: 'google-123',
+      name: 'Usuário Google',
+      email: 'usuario.google@gmail.com',
+      avatar: 'https://i.pravatar.cc/150?u=google',
+      area: 'Manutenção Industrial',
+      plan: UserPlan.FREE,
+      joinedAt: new Date().toISOString(),
+      xp: 0,
+      level: 1,
+      readArticlesIds: [],
+      startedArticlesIds: [],
+      readingGoals: { dailyMinutes: 30, currentMinutesToday: 0, streak: 0 }
+    };
+    setUser(googleUser);
+    localStorage.setItem('techpro_user', JSON.stringify(googleUser));
+  };
+
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-2xl">
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-blue-900/40 font-bold text-white text-2xl">
-              TP
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-0 md:p-4 overflow-hidden">
+        <div className="w-full max-w-6xl h-full md:h-[650px] bg-slate-900 md:rounded-[40px] border-none md:border md:border-slate-800 shadow-2xl flex flex-col md:flex-row overflow-hidden">
+          {/* Left Side: Image & Content */}
+          <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-blue-900">
+            <img 
+              src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" 
+              className="absolute inset-0 w-full h-full object-cover opacity-60"
+              alt="Industrial Tech"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/40" />
+            <div className="relative z-10 p-12 flex flex-col justify-end h-full">
+              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-blue-900/50 font-bold text-white text-3xl">
+                TP
+              </div>
+              <h1 className="text-5xl font-black text-white leading-tight mb-4 tracking-tighter">
+                Evolua sua <br />
+                <span className="text-blue-500">carreira técnica.</span>
+              </h1>
+              <p className="text-slate-300 text-lg font-medium max-w-sm">
+                A plataforma definitiva para engenheiros e técnicos que buscam excelência em manutenção industrial.
+              </p>
+              <div className="mt-10 flex gap-6">
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-white">100+</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Artigos Técnicos</span>
+                </div>
+                <div className="w-px h-10 bg-slate-800 self-center"></div>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-white">1.4k</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Profissionais</span>
+                </div>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">Tech Pro</h1>
-            <p className="text-slate-400 text-sm mt-2">Login Profissional</p>
           </div>
-          
-          <form className="space-y-4" onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const email = formData.get('email') as string;
-            const isAdm = email === ADMIN_EMAIL;
-            const newUser: UserProfile = {
-              id: '1',
-              name: isAdm ? 'Administrador' : 'Usuário Tech',
-              email,
-              avatar: isAdm ? 'https://picsum.photos/seed/admin/200' : 'https://i.pravatar.cc/150?u=techpro',
-              area: isAdm ? 'Suporte Técnico' : 'Manutenção Industrial',
-              plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE,
-              joinedAt: new Date().toISOString(),
-              xp: 1850,
-              level: 3,
-              readArticlesIds: [],
-              startedArticlesIds: [],
-              readingGoals: { dailyMinutes: 30, currentMinutesToday: 12, streak: 5 }
-            };
-            setUser(newUser);
-            localStorage.setItem('techpro_user', JSON.stringify(newUser));
-          }}>
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1">Email</label>
-              <input name="email" type="email" required className="w-full bg-slate-800 border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="exemplo@email.com" />
+
+          {/* Right Side: Auth Form */}
+          <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-slate-900">
+            <div className="mb-10 text-center md:text-left">
+              <div className="md:hidden flex justify-center mb-6">
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg text-white font-bold text-xl">TP</div>
+              </div>
+              <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+                {authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
+              </h2>
+              <p className="text-slate-500 text-sm">
+                {authMode === 'login' 
+                  ? 'Acesse sua conta para continuar sua jornada técnica.' 
+                  : 'Junte-se a maior comunidade técnica de manutenção.'}
+              </p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1">Senha</label>
-              <input name="password" type="password" required className="w-full bg-slate-800 border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="••••••••" />
+
+            <div className="space-y-6">
+              {/* Google Button */}
+              <button 
+                onClick={handleGoogleLogin}
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl transition-all border border-slate-700 flex items-center justify-center gap-3 active:scale-95"
+              >
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" className="w-5 h-5" alt="Google" />
+                Continuar com Google
+              </button>
+
+              <div className="relative flex items-center gap-4 py-2">
+                <div className="flex-1 h-px bg-slate-800"></div>
+                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">ou e-mail</span>
+                <div className="flex-1 h-px bg-slate-800"></div>
+              </div>
+
+              <form className="space-y-4" onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const email = formData.get('email') as string;
+                const name = (formData.get('name') as string) || (email === ADMIN_EMAIL ? 'Administrador' : 'Usuário Tech');
+                const area = (formData.get('area') as string) || 'Manutenção Industrial';
+                const isAdm = email === ADMIN_EMAIL;
+                
+                const newUser: UserProfile = {
+                  id: Date.now().toString(),
+                  name,
+                  email,
+                  avatar: isAdm ? 'https://picsum.photos/seed/admin/200' : 'https://i.pravatar.cc/150?u=techpro',
+                  area,
+                  plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE,
+                  joinedAt: new Date().toISOString(),
+                  xp: isAdm ? 1850 : 0,
+                  level: isAdm ? 3 : 1,
+                  readArticlesIds: [],
+                  startedArticlesIds: [],
+                  readingGoals: { dailyMinutes: 30, currentMinutesToday: isAdm ? 12 : 0, streak: isAdm ? 5 : 0 }
+                };
+                setUser(newUser);
+                localStorage.setItem('techpro_user', JSON.stringify(newUser));
+              }}>
+                {authMode === 'register' && (
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="relative">
+                      <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input name="name" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600" placeholder="Nome completo" />
+                    </div>
+                    <div className="relative">
+                      {/* Added Briefcase to lucide-react imports to fix 'Cannot find name Briefcase' */}
+                      <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input name="area" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600" placeholder="Área de atuação (Ex: Mecânica)" />
+                    </div>
+                  </div>
+                )}
+                
+                <div className="relative">
+                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600" placeholder="E-mail profissional" />
+                </div>
+                
+                <div className="relative">
+                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input name="password" type="password" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600" placeholder="Sua senha" />
+                </div>
+
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95">
+                  {authMode === 'login' ? 'Acessar Plataforma' : 'Criar Conta Agora'} <ChevronRight size={18} />
+                </button>
+              </form>
+
+              <div className="text-center">
+                <button 
+                  onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                  className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center gap-2"
+                >
+                  {authMode === 'login' 
+                    ? <><UserPlus size={16} /> Não tem uma conta? Cadastre-se</>
+                    : <>Já tem uma conta? Entre aqui</>}
+                </button>
+              </div>
             </div>
-            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
-              Entrar <ChevronRight size={18} />
-            </button>
-            <div className="text-center mt-4">
-              <p className="text-slate-500 text-xs">Admin: suporte.techproapp@gmail.com / @Continuar13</p>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     );
