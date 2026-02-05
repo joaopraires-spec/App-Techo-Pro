@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-// Fixing react-router-dom imports to ensure all members are correctly exported
 import { HashRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -26,21 +25,21 @@ import {
   BarChart3,
   Info
 } from 'lucide-react';
-import { UserPlan, UserProfile } from './types';
-import { ADMIN_EMAIL } from './constants';
-import Dashboard from './components/Dashboard';
-import Library from './components/Library';
-import Calculators from './components/Calculators';
-import Conversions from './components/Conversions';
-import Checklists from './components/Checklists';
-import Forum from './components/Forum';
-import Profile from './components/Profile';
-import Admin from './components/Admin';
-import Contact from './components/Contact';
-import ProfessionalLevel from './components/ProfessionalLevel';
-import ReadingHistory from './components/ReadingHistory';
-import StudyAnalytics from './components/StudyAnalytics';
-import { getDailyTip } from './services/gemini';
+import { UserPlan, UserProfile } from './types.ts';
+import { ADMIN_EMAIL } from './constants.ts';
+import Dashboard from './components/Dashboard.tsx';
+import Library from './components/Library.tsx';
+import Calculators from './components/Calculators.tsx';
+import Conversions from './components/Conversions.tsx';
+import Checklists from './components/Checklists.tsx';
+import Forum from './components/Forum.tsx';
+import Profile from './components/Profile.tsx';
+import Admin from './components/Admin.tsx';
+import Contact from './components/Contact.tsx';
+import ProfessionalLevel from './components/ProfessionalLevel.tsx';
+import ReadingHistory from './components/ReadingHistory.tsx';
+import StudyAnalytics from './components/StudyAnalytics.tsx';
+import { getDailyTip } from './services/gemini.ts';
 
 const SidebarItem = ({ to, icon: Icon, label, active, onClick, hasSubmenu, badge, premium }: any) => (
   <Link
@@ -87,7 +86,7 @@ const DailyTipNotification = ({ area }: { area: string }) => {
   );
 };
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
@@ -204,7 +203,7 @@ const App: React.FC = () => {
             </Link>
           </div>
 
-          <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar pb-10">
+          <nav className="flex-1 px-4 space-y-1 overflow-y-auto no-scrollbar pb-10">
             <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/level" icon={TrendingUp} label="Nível Profissional" active={location.pathname.startsWith('/level')} onClick={() => setIsSidebarOpen(false)} badge={`NV ${user.level}`} />
             <SidebarItem to="/library" icon={BookOpen} label="Biblioteca" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} hasSubmenu={true} />
@@ -267,10 +266,10 @@ const App: React.FC = () => {
   );
 };
 
-const WrappedApp: React.FC = () => (
+const App: React.FC = () => (
   <HashRouter>
-    <App />
+    <AppContent />
   </HashRouter>
 );
 
-export default WrappedApp;
+export default App;

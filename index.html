@@ -12,32 +12,21 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #020617; /* Darkest Slate */
+            background-color: #020617;
             color: #e2e8f0;
+            margin: 0;
+            padding: 0;
         }
         .premium-border {
-            border: 1px solid #d4af37; /* Soft gold */
+            border: 1px solid #d4af37;
             box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
         }
-        .premium-text {
-            color: #d4af37;
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .premium-gradient {
-            background: linear-gradient(135deg, #020617 0%, #1e1b4b 100%);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #020617;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #334155;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
         @media print {
           .no-print { display: none !important; }
@@ -51,6 +40,7 @@
     "@google/genai": "https://esm.sh/@google/genai@^1.40.0",
     "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react-dom": "https://esm.sh/react-dom@^19.2.4",
     "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0"
   }
 }
@@ -58,5 +48,6 @@
 </head>
 <body>
     <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
 </body>
 </html>
