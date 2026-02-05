@@ -113,25 +113,6 @@ const AppContent: React.FC = () => {
     localStorage.setItem('techpro_user', JSON.stringify(updatedUser));
   };
 
-  const handleGoogleLogin = () => {
-    const googleUser: UserProfile = {
-      id: 'google-123',
-      name: 'Usuário Google',
-      email: 'usuario.google@gmail.com',
-      avatar: 'https://i.pravatar.cc/150?u=google',
-      area: 'Manutenção Industrial',
-      plan: UserPlan.FREE,
-      joinedAt: new Date().toISOString(),
-      xp: 0,
-      level: 1,
-      readArticlesIds: [],
-      startedArticlesIds: [],
-      readingGoals: { dailyMinutes: 30, currentMinutesToday: 0, streak: 0 }
-    };
-    setUser(googleUser);
-    localStorage.setItem('techpro_user', JSON.stringify(googleUser));
-  };
-
   if (!user) {
     return (
       <div className="min-h-screen bg-[#020617] flex items-center justify-center p-0 md:p-6 overflow-x-hidden">
@@ -198,20 +179,6 @@ const AppContent: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <button 
-                onClick={handleGoogleLogin}
-                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all border border-slate-700 flex items-center justify-center gap-3 active:scale-95 touch-manipulation"
-              >
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" className="w-5 h-5" alt="Google" />
-                Login com Google
-              </button>
-
-              <div className="relative flex items-center gap-4 py-2">
-                <div className="flex-1 h-px bg-slate-800"></div>
-                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">ou e-mail</span>
-                <div className="flex-1 h-px bg-slate-800"></div>
-              </div>
-
               <form className="space-y-4" onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);

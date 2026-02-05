@@ -18,76 +18,31 @@ export const MERCADO_PAGO_LINKS = {
 export const CATEGORIES_FREE = ['Hidráulica', 'Mecânica', 'Informática', 'Britagem / Mineração', 'Segurança', 'Inspeção e Confiabilidade'];
 export const CATEGORIES_PREMIUM = ['Sistemas Térmicos', 'Elétrica', 'Pneumática', 'Automação', 'Instrumentação', 'Fadiga dos Materiais', 'Magnetismo', 'Metalografia'];
 
-// Mapeamento de palavras-chave para busca de imagens temáticas por categoria
-const categoryKeywords: Record<string, string> = {
-  'Hidráulica': 'hydraulic,pipes',
-  'Mecânica': 'industrial,maintenance',
-  'Informática': 'laptop,computer',
-  'Britagem / Mineração': 'mining,quarry',
-  'Segurança': 'safety,industrial',
-  'Inspeção e Confiabilidade': 'inspection,quality',
-  'Sistemas Térmicos': 'thermal,heat',
-  'Elétrica': 'electrical,power',
-  'Pneumática': 'pneumatic,valves',
-  'Automação': 'automation,robotics',
-  'Instrumentação': 'instrumentation,tools',
-  'Fadiga dos Materiais': 'metal,fracture',
-  'Magnetismo': 'magnetism,physics',
-  'Metalografia': 'metallurgy,microscope'
+// URLs de imagens de alta qualidade condizentes com cada categoria técnica
+const categoryImages: Record<string, string> = {
+  'Hidráulica': 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=2070&auto=format&fit=crop', // Tubulação
+  'Mecânica': 'https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=2070&auto=format&fit=crop', // Manutenção Industrial
+  'Informática': 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop', // Notebook
+  'Britagem / Mineração': 'https://images.unsplash.com/photo-1578319439584-104c94d37305?q=80&w=2070&auto=format&fit=crop', // Jazida a céu aberto com equipamentos
+  'Segurança': 'https://images.unsplash.com/photo-1590486803833-ffc6f98629e8?q=80&w=2070&auto=format&fit=crop', // Técnico de Segurança (EPI)
+  'Inspeção e Confiabilidade': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop', // Maquinário sendo inspecionado
+  'Sistemas Térmicos': 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2070&auto=format&fit=crop', // Peça de metal aquecida
+  'Elétrica': 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=2070&auto=format&fit=crop', // Torre de distribuição elétrica
+  'Pneumática': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop', // Compressor de ar
+  'Automação': 'https://images.unsplash.com/photo-1558444479-c84851727d60?q=80&w=2070&auto=format&fit=crop', // Painel de controle elétrico
+  'Instrumentação': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=2070&auto=format&fit=crop', // Ferramentas de manutenção industrial
+  'Fadiga dos Materiais': 'https://images.unsplash.com/photo-1535813543269-7328cf139544?q=80&w=2070&auto=format&fit=crop', // Textura de metal e estresse
+  'Magnetismo': 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?q=80&w=2069&auto=format&fit=crop', // Conceito de magnetismo
+  'Metalografia': 'https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2070&auto=format&fit=crop' // Microscópio/Laboratório
 };
 
 const generateArticles = () => {
   const articles: Article[] = [];
   const allCats = [...CATEGORIES_FREE, ...CATEGORIES_PREMIUM];
   
-  // Imagens específicas solicitadas para padronização das categorias
-  const hydraulicImage = "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=2070&auto=format&fit=crop"; // Tubulação Hidráulica
-  const mechanicalImage = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop"; // Manutenção Industrial
-  const computerImage = "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2070&auto=format&fit=crop"; // Notebook
-  
-  // URLs Corrigidas para Britagem, Segurança e Inspeção
-  // Atualizado: Jazida a céu aberto com equipamentos
-  const miningImage = "https://images.unsplash.com/photo-1520052205165-909ea982ccf4?q=80&w=2070&auto=format&fit=crop"; 
-  const safetyImage = "https://images.unsplash.com/photo-1582653280644-873d5f14e76d?q=80&w=2070&auto=format&fit=crop"; // Segurança (Capacete e EPIs)
-  const inspectionImage = "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop"; // Inspeção e Confiabilidade (Análise técnica)
-  
-  const thermalImage = "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2070&auto=format&fit=crop"; // Peça de metal sendo aquecida
-  
-  // Novas imagens solicitadas
-  const electricalImage = "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=2070&auto=format&fit=crop"; // Torre de distribuição elétrica
-  const pneumaticImage = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop"; // Compressor de ar
-  const automationImage = "https://images.unsplash.com/photo-1558444479-c84851727d60?q=80&w=2070&auto=format&fit=crop"; // Painel de controle elétrico
-  const instrumentationImage = "https://images.unsplash.com/photo-1530124560676-4fbc912f22c8?q=80&w=2070&auto=format&fit=crop"; // Ferramentas de manutenção industrial
-
   allCats.forEach(cat => {
-    const keyword = categoryKeywords[cat] || 'industrial';
     for (let i = 1; i <= 17; i++) {
-      let imageUrl = `https://loremflickr.com/800/600/${keyword.split(',')[0]}?lock=${cat.length + i}`;
-      
-      // Mapeamento de imagens para categorias específicas
-      if (cat === 'Hidráulica') {
-        imageUrl = hydraulicImage;
-      } else if (cat === 'Mecânica') {
-        imageUrl = mechanicalImage;
-      } else if (cat === 'Informática') {
-        imageUrl = computerImage;
-      } else if (cat === 'Britagem / Mineração') {
-        imageUrl = miningImage;
-      } else if (cat === 'Segurança') {
-        imageUrl = safetyImage;
-      } else if (cat === 'Inspeção e Confiabilidade') {
-        imageUrl = inspectionImage;
-      } else if (cat === 'Sistemas Térmicos') {
-        imageUrl = thermalImage;
-      } else if (cat === 'Elétrica') {
-        imageUrl = electricalImage;
-      } else if (cat === 'Pneumática') {
-        imageUrl = pneumaticImage;
-      } else if (cat === 'Automação') {
-        imageUrl = automationImage;
-      } else if (cat === 'Instrumentação') {
-        imageUrl = instrumentationImage;
-      }
+      const imageUrl = categoryImages[cat] || `https://loremflickr.com/800/600/industrial?lock=${cat.length + i}`;
 
       articles.push({
         id: `${cat.toLowerCase().replace(/ /g, '-')}-${i}`,
