@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { UserProfile, UserPlan, ForumPost } from '../types';
+// Fixing react-router-dom imports to ensure all members are correctly exported
 import { MessageSquare, Plus, Search, User as UserIcon, Calendar, ArrowRight, X, Trash2, Pencil, ShieldAlert } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 

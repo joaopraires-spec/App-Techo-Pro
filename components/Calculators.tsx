@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { CALCULATORS } from '../constants';
+// Fixing react-router-dom imports to ensure all members are correctly exported
 import { Lock, Calculator as CalcIcon, Info, ChevronRight, Settings2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

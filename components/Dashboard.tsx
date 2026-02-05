@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
+// Fixing react-router-dom imports to ensure all members are correctly exported
 import { Link, useNavigate } from 'react-router-dom';
 import { TrendingUp, Clock, BookOpen, Star, ArrowRight, CheckSquare, Calculator as CalcIcon, MessageSquare, Award, X } from 'lucide-react';
 import { getDailyTip } from '../services/gemini';

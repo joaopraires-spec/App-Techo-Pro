@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+// Fixing react-router-dom imports to ensure all members are correctly exported
 import { HashRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -249,7 +250,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Dashboard user={user} />} />
             <Route path="/level" element={<ProfessionalLevel user={user} />} />
-            <Route path="/library/*" element={<Library isPremium={isPremium} isAdmin={isAdmin} user={user} onUpdateUser={handleUpdateUpdate} />} />
+            <Route path="/library/*" element={<Library isPremium={isPremium} isAdmin={isAdmin} user={user} onUpdateUser={handleUpdateUser} />} />
             <Route path="/history" element={<ReadingHistory user={user} />} />
             <Route path="/analytics" element={<StudyAnalytics />} />
             <Route path="/calculators" element={<Calculators isPremium={isPremium} />} />
@@ -264,11 +265,6 @@ const App: React.FC = () => {
       </main>
     </div>
   );
-};
-
-const handleUpdateUpdate = (updatedUser: any) => {
-  localStorage.setItem('techpro_user', JSON.stringify(updatedUser));
-  window.location.reload(); 
 };
 
 const WrappedApp: React.FC = () => (

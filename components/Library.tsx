@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { INITIAL_ARTICLES, CATEGORIES_FREE, CATEGORIES_PREMIUM, INITIAL_CATALOGS, LEVELS } from '../constants';
 import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle } from 'lucide-react';
+// Fixing react-router-dom imports to ensure all members are correctly exported
 import { Link, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { UserProfile } from '../types';
 

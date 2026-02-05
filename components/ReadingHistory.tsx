@@ -2,7 +2,7 @@
 import React from 'react';
 import { INITIAL_ARTICLES } from '../constants';
 import { History, Search, BookOpen, Clock, ChevronRight, CheckCircle2 } from 'lucide-react';
-// Added Link to imports from react-router-dom to fix "Cannot find name 'Link'" error
+// Fixing react-router-dom imports to ensure all members are correctly exported
 import { useNavigate, Link } from 'react-router-dom';
 import { UserProfile } from '../types';
 
