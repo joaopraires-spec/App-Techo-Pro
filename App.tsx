@@ -27,7 +27,9 @@ import {
   Mail,
   Lock,
   UserPlus,
-  Briefcase
+  Briefcase,
+  KeyRound,
+  ArrowLeft
 } from 'lucide-react';
 import { UserPlan, UserProfile } from './types.ts';
 import { ADMIN_EMAIL } from './constants.ts';
@@ -93,7 +95,8 @@ const DailyTipNotification = ({ area }: { area: string }) => {
 const AppContent: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
+  const [recoveryStatus, setRecoveryStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const location = useLocation();
 
   useEffect(() => {
@@ -111,6 +114,60 @@ const AppContent: React.FC = () => {
   const handleUpdateUser = (updatedUser: UserProfile) => {
     setUser(updatedUser);
     localStorage.setItem('techpro_user', JSON.stringify(updatedUser));
+  };
+
+  const handleAuthSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const name = (formData.get('name') as string) || (email === ADMIN_EMAIL ? 'Administrador' : 'Usuário Tech');
+    const area = (formData.get('area') as string) || 'Manutenção Industrial';
+    const isAdm = email === ADMIN_EMAIL;
+    
+    // Simulação de banco de dados de usuários para recuperação
+    const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
+    
+    if (authMode === 'register') {
+      const newUserRecord = { email, name, password, area };
+      localStorage.setItem('techpro_registered_users', JSON.stringify([...registeredUsers, newUserRecord]));
+    }
+
+    const newUser: UserProfile = {
+      id: Date.now().toString(),
+      name,
+      email,
+      password, // Armazenando para recuperação mockada
+      avatar: isAdm ? 'https://picsum.photos/seed/admin/200' : 'https://i.pravatar.cc/150?u=techpro',
+      area,
+      plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE,
+      joinedAt: new Date().toISOString(),
+      xp: isAdm ? 1850 : 0,
+      level: isAdm ? 3 : 1,
+      readArticlesIds: [],
+      startedArticlesIds: [],
+      readingGoals: { dailyMinutes: 30, currentMinutesToday: isAdm ? 12 : 0, streak: isAdm ? 5 : 0 }
+    };
+    setUser(newUser);
+    localStorage.setItem('techpro_user', JSON.stringify(newUser));
+  };
+
+  const handleRecoverySubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const name = formData.get('name') as string;
+
+    const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
+    const foundUser = registeredUsers.find((u: any) => u.email === email && u.name.toLowerCase().includes(name.toLowerCase()));
+
+    if (foundUser || email === ADMIN_EMAIL) {
+      // Simulação de envio de e-mail
+      setRecoveryStatus('success');
+      console.log(`E-mail de recuperação enviado para ${email}. Senha: ${foundUser?.password || 'Admin Password'}`);
+    } else {
+      setRecoveryStatus('error');
+    }
   };
 
   if (!user) {
@@ -167,82 +224,136 @@ const AppContent: React.FC = () => {
 
           {/* Auth Form Container */}
           <div className="flex-1 md:w-1/2 p-6 md:p-16 flex flex-col justify-center bg-slate-900 overflow-y-auto no-scrollbar">
-            <div className="mb-8 text-center md:text-left">
-              <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
-                {authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
-              </h2>
-              <p className="text-slate-500 text-sm">
-                {authMode === 'login' 
-                  ? 'Acesse sua conta para continuar sua jornada técnica.' 
-                  : 'Junte-se a maior comunidade técnica de manutenção.'}
-              </p>
-            </div>
+            {authMode === 'forgot' ? (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="mb-8 text-center md:text-left">
+                  <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-3 justify-center md:justify-start">
+                    <KeyRound className="text-blue-500" /> Recuperar Senha
+                  </h2>
+                  <p className="text-slate-500 text-sm">
+                    {recoveryStatus === 'success' 
+                      ? 'E-mail de recuperação enviado com sucesso!' 
+                      : 'Informe seus dados para recuperar seu acesso.'}
+                  </p>
+                </div>
 
-            <div className="space-y-6">
-              <form className="space-y-4" onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const email = formData.get('email') as string;
-                const name = (formData.get('name') as string) || (email === ADMIN_EMAIL ? 'Administrador' : 'Usuário Tech');
-                const area = (formData.get('area') as string) || 'Manutenção Industrial';
-                const isAdm = email === ADMIN_EMAIL;
-                
-                const newUser: UserProfile = {
-                  id: Date.now().toString(),
-                  name,
-                  email,
-                  avatar: isAdm ? 'https://picsum.photos/seed/admin/200' : 'https://i.pravatar.cc/150?u=techpro',
-                  area,
-                  plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE,
-                  joinedAt: new Date().toISOString(),
-                  xp: isAdm ? 1850 : 0,
-                  level: isAdm ? 3 : 1,
-                  readArticlesIds: [],
-                  startedArticlesIds: [],
-                  readingGoals: { dailyMinutes: 30, currentMinutesToday: isAdm ? 12 : 0, streak: isAdm ? 5 : 0 }
-                };
-                setUser(newUser);
-                localStorage.setItem('techpro_user', JSON.stringify(newUser));
-              }}>
-                {authMode === 'register' && (
-                  <div className="grid grid-cols-1 gap-4">
+                {recoveryStatus === 'success' ? (
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl text-center space-y-4">
+                    <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
+                      <Send size={24} />
+                    </div>
+                    <p className="text-slate-300 text-sm leading-relaxed">
+                      Sua senha foi enviada para o e-mail informado. Verifique sua caixa de entrada e spam.
+                    </p>
+                    <button 
+                      onClick={() => {
+                        setAuthMode('login');
+                        setRecoveryStatus('idle');
+                      }}
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all"
+                    >
+                      Voltar ao Login
+                    </button>
+                  </div>
+                ) : (
+                  <form className="space-y-4" onSubmit={handleRecoverySubmit}>
+                    {recoveryStatus === 'error' && (
+                      <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl text-red-500 text-xs font-bold text-center">
+                        Usuário não encontrado. Verifique os dados.
+                      </div>
+                    )}
                     <div className="relative">
                       <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                      <input name="name" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Nome completo" />
+                      <input name="name" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Seu nome registrado" />
                     </div>
                     <div className="relative">
-                      <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                      <input name="area" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Área de atuação (Ex: Mecânica)" />
+                      <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Seu e-mail de cadastro" />
                     </div>
-                  </div>
+
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
+                      Recuperar Senha <Send size={18} />
+                    </button>
+                    
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setAuthMode('login');
+                        setRecoveryStatus('idle');
+                      }}
+                      className="w-full text-slate-500 hover:text-white text-sm font-bold flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft size={16} /> Voltar para o Login
+                    </button>
+                  </form>
                 )}
-                
-                <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="E-mail profissional" />
-                </div>
-                
-                <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input name="password" type="password" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Sua senha" />
-                </div>
-
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
-                  {authMode === 'login' ? 'Acessar Plataforma' : 'Criar Conta Agora'} <ChevronRight size={18} />
-                </button>
-              </form>
-
-              <div className="text-center pb-8 md:pb-0">
-                <button 
-                  onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-                  className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center gap-2 p-2"
-                >
-                  {authMode === 'login' 
-                    ? <><UserPlus size={16} /> Não tem uma conta? Cadastre-se</>
-                    : <>Já tem uma conta? Entre aqui</>}
-                </button>
               </div>
-            </div>
+            ) : (
+              <div className="animate-in fade-in slide-in-from-left-4 duration-300">
+                <div className="mb-8 text-center md:text-left">
+                  <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
+                    {authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
+                  </h2>
+                  <p className="text-slate-500 text-sm">
+                    {authMode === 'login' 
+                      ? 'Acesse sua conta para continuar sua jornada técnica.' 
+                      : 'Junte-se a maior comunidade técnica de manutenção.'}
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  <form className="space-y-4" onSubmit={handleAuthSubmit}>
+                    {authMode === 'register' && (
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="relative">
+                          <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                          <input name="name" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Nome completo" />
+                        </div>
+                        <div className="relative">
+                          <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                          <input name="area" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Área de atuação (Ex: Mecânica)" />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="relative">
+                      <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="E-mail profissional" />
+                    </div>
+                    
+                    <div className="relative">
+                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input name="password" type="password" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Sua senha" />
+                    </div>
+
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
+                      {authMode === 'login' ? 'Acessar Plataforma' : 'Criar Conta Agora'} <ChevronRight size={18} />
+                    </button>
+                  </form>
+
+                  <div className="text-center pb-8 md:pb-0 flex flex-col items-center gap-2">
+                    <button 
+                      onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                      className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center gap-2 p-2"
+                    >
+                      {authMode === 'login' 
+                        ? <><UserPlus size={16} /> Não tem uma conta? Cadastre-se</>
+                        : <>Já tem uma conta? Entre aqui</>}
+                    </button>
+                    
+                    {authMode === 'login' && (
+                      <button 
+                        type="button"
+                        onClick={() => setAuthMode('forgot')}
+                        className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors p-2"
+                      >
+                        Esqueci a minha Senha
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
