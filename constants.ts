@@ -44,9 +44,13 @@ const generateArticles = () => {
   const hydraulicImage = "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=2070&auto=format&fit=crop"; // Tubulação Hidráulica
   const mechanicalImage = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop"; // Manutenção Industrial
   const computerImage = "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2070&auto=format&fit=crop"; // Notebook
-  const miningImage = "https://images.unsplash.com/photo-1533552755457-5b47182ad93d?q=80&w=2070&auto=format&fit=crop"; // Jazida e Maquinário de Britagem
-  const safetyImage = "https://images.unsplash.com/photo-1590486803833-ffc6f98629e3?q=80&w=2070&auto=format&fit=crop"; // Técnico de Segurança / EPI
-  const inspectionImage = "https://images.unsplash.com/photo-1581092334651-ddf26d9a1930?q=80&w=2070&auto=format&fit=crop"; // Maquinário sendo inspecionado
+  
+  // URLs Corrigidas para Britagem, Segurança e Inspeção
+  // Atualizado: Jazida a céu aberto com equipamentos
+  const miningImage = "https://images.unsplash.com/photo-1520052205165-909ea982ccf4?q=80&w=2070&auto=format&fit=crop"; 
+  const safetyImage = "https://images.unsplash.com/photo-1582653280644-873d5f14e76d?q=80&w=2070&auto=format&fit=crop"; // Segurança (Capacete e EPIs)
+  const inspectionImage = "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop"; // Inspeção e Confiabilidade (Análise técnica)
+  
   const thermalImage = "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2070&auto=format&fit=crop"; // Peça de metal sendo aquecida
   
   // Novas imagens solicitadas
