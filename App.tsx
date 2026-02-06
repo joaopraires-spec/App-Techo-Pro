@@ -29,7 +29,9 @@ import {
   UserPlus,
   Briefcase,
   KeyRound,
-  ArrowLeft
+  ArrowLeft,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { UserPlan, UserProfile } from './types.ts';
 import { ADMIN_EMAIL } from './constants.ts';
@@ -103,6 +105,7 @@ const AppContent: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [recoveryStatus, setRecoveryStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showPassword, setShowPassword] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -369,7 +372,20 @@ const AppContent: React.FC = () => {
                     
                     <div className="relative">
                       <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                      <input name="password" type="password" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Sua senha" />
+                      <input 
+                        name="password" 
+                        type={showPassword ? "text" : "password"} 
+                        required 
+                        className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-12 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" 
+                        placeholder="Sua senha" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
                     </div>
 
                     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
