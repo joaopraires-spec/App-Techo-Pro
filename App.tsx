@@ -59,9 +59,9 @@ const SidebarItem = ({ to, icon: Icon, label, active, onClick, hasSubmenu, badge
   <Link
     to={to}
     onClick={onClick}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative ${
+    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative active:scale-95 ${
       active 
-        ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30' 
+        ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]' 
         : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
     } ${premium ? 'border-amber-500/20 hover:border-amber-500/40' : ''}`}
   >
@@ -69,7 +69,7 @@ const SidebarItem = ({ to, icon: Icon, label, active, onClick, hasSubmenu, badge
     <span className="font-medium text-sm flex-1">{label}</span>
     {premium && <Crown size={12} className="text-amber-500 absolute top-2 right-2" />}
     {badge && (
-      <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold">{badge}</span>
+      <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold shadow-md">{badge}</span>
     )}
     {hasSubmenu && <ChevronRight size={14} className="text-slate-600" />}
   </Link>
@@ -86,12 +86,12 @@ const DailyTipNotification = ({ area }: { area: string }) => {
   if (!visible || !tip) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 left-4 md:left-auto md:max-w-xs z-[60] bg-slate-900 border border-blue-600/30 p-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-10 md:slide-in-from-right-full">
+    <div className="fixed bottom-4 right-4 left-4 md:left-auto md:max-w-xs z-[60] bg-slate-900 border border-blue-600/30 p-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-10 md:slide-in-from-right-full duration-500">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 text-blue-400 text-[10px] font-black uppercase">
           <Info size={14} /> Dica de Campo
         </div>
-        <button onClick={() => setVisible(false)} className="text-slate-500 hover:text-white p-1">
+        <button onClick={() => setVisible(false)} className="text-slate-500 hover:text-white p-1 active:scale-90 transition-all">
           <X size={16} />
         </button>
       </div>
@@ -120,7 +120,7 @@ const AppContent: React.FC = () => {
       const initGoogle = () => {
         if (window.google) {
           window.google.accounts.id.initialize({
-            client_id: "61427508688-66qf0062n3v3a863j8c8n14264789.apps.googleusercontent.com", // Placeholder real ID
+            client_id: "61427508688-66qf0062n3v3a863j8c8n14264789.apps.googleusercontent.com",
             callback: handleGoogleResponse,
           });
           window.google.accounts.id.renderButton(
@@ -136,7 +136,6 @@ const AppContent: React.FC = () => {
         }
       };
 
-      // Tenta inicializar ou aguarda carregamento
       if (window.google) {
         initGoogle();
       } else {
@@ -153,7 +152,6 @@ const AppContent: React.FC = () => {
 
   const handleGoogleResponse = (response: any) => {
     try {
-      // Decodificação manual do JWT do Google sem bibliotecas externas
       const base64Url = response.credential.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
@@ -236,7 +234,6 @@ const AppContent: React.FC = () => {
 
     if (foundUser || email === ADMIN_EMAIL) {
       setRecoveryStatus('success');
-      console.log(`E-mail de recuperação enviado para ${email}. Senha: ${foundUser?.password || 'Admin Password'}`);
     } else {
       setRecoveryStatus('error');
     }
@@ -246,7 +243,6 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen bg-[#020617] flex items-center justify-center p-0 md:p-6 overflow-x-hidden">
         <div className="w-full max-w-6xl min-h-screen md:min-h-0 md:h-[700px] bg-slate-900 md:rounded-[40px] border-none md:border md:border-slate-800 shadow-2xl flex flex-col md:flex-row overflow-hidden">
-          
           <div className="md:hidden w-full h-48 relative shrink-0">
             <img 
               src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" 
@@ -268,16 +264,9 @@ const AppContent: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/40" />
             <div className="relative z-10 p-12 flex flex-col justify-end h-full">
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-blue-900/50 font-bold text-white text-3xl">
-                TP
-              </div>
-              <h1 className="text-5xl font-black text-white leading-tight mb-4 tracking-tighter">
-                Evolua sua <br />
-                <span className="text-blue-500">carreira técnica.</span>
-              </h1>
-              <p className="text-slate-300 text-lg font-medium max-w-sm">
-                A plataforma definitiva para engenheiros e técnicos que buscam excelência em manutenção industrial.
-              </p>
+              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-blue-900/50 font-bold text-white text-3xl">TP</div>
+              <h1 className="text-5xl font-black text-white leading-tight mb-4 tracking-tighter">Evolua sua <br /><span className="text-blue-500">carreira técnica.</span></h1>
+              <p className="text-slate-300 text-lg font-medium max-w-sm">A plataforma definitiva para engenheiros e técnicos que buscam excelência em manutenção industrial.</p>
             </div>
           </div>
 
@@ -292,18 +281,8 @@ const AppContent: React.FC = () => {
 
                 {recoveryStatus === 'success' ? (
                   <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl text-center space-y-4">
-                    <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
-                      <Send size={24} />
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setAuthMode('login');
-                        setRecoveryStatus('idle');
-                      }}
-                      className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all"
-                    >
-                      Voltar ao Login
-                    </button>
+                    <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto"><Send size={24} /></div>
+                    <button onClick={() => { setAuthMode('login'); setRecoveryStatus('idle'); }} className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95">Voltar ao Login</button>
                   </div>
                 ) : (
                   <form className="space-y-4" onSubmit={handleRecoverySubmit}>
@@ -315,35 +294,17 @@ const AppContent: React.FC = () => {
                       <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                       <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Seu e-mail de cadastro" />
                     </div>
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
-                      Recuperar Senha <Send size={18} />
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        setAuthMode('login');
-                        setRecoveryStatus('idle');
-                      }}
-                      className="w-full text-slate-500 hover:text-white text-sm font-bold flex items-center justify-center gap-2"
-                    >
-                      <ArrowLeft size={16} /> Voltar para o Login
-                    </button>
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95">Recuperar Senha <Send size={18} /></button>
+                    <button type="button" onClick={() => { setAuthMode('login'); setRecoveryStatus('idle'); }} className="w-full text-slate-500 hover:text-white text-sm font-bold flex items-center justify-center gap-2 p-2"><ArrowLeft size={16} /> Voltar para o Login</button>
                   </form>
                 )}
               </div>
             ) : (
               <div className="animate-in fade-in slide-in-from-left-4 duration-300">
-                <div className="mb-8 text-center md:text-left">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
-                    {authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
-                  </h2>
-                </div>
-
+                <div className="mb-8 text-center md:text-left"><h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">{authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}</h2></div>
                 <div className="space-y-6">
-                  {/* Container para o Botão Google Real */}
                   <div className="flex flex-col items-center gap-4">
                     <div id="google-signin-button" className="w-full flex justify-center overflow-hidden rounded-full h-[50px]"></div>
-                    
                     <div className="flex items-center gap-4 w-full text-slate-700 px-4">
                       <div className="h-px bg-slate-800 flex-1"></div>
                       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">ou e-mail</span>
@@ -364,54 +325,21 @@ const AppContent: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
                     <div className="relative">
                       <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                       <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="E-mail profissional" />
                     </div>
-                    
                     <div className="relative">
                       <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                      <input 
-                        name="password" 
-                        type={showPassword ? "text" : "password"} 
-                        required 
-                        className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-12 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" 
-                        placeholder="Sua senha" 
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
+                      <input name="password" type={showPassword ? "text" : "password"} required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-12 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Sua senha" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors active:scale-90">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                     </div>
-
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
-                      {authMode === 'login' ? 'Acessar Plataforma' : 'Criar Conta Agora'} <ChevronRight size={18} />
-                    </button>
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95">{authMode === 'login' ? 'Acessar Plataforma' : 'Criar Conta Agora'} <ChevronRight size={18} /></button>
                   </form>
 
                   <div className="text-center pb-8 md:pb-0 flex flex-col items-center gap-2">
-                    <button 
-                      onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-                      className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center gap-2 p-2"
-                    >
-                      {authMode === 'login' 
-                        ? <><UserPlus size={16} /> Não tem uma conta? Cadastre-se</>
-                        : <>Já tem uma conta? Entre aqui</>}
-                    </button>
-                    
-                    {authMode === 'login' && (
-                      <button 
-                        type="button"
-                        onClick={() => setAuthMode('forgot')}
-                        className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors p-2"
-                      >
-                        Esqueci a minha Senha
-                      </button>
-                    )}
+                    <button onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center gap-2 p-2 active:scale-95">{authMode === 'login' ? <><UserPlus size={16} /> Não tem uma conta? Cadastre-se</> : <>Já tem uma conta? Entre aqui</>}</button>
+                    {authMode === 'login' && <button type="button" onClick={() => setAuthMode('forgot')} className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors p-2 active:scale-95">Esqueci a minha Senha</button>}
                   </div>
                 </div>
               </div>
@@ -428,13 +356,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-[#0a0f1e] text-slate-200 overflow-x-hidden">
       <DailyTipNotification area={user.area} />
-      
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300" 
-          onClick={() => setIsSidebarOpen(false)} 
-        />
-      )}
+      {isSidebarOpen && <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300" onClick={() => setIsSidebarOpen(false)} />}
 
       <aside className={`fixed lg:static inset-y-0 left-0 w-72 bg-[#111827]/95 backdrop-blur-xl border-r border-slate-800/50 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-full flex flex-col">
@@ -442,30 +364,16 @@ const AppContent: React.FC = () => {
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/40">TP</div>
-                <div>
-                  <span className="block text-lg font-bold text-white tracking-tight leading-none">TechPro</span>
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">{user.area}</span>
-                </div>
+                <div><span className="block text-lg font-bold text-white tracking-tight leading-none">TechPro</span><span className="text-[10px] text-slate-500 uppercase tracking-wider">{user.area}</span></div>
               </div>
-              <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 hover:text-white">
-                <X size={20} />
-              </button>
+              <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 hover:text-white active:scale-90 transition-all"><X size={20} /></button>
             </div>
 
-            <Link to="/profile" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-3 mb-6 p-3 rounded-2xl bg-slate-800/20 border transition-all group ${isPremium ? 'border-amber-500/30' : 'border-slate-700/30'}`}>
+            <Link to="/profile" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-3 mb-6 p-3 rounded-2xl bg-slate-800/20 border transition-all active:scale-[0.98] group ${isPremium ? 'border-amber-500/30 shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'border-slate-700/30'}`}>
               <img src={user.avatar} className="w-11 h-11 rounded-full border border-slate-700" alt="Avatar" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-white truncate group-hover:text-blue-400">{user.name}</p>
-                <div className="flex items-center gap-1">
-                  {isPremium ? (
-                    <>
-                      <Crown size={10} className="text-amber-500" />
-                      <span className="text-[9px] text-amber-500 font-bold uppercase tracking-widest">Premium</span>
-                    </>
-                  ) : (
-                    <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Plano Grátis</span>
-                  )}
-                </div>
+                <div className="flex items-center gap-1">{isPremium ? (<><Crown size={10} className="text-amber-500" /><span className="text-[9px] text-amber-500 font-bold uppercase tracking-widest">Premium</span></>) : (<span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Plano Grátis</span>)}</div>
               </div>
             </Link>
           </div>
@@ -480,39 +388,29 @@ const AppContent: React.FC = () => {
             <SidebarItem to="/checklists" icon={CheckSquare} label="Checklists" active={location.pathname.startsWith('/checklists')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/profile" icon={User} label="Perfil & Assinatura" active={location.pathname.startsWith('/profile')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/contact" icon={Send} label="Contato" active={location.pathname.startsWith('/contact')} onClick={() => setIsSidebarOpen(false)} />
-            {isAdmin && (
-              <SidebarItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname.startsWith('/admin')} onClick={() => setIsSidebarOpen(false)} />
-            )}
+            {isAdmin && <SidebarItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname.startsWith('/admin')} onClick={() => setIsSidebarOpen(false)} />}
           </nav>
 
           <div className="p-4 border-t border-slate-800/50">
-            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-4 text-slate-500 hover:text-red-400 transition-all w-full text-sm font-bold">
-              <LogOut size={20} />
-              <span>Sair da Conta</span>
-            </button>
+            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-4 text-slate-500 hover:text-red-400 transition-all w-full text-sm font-bold active:scale-95"><LogOut size={20} /><span>Sair da Conta</span></button>
           </div>
         </div>
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <header className="lg:hidden p-4 bg-[#111827] border-b border-slate-800 flex items-center justify-between sticky top-0 z-30">
-          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors">
-            <Menu size={24} />
-          </button>
-          <div className="font-black text-white tracking-tighter">TECHPRO</div>
-          <div className="w-10"></div>
+          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors active:scale-90"><Menu size={24} /></button>
+          <div className="font-black text-white tracking-tighter">TECHPRO</div><div className="w-10"></div>
         </header>
 
         {!isPremium && location.pathname !== '/profile' && (
           <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 md:px-6 py-3 flex items-center justify-between no-print sticky top-[57px] lg:top-0 z-20 backdrop-blur-md">
-            <p className="text-[9px] md:text-[10px] text-amber-500 font-bold uppercase tracking-widest flex items-center gap-2">
-              <Gem size={14} className="shrink-0" /> <span className="truncate">Desbloqueie ferramentas avançadas</span>
-            </p>
-            <Link to="/profile" className="text-[9px] bg-amber-500 text-slate-950 px-3 py-1.5 rounded-lg font-black uppercase tracking-tighter shrink-0 hover:bg-amber-400 transition-colors">Upgrade</Link>
+            <p className="text-[9px] md:text-[10px] text-amber-500 font-bold uppercase tracking-widest flex items-center gap-2"><Gem size={14} className="shrink-0" /><span className="truncate">Desbloqueie ferramentas avançadas</span></p>
+            <Link to="/profile" className="text-[9px] bg-amber-500 text-slate-950 px-3 py-1.5 rounded-lg font-black uppercase tracking-tighter shrink-0 hover:bg-amber-400 transition-colors active:scale-95 shadow-lg shadow-amber-500/20">Upgrade</Link>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 no-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 no-scrollbar page-fade-in">
           <Routes>
             <Route path="/" element={<Dashboard user={user} />} />
             <Route path="/level" element={<ProfessionalLevel user={user} />} />

@@ -16,6 +16,7 @@
             color: #e2e8f0;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
         .premium-border {
             border: 1px solid #d4af37;
@@ -28,7 +29,6 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Custom scrollbar for technical horizontal lists */
         .custom-scrollbar::-webkit-scrollbar {
             height: 4px;
         }
@@ -49,6 +49,19 @@
         }
         @media print {
           .no-print { display: none !important; }
+        }
+        /* Feedback visual global para botões */
+        button:active, a:active, .interactive-card:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease-out;
+        }
+        /* Animação suave de entrada de página */
+        .page-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>

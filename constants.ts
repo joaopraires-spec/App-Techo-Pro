@@ -19,10 +19,10 @@ export const CATEGORIES_FREE = ['Hidráulica', 'Mecânica', 'Informática', 'Bri
 export const CATEGORIES_PREMIUM = ['Sistemas Térmicos', 'Elétrica', 'Pneumática', 'Automação', 'Instrumentação', 'Fadiga dos Materiais', 'Magnetismo', 'Metalografia'];
 
 const categoryImages: Record<string, string> = {
-  'Hidráulica': 'https://images.unsplash.com/photo-1503694978374-8a2fa686963a?q=80&w=2070&auto=format&fit=crop',
+  'Hidráulica': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
   'Mecânica': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop',
   'Informática': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
-  'Britagem / Mineração': 'https://images.unsplash.com/photo-1579450841234-491c2e43909c?q=80&w=2070&auto=format&fit=crop',
+  'Britagem / Mineração': 'https://images.unsplash.com/photo-1579450841234-491c2e43909c?q=80&w=2070&auto=format&fit=crop', // Caminhão CAT em solo vermelho
   'Segurança': 'https://images.unsplash.com/photo-1584467541268-b040f83be3fd?q=80&w=2070&auto=format&fit=crop',
   'Inspeção e Confiabilidade': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=2070&auto=format&fit=crop',
   'Sistemas Térmicos': 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2070&auto=format&fit=crop',
