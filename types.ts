@@ -19,6 +19,9 @@ export interface UserProfile {
   level: number;
   readArticlesIds: string[]; 
   startedArticlesIds: string[];
+  calculationsCount?: number;
+  conversionsCount?: number;
+  checklistsCount?: number;
   readingGoals: {
     dailyMinutes: number;
     currentMinutesToday: number;

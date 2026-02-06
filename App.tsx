@@ -55,6 +55,65 @@ declare global {
   }
 }
 
+// Novo componente de Logo Profissional
+const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg" | "xl", className?: string }) => {
+  const sizes = {
+    sm: "w-8 h-8",
+    md: "w-10 h-10",
+    lg: "w-12 h-12",
+    xl: "w-16 h-16"
+  };
+
+  return (
+    <div className={`${sizes[size]} ${className} relative flex items-center justify-center shrink-0`}>
+      <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-xl">
+        <defs>
+          <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1d4ed8" />
+          </linearGradient>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="100%" stopColor="#d97706" />
+          </linearGradient>
+        </defs>
+        {/* Hexágono de Fundo - Engenharia */}
+        <path 
+          d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" 
+          fill="url(#blueGrad)" 
+          className="opacity-90"
+        />
+        {/* Acentuação em Ouro - Avanço Profissional */}
+        <path 
+          d="M50 15 L82 33 L82 67 L50 85 L18 67 L18 33 Z" 
+          fill="none" 
+          stroke="url(#goldGrad)" 
+          strokeWidth="3" 
+          className="opacity-50"
+        />
+        {/* Letras Estilizadas */}
+        <path 
+          d="M35 35 H65 M50 35 V65" 
+          stroke="white" 
+          strokeWidth="8" 
+          strokeLinecap="round" 
+        />
+        <path 
+          d="M58 45 C65 45 65 55 58 55 H50" 
+          stroke="white" 
+          strokeWidth="6" 
+          fill="none" 
+          strokeLinecap="round" 
+        />
+        {/* Detalhe de Tecnologia/Circuito */}
+        <circle cx="50" cy="95" r="3" fill="#fbbf24" />
+        <circle cx="90" cy="27.5" r="2" fill="#fbbf24" />
+        <circle cx="10" cy="27.5" r="2" fill="#fbbf24" />
+      </svg>
+    </div>
+  );
+};
+
 const SidebarItem = ({ to, icon: Icon, label, active, onClick, hasSubmenu, badge, premium }: any) => (
   <Link
     to={to}
@@ -170,6 +229,9 @@ const AppContent: React.FC = () => {
         level: isAdm ? 3 : 1,
         readArticlesIds: [],
         startedArticlesIds: [],
+        calculationsCount: 0,
+        conversionsCount: 0,
+        checklistsCount: 0,
         readingGoals: { dailyMinutes: 30, currentMinutesToday: isAdm ? 12 : 0, streak: isAdm ? 5 : 0 }
       };
       setUser(newUser);
@@ -217,6 +279,9 @@ const AppContent: React.FC = () => {
       level: isAdm ? 3 : 1,
       readArticlesIds: [],
       startedArticlesIds: [],
+      calculationsCount: 0,
+      conversionsCount: 0,
+      checklistsCount: 0,
       readingGoals: { dailyMinutes: 30, currentMinutesToday: isAdm ? 12 : 0, streak: isAdm ? 5 : 0 }
     };
     setUser(newUser);
@@ -250,8 +315,8 @@ const AppContent: React.FC = () => {
               alt="Industrial"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/40" />
-            <div className="absolute bottom-6 left-6">
-               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg text-white font-bold text-lg mb-2">TP</div>
+            <div className="absolute bottom-6 left-6 flex items-center gap-3">
+               <TechProLogo size="md" />
                <h1 className="text-2xl font-black text-white">TechPro Industrial</h1>
             </div>
           </div>
@@ -264,7 +329,7 @@ const AppContent: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/40" />
             <div className="relative z-10 p-12 flex flex-col justify-end h-full">
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-blue-900/50 font-bold text-white text-3xl">TP</div>
+              <TechProLogo size="xl" className="mb-6 shadow-2xl" />
               <h1 className="text-5xl font-black text-white leading-tight mb-4 tracking-tighter">Evolua sua <br /><span className="text-blue-500">carreira técnica.</span></h1>
               <p className="text-slate-300 text-lg font-medium max-w-sm">A plataforma definitiva para engenheiros e técnicos que buscam excelência em manutenção industrial.</p>
             </div>
@@ -363,7 +428,7 @@ const AppContent: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/40">TP</div>
+                <TechProLogo size="md" />
                 <div><span className="block text-lg font-bold text-white tracking-tight leading-none">TechPro</span><span className="text-[10px] text-slate-500 uppercase tracking-wider">{user.area}</span></div>
               </div>
               <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 hover:text-white active:scale-90 transition-all"><X size={20} /></button>
@@ -400,7 +465,11 @@ const AppContent: React.FC = () => {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <header className="lg:hidden p-4 bg-[#111827] border-b border-slate-800 flex items-center justify-between sticky top-0 z-30">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors active:scale-90"><Menu size={24} /></button>
-          <div className="font-black text-white tracking-tighter">TECHPRO</div><div className="w-10"></div>
+          <div className="flex items-center gap-2">
+            <TechProLogo size="sm" />
+            <div className="font-black text-white tracking-tighter">TECHPRO</div>
+          </div>
+          <div className="w-10"></div>
         </header>
 
         {!isPremium && location.pathname !== '/profile' && (
@@ -417,8 +486,8 @@ const AppContent: React.FC = () => {
             <Route path="/library/*" element={<Library isPremium={isPremium} isAdmin={isAdmin} user={user} onUpdateUser={handleUpdateUser} />} />
             <Route path="/history" element={<ReadingHistory user={user} />} />
             <Route path="/analytics" element={<StudyAnalytics />} />
-            <Route path="/calculators" element={<Calculators isPremium={isPremium} />} />
-            <Route path="/conversions" element={isPremium ? <Conversions /> : <Navigate to="/profile" />} />
+            <Route path="/calculators" element={<Calculators isPremium={isPremium} user={user} onUpdateUser={handleUpdateUser} />} />
+            <Route path="/conversions" element={isPremium ? <Conversions user={user} onUpdateUser={handleUpdateUser} /> : <Navigate to="/profile" />} />
             <Route path="/checklists" element={<Checklists user={user} onUpdateUser={handleUpdateUser} />} />
             <Route path="/forum" element={<Forum user={user} />} />
             <Route path="/profile" element={<Profile user={user} setUser={handleUpdateUser} />} />

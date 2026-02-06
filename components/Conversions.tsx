@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { CONVERSION_UNITS } from '../constants';
+import { CONVERSION_UNITS, LEVELS } from '../constants';
 import { RefreshCw, ArrowRightLeft, Activity, RotateCw, Droplets, Zap, Ruler, Scale, Thermometer, ChevronRight, Info } from 'lucide-react';
+import { UserProfile } from '../types';
 
 const getCategoryIcon = (cat: string) => {
   const iconSize = 20;
@@ -77,7 +78,7 @@ const getCategoryDescription = (cat: string) => {
   }
 };
 
-const Conversions: React.FC = () => {
+const Conversions: React.FC<{ user: UserProfile; onUpdateUser: (u: UserProfile) => void }> = ({ user, onUpdateUser }) => {
   const categories = Object.keys(CONVERSION_UNITS);
   const [category, setCategory] = useState(categories[0]);
   const [value, setValue] = useState(1);
@@ -88,6 +89,25 @@ const Conversions: React.FC = () => {
     if (fromUnit === toUnit) return value;
     // Lógica simplificada mantida conforme original
     return value * 1.5; 
+  };
+
+  const handleValueChange = (val: number) => {
+    setValue(val);
+    
+    // Incrementar contagem de conversões e XP
+    if (user && val !== 0) {
+      const currentCount = user.conversionsCount || 0;
+      const newXp = user.xp + 0.5; // Ganho moderado por interação
+      let newLevel = user.level;
+      LEVELS.forEach(l => { if (newXp >= l.minXp) newLevel = l.level; });
+      
+      onUpdateUser({
+        ...user,
+        conversionsCount: currentCount + 1,
+        xp: newXp,
+        level: newLevel
+      });
+    }
   };
 
   const handleCategoryChange = (cat: string) => {
@@ -159,7 +179,7 @@ const Conversions: React.FC = () => {
                       type="number" 
                       inputMode="decimal"
                       value={value}
-                      onChange={(e) => setValue(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => handleValueChange(parseFloat(e.target.value) || 0)}
                       className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white font-bold focus:ring-2 focus:ring-blue-600 outline-none transition-all text-lg"
                     />
                     <select 

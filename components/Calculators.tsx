@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
-import { CALCULATORS } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { CALCULATORS, LEVELS } from '../constants';
 import { Lock, Calculator as CalcIcon, Info, ChevronRight, Crown, Droplets, Zap, Activity, Cylinder, RotateCw, Waves } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { UserProfile } from '../types';
 
 const SimulationDisplay: React.FC<{ calcId: string; inputs: Record<string, number> }> = ({ calcId, inputs }) => {
   const renderSimulation = () => {
@@ -153,14 +154,30 @@ const getCalcIcon = (id: string, active: boolean) => {
   }
 };
 
-const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
+const Calculators: React.FC<{ isPremium: boolean; user: UserProfile; onUpdateUser: (u: UserProfile) => void }> = ({ isPremium, user, onUpdateUser }) => {
   const [activeCalc, setActiveCalc] = useState(CALCULATORS[0]);
   const [inputs, setInputs] = useState<Record<string, number>>(
     CALCULATORS[0].inputs.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.defaultValue }), {})
   );
 
   const handleInputChange = (key: string, val: string) => {
-    setInputs(prev => ({ ...prev, [key]: parseFloat(val) || 0 }));
+    const newVal = parseFloat(val) || 0;
+    setInputs(prev => ({ ...prev, [key]: newVal }));
+    
+    // Incrementar contagem de cálculos (throttle para não inundar o storage)
+    if (user && newVal !== 0) {
+      const currentCount = user.calculationsCount || 0;
+      const newXp = user.xp + 1; // Pequeno ganho de XP por interação
+      let newLevel = user.level;
+      LEVELS.forEach(l => { if (newXp >= l.minXp) newLevel = l.level; });
+      
+      onUpdateUser({
+        ...user,
+        calculationsCount: currentCount + 1,
+        xp: newXp,
+        level: newLevel
+      });
+    }
   };
 
   const calculateResult = () => {
@@ -191,7 +208,7 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
         <div className="lg:col-span-4 space-y-6">
           {/* Gratuitas Section */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 px-1">
+            <div className="flex items-center gap-2 px-1 mb-3">
                <CalcIcon size={14} className="text-slate-500" />
                <h3 className="text-xs font-black text-slate-200 uppercase tracking-widest">Gratuitas</h3>
             </div>
@@ -284,7 +301,7 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-8 items-center">
                 <div className="space-y-5">
                   {activeCalc.inputs.map(input => (
                     <div key={input.key}>
