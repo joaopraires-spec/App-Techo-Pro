@@ -4,9 +4,108 @@ import { CALCULATORS } from '../constants';
 import { Lock, Calculator as CalcIcon, Info, ChevronRight, Crown, Droplets, Zap, Activity, Cylinder, RotateCw, Waves } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const SimulationDisplay: React.FC<{ calcId: string; inputs: Record<string, number> }> = ({ calcId, inputs }) => {
+  const renderSimulation = () => {
+    switch (calcId) {
+      case 'h-press':
+        const pressureScale = Math.min(2, Math.max(0.2, (inputs.force / inputs.area) / 10000));
+        return (
+          <div className="flex flex-col items-center justify-center h-24 w-full">
+            <div className="w-16 h-4 bg-slate-700 rounded-t-lg relative overflow-hidden">
+               <div className="absolute inset-0 bg-blue-600/30 animate-pulse"></div>
+            </div>
+            <div className="w-16 h-12 border-x-2 border-b-2 border-slate-700 relative flex items-end">
+               <div 
+                 className="w-full bg-blue-500/40 transition-all duration-500" 
+                 style={{ height: `${Math.min(100, pressureScale * 40)}%` }}
+               />
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-bounce"><ChevronRight size={20} className="rotate-90 text-blue-400" /></div>
+               </div>
+            </div>
+          </div>
+        );
+      case 'mag-force':
+        const magForce = inputs.b * inputs.i * inputs.l;
+        return (
+          <div className="flex flex-col items-center justify-center h-24 w-full overflow-hidden">
+            <div className="relative w-32 h-1 bg-slate-700">
+               <div 
+                 className="absolute top-[-10px] left-0 h-6 w-1.5 bg-purple-500 transition-all duration-500"
+                 style={{ transform: `translateX(${Math.sin(Date.now() / 200) * 40 + 60}px)` }}
+               />
+               <div className="absolute inset-0 flex justify-between px-2 text-[8px] text-purple-400 font-bold opacity-30 uppercase tracking-widest">
+                  <span>N</span><span>S</span>
+               </div>
+            </div>
+            <div className="mt-4 text-[8px] font-black text-purple-500 uppercase animate-pulse">Fluxo Magnético Ativo</div>
+          </div>
+        );
+      case 'flow-rate':
+        const flowSpeed = Math.min(5, Math.max(0.5, inputs.v / inputs.t));
+        return (
+          <div className="flex items-center justify-center h-24 w-full">
+            <div className="w-32 h-6 border-y-2 border-slate-700 relative overflow-hidden rounded-lg">
+               <div className="absolute inset-0 flex gap-4 animate-scroll-left" style={{ animationDuration: `${2/flowSpeed}s` }}>
+                  {[1,2,3,4,5,6].map(i => <div key={i} className="h-full w-4 bg-cyan-500/30 skew-x-12 shrink-0" />)}
+               </div>
+            </div>
+            <style>{`
+              @keyframes scroll-left {
+                from { transform: translateX(0); }
+                to { transform: translateX(-40px); }
+              }
+              .animate-scroll-left { animation: scroll-left linear infinite; }
+            `}</style>
+          </div>
+        );
+      case 'cyl-force':
+        const ext = Math.min(100, Math.max(10, (inputs.p * inputs.a) / 1000));
+        return (
+          <div className="flex items-center justify-center h-24 w-full px-4">
+            <div className="w-16 h-10 bg-slate-800 border-2 border-slate-700 rounded-lg relative z-10" />
+            <div 
+              className="h-4 bg-slate-600 rounded-r-lg transition-all duration-500 border-y border-r border-slate-500"
+              style={{ width: `${ext}%`, maxWidth: '100px' }}
+            />
+            <div className="ml-2 w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+          </div>
+        );
+      case 'torque':
+        const tVal = inputs.f * inputs.d;
+        return (
+          <div className="flex items-center justify-center h-24 w-full">
+            <div className="relative w-16 h-16">
+               <div className="absolute inset-0 border-4 border-dashed border-orange-500/20 rounded-full animate-spin" style={{ animationDuration: `${10/Math.max(1, tVal/10)}s` }} />
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <RotateCw size={32} className="text-orange-500 opacity-60" />
+               </div>
+            </div>
+          </div>
+        );
+      case 'pot-mec':
+        return (
+          <div className="flex items-center justify-center h-24 w-full">
+            <div className="relative">
+               <Zap size={40} className="text-yellow-500 animate-pulse" />
+               <div className="absolute inset-0 bg-yellow-400 blur-xl opacity-20 animate-pulse" />
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="mb-4 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
+      {renderSimulation()}
+    </div>
+  );
+};
+
 const getCalcIcon = (id: string, active: boolean) => {
   const iconSize = 20;
-  const commonClasses = "transition-all";
   
   switch (id) {
     case 'h-press': 
@@ -203,6 +302,10 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
 
                 <div className="bg-slate-950 border border-slate-800 rounded-[32px] p-8 flex flex-col items-center justify-center text-center shadow-inner relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-full h-1 bg-blue-600/50" />
+                  
+                  {/* Visual Simulation Component */}
+                  <SimulationDisplay calcId={activeCalc.id} inputs={inputs} />
+
                   <span className="text-[10px] font-black text-slate-600 uppercase mb-4 tracking-[0.2em] relative z-10">Resultado Final</span>
                   <div className="text-4xl md:text-5xl font-black text-white mb-2 relative z-10 tracking-tighter">
                     {calculateResult().toLocaleString('pt-BR', { maximumFractionDigits: 4 })}
