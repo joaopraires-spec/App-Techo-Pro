@@ -1,8 +1,58 @@
 
 import React, { useState } from 'react';
 import { CALCULATORS } from '../constants';
-import { Lock, Calculator as CalcIcon, Info, ChevronRight, Settings2, Crown } from 'lucide-react';
+import { Lock, Calculator as CalcIcon, Info, ChevronRight, Crown, Droplets, Zap, Activity, Cylinder, RotateCw, Waves } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const getCalcIcon = (id: string, active: boolean) => {
+  const iconSize = 20;
+  const commonClasses = "transition-all";
+  
+  switch (id) {
+    case 'h-press': 
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-blue-600/20 text-blue-400 group-hover:bg-blue-600 group-hover:text-white`}>
+          <Droplets size={iconSize} />
+        </div>
+      );
+    case 'mag-force':
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-purple-600/20 text-purple-400 group-hover:bg-purple-600 group-hover:text-white`}>
+          <Activity size={iconSize} />
+        </div>
+      );
+    case 'flow-rate':
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-600/20 text-cyan-400 group-hover:bg-cyan-600 group-hover:text-white`}>
+          <Waves size={iconSize} />
+        </div>
+      );
+    case 'cyl-force':
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/20 text-blue-300 group-hover:bg-blue-500 group-hover:text-white`}>
+          <Cylinder size={iconSize} />
+        </div>
+      );
+    case 'torque':
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-orange-600/20 text-orange-400 group-hover:bg-orange-600 group-hover:text-white`}>
+          <RotateCw size={iconSize} />
+        </div>
+      );
+    case 'pot-mec':
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-yellow-600/20 text-yellow-400 group-hover:bg-yellow-600 group-hover:text-white`}>
+          <Zap size={iconSize} />
+        </div>
+      );
+    default:
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-slate-800 text-slate-400`}>
+          <CalcIcon size={iconSize} />
+        </div>
+      );
+  }
+};
 
 const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
   const [activeCalc, setActiveCalc] = useState(CALCULATORS[0]);
@@ -17,11 +67,17 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
   const calculateResult = () => {
     switch (activeCalc.id) {
       case 'h-press': return inputs.force / inputs.area;
-      case 'cyl-force': return (inputs.pressure * 100000) * (Math.PI * Math.pow(inputs.diameter/1000, 2) / 4) / 1000;
-      case 'pot-mec': return (inputs.torque * inputs.rpm) / 9550;
+      case 'mag-force': return inputs.b * inputs.i * inputs.l;
+      case 'flow-rate': return inputs.v / inputs.t;
+      case 'cyl-force': return inputs.p * inputs.a;
+      case 'torque': return inputs.f * inputs.d;
+      case 'pot-mec': return inputs.w / inputs.t;
       default: return 0;
     }
   };
+
+  const freeCalcs = CALCULATORS.filter(c => !c.isPremium);
+  const premiumCalcs = CALCULATORS.filter(c => c.isPremium);
 
   return (
     <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto pb-10">
@@ -33,33 +89,73 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-        <div className="lg:col-span-4 space-y-3 md:space-y-4">
-          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-2 px-1">Selecione o Cálculo</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
-            {CALCULATORS.map(calc => (
-              <button
-                key={calc.id}
-                onClick={() => {
-                  setActiveCalc(calc);
-                  setInputs(calc.inputs.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.defaultValue }), {}));
-                  window.scrollTo({ top: 0, behavior: 'smooth' }); // Smooth scroll on mobile
-                }}
-                className={`w-full text-left p-4 md:p-5 rounded-2xl transition-all flex items-center justify-between border active:scale-95 touch-manipulation ${
-                  activeCalc.id === calc.id 
-                    ? 'bg-blue-600 border-blue-500 text-white shadow-xl shadow-blue-900/20' 
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-sm md:text-base">{calc.name}</p>
-                    {calc.isPremium && <Crown size={12} className={activeCalc.id === calc.id ? 'text-blue-200' : 'text-amber-500'} />}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Gratuitas Section */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 px-1">
+               <CalcIcon size={14} className="text-slate-500" />
+               <h3 className="text-xs font-black text-slate-200 uppercase tracking-widest">Gratuitas</h3>
+            </div>
+            <div className="space-y-3">
+              {freeCalcs.map(calc => (
+                <button
+                  key={calc.id}
+                  onClick={() => {
+                    setActiveCalc(calc);
+                    setInputs(calc.inputs.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.defaultValue }), {}));
+                  }}
+                  className={`w-full text-left p-3 md:p-4 rounded-[20px] transition-all flex items-center gap-4 group border ${
+                    activeCalc.id === calc.id 
+                      ? 'bg-slate-800/80 border-blue-600/50 shadow-lg' 
+                      : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  {getCalcIcon(calc.id, activeCalc.id === calc.id)}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-white text-sm md:text-base truncate">{calc.name}</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1 mb-1">{calc.description}</p>
+                    <p className="text-[10px] font-mono text-blue-500 font-bold">{calc.formula}</p>
                   </div>
-                  <p className={`text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-0.5 ${activeCalc.id === calc.id ? 'text-blue-200' : 'text-slate-500'}`}>{calc.category}</p>
-                </div>
-                {calc.isPremium && !isPremium ? <Lock size={14} className="text-amber-500 shrink-0" /> : <ChevronRight size={16} className="shrink-0" />}
-              </button>
-            ))}
+                  <ChevronRight size={16} className={`shrink-0 transition-transform ${activeCalc.id === calc.id ? 'text-blue-500 translate-x-1' : 'text-slate-700'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Premium Section */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 px-1">
+               <Crown size={14} className="text-amber-500" />
+               <h3 className="text-xs font-black text-slate-200 uppercase tracking-widest">Premium</h3>
+            </div>
+            <div className="space-y-3">
+              {premiumCalcs.map(calc => (
+                <button
+                  key={calc.id}
+                  onClick={() => {
+                    setActiveCalc(calc);
+                    setInputs(calc.inputs.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.defaultValue }), {}));
+                  }}
+                  className={`w-full text-left p-3 md:p-4 rounded-[20px] transition-all flex items-center gap-4 group border ${
+                    activeCalc.id === calc.id 
+                      ? 'bg-slate-800/80 border-amber-600/30 shadow-lg' 
+                      : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  {getCalcIcon(calc.id, activeCalc.id === calc.id)}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-white text-sm md:text-base truncate">{calc.name}</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1 mb-1">{calc.description}</p>
+                    <p className="text-[10px] font-mono text-blue-500 font-bold">{calc.formula}</p>
+                  </div>
+                  {!isPremium ? (
+                    <Lock size={14} className="text-amber-500 shrink-0" />
+                  ) : (
+                    <ChevronRight size={16} className={`shrink-0 transition-transform ${activeCalc.id === calc.id ? 'text-blue-500 translate-x-1' : 'text-slate-700'}`} />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -99,7 +195,7 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
                         inputMode="decimal"
                         value={inputs[input.key]}
                         onChange={(e) => handleInputChange(input.key, e.target.value)}
-                        className="w-full bg-slate-950 border-slate-800 rounded-2xl px-5 py-4 text-white font-bold focus:ring-2 focus:ring-blue-600 outline-none transition-all text-lg"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white font-bold focus:ring-2 focus:ring-blue-600 outline-none transition-all text-lg"
                       />
                     </div>
                   ))}
