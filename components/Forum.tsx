@@ -15,7 +15,10 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
   ]);
   
   const [showForm, setShowForm] = useState(false);
+  const [isTipVisible, setIsTipVisible] = useState(true);
   const [newPost, setNewPost] = useState({ title: location.state?.initialTitle || '', content: '' });
+
+  const dailySuggestion = "Como a Indústria 4.0 está mudando o diagnóstico de falhas em tempo real?";
 
   const handlePostSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,12 +51,31 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
         <button onClick={() => setShowForm(true)} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg"><Plus size={20} /> Nova Discussão</button>
       </div>
 
-      <div className="bg-gradient-to-r from-blue-900/20 to-slate-900 border border-blue-800/30 p-6 rounded-3xl mb-8 relative overflow-hidden group">
-        <div className="relative z-10">
-          <h3 className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Sugestão de Assunto do Dia</h3>
-          <p className="text-lg font-bold text-white">"Como a Indústria 4.0 está mudando o diagnóstico de falhas em tempo real?"</p>
+      {isTipVisible && (
+        <div 
+          onClick={() => {
+            setNewPost(prev => ({ ...prev, title: dailySuggestion }));
+            setShowForm(true);
+          }}
+          className="bg-gradient-to-r from-blue-900/20 to-slate-900 border border-blue-800/30 p-6 rounded-3xl mb-8 relative overflow-hidden group cursor-pointer hover:border-blue-500/50 transition-all active:scale-[0.99] touch-manipulation"
+        >
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsTipVisible(false);
+            }}
+            className="absolute top-4 right-4 p-2 bg-slate-800/50 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-all z-20"
+            title="Fechar sugestão"
+          >
+            <X size={16} />
+          </button>
+          <div className="relative z-10">
+            <h3 className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Sugestão de Assunto do Dia</h3>
+            <p className="text-lg font-bold text-white">"{dailySuggestion}"</p>
+          </div>
+          <div className="absolute top-[-20%] right-[-5%] w-64 h-64 bg-blue-600/5 rounded-full blur-3xl group-hover:bg-blue-600/10 transition-all duration-700" />
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
