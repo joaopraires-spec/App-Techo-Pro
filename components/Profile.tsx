@@ -2,13 +2,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, UserPlan } from '../types';
 import { PRICING, MERCADO_PAGO_LINKS, INITIAL_ARTICLES } from '../constants';
-// Added Crown and CheckSquare to the lucide-react imports
 import { 
   Shield, Gem, Star, Check, Camera, Mail, Briefcase, CreditCard, 
   ExternalLink, CheckCircle2, Award, Zap, Edit2, Save, X, 
   BarChart, History, Target, MessageSquare, BookOpen, 
   Calculator, RefreshCw, ChevronRight, User as UserIcon,
-  Trophy, TrendingUp, Layout, Crown, CheckSquare, Upload, Image as ImageIcon
+  Trophy, TrendingUp, Layout, Crown, CheckSquare, Upload, Image as ImageIcon,
+  Lock
 } from 'lucide-react';
 
 const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }> = ({ user, setUser }) => {
