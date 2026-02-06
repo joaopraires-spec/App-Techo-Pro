@@ -22,6 +22,7 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
   const navigate = useNavigate();
   const [tip, setTip] = useState("Carregando dica técnica do dia...");
   const [isTipVisible, setIsTipVisible] = useState(true);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     getDailyTip(user.area).then(setTip);
@@ -30,12 +31,17 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
   const progress = (user.readingGoals.currentMinutesToday / user.readingGoals.dailyMinutes) * 100;
 
   const handleTipClick = () => {
+    if (isExiting) return;
     navigate('/library');
   };
 
   const handleCloseTip = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsTipVisible(false);
+    setIsExiting(true);
+    // Aguarda a animação de 500ms terminar antes de remover do DOM
+    setTimeout(() => {
+      setIsTipVisible(false);
+    }, 500);
   };
 
   return (
@@ -54,7 +60,9 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
       {isTipVisible && (
         <div 
           onClick={handleTipClick}
-          className="bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-800/50 p-5 md:p-8 rounded-[32px] relative overflow-hidden group cursor-pointer transition-all hover:shadow-2xl hover:shadow-blue-900/10 active:scale-[0.99] touch-manipulation"
+          className={`bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-800/50 p-5 md:p-8 rounded-[32px] relative overflow-hidden group cursor-pointer transition-all duration-500 ease-in-out hover:shadow-2xl hover:shadow-blue-900/10 active:scale-[0.99] touch-manipulation ${
+            isExiting ? 'opacity-0 translate-y-12 scale-95 pointer-events-none' : 'opacity-100 translate-y-0 scale-100'
+          }`}
         >
           <button 
             onClick={handleCloseTip}

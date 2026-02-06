@@ -1,9 +1,19 @@
 
 import React, { useState } from 'react';
 import { UserProfile, UserPlan, ForumPost } from '../types';
-// Fixing react-router-dom imports to ensure all members are correctly exported
-import { MessageSquare, Plus, Search, User as UserIcon, Calendar, ArrowRight, X, Trash2, Pencil, ShieldAlert } from 'lucide-react';
+import { MessageSquare, Plus, Search, User as UserIcon, Calendar, ArrowRight, X, Trash2, Pencil, ShieldAlert, ArrowLeft, Send, Check } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+
+interface PostReply {
+  id: string;
+  postId: string;
+  author: string;
+  authorEmail: string;
+  date: string;
+  content: string;
+  isEdited: boolean;
+  editedBy?: string;
+}
 
 const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
   const location = useLocation();
@@ -67,10 +77,23 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
       replies: 6 
     }
   ]);
+
+  // Estado para comentários (simulados)
+  const [replies, setReplies] = useState<PostReply[]>([
+    { id: 'r1', postId: '1', author: 'Eng. Carlos', authorEmail: 'carlos@tech.com', date: '16/05/2024', content: 'Eu recomendo verificar se a granulometria do material de alimentação não mudou drasticamente.', isEdited: false },
+    { id: 'r2', postId: '1', author: 'Sérgio Manut', authorEmail: 'sergio@manut.com', date: '17/05/2024', content: 'Manganês com 18-20% costuma durar mais em britagem de granito.', isEdited: false },
+  ]);
   
   const [showForm, setShowForm] = useState(false);
   const [isTipVisible, setIsTipVisible] = useState(true);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [newPost, setNewPost] = useState({ title: location.state?.initialTitle || '', content: '' });
+  const [replyText, setReplyText] = useState('');
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+
+  const activePost = posts.find(p => p.id === selectedPostId);
+  const activeReplies = replies.filter(r => r.postId === selectedPostId);
 
   const dailySuggestion = "Como a Indústria 4.0 está mudando o diagnóstico de falhas em tempo real?";
 
@@ -89,11 +112,169 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
     setNewPost({ title: '', content: '' });
   };
 
+  const handleReplySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyText.trim() || !selectedPostId) return;
+
+    const newReply: PostReply = {
+      id: Date.now().toString(),
+      postId: selectedPostId,
+      author: user.name,
+      authorEmail: user.email,
+      date: new Date().toLocaleDateString('pt-BR'),
+      content: replyText,
+      isEdited: false
+    };
+
+    setReplies([...replies, newReply]);
+    setReplyText('');
+    
+    // Atualiza contador no post
+    setPosts(posts.map(p => p.id === selectedPostId ? { ...p, replies: p.replies + 1 } : p));
+  };
+
+  const handleEditReply = (reply: PostReply) => {
+    setEditingReplyId(reply.id);
+    setEditText(reply.content);
+  };
+
+  const saveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editText.trim() || !editingReplyId) return;
+
+    setReplies(replies.map(r => 
+      r.id === editingReplyId 
+        ? { ...r, content: editText, isEdited: true, editedBy: user.name } 
+        : r
+    ));
+    setEditingReplyId(null);
+    setEditText('');
+  };
+
   const deletePost = (id: string) => {
     if (window.confirm('Excluir este tópico permanentemente?')) {
       setPosts(posts.filter(p => p.id !== id));
+      if (selectedPostId === id) setSelectedPostId(null);
     }
   };
+
+  if (selectedPostId && activePost) {
+    return (
+      <div className="space-y-8 max-w-4xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <button 
+          onClick={() => setSelectedPostId(null)} 
+          className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
+        >
+          <ArrowLeft size={18} /> Voltar para o Fórum
+        </button>
+
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-[32px] shadow-2xl relative overflow-hidden">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-white text-xl">
+              {activePost.author.charAt(0)}
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-white tracking-tight">{activePost.title}</h2>
+              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mt-1">
+                Publicado por {activePost.author} • {activePost.date}
+              </p>
+            </div>
+          </div>
+          <div className="text-slate-300 leading-relaxed text-lg whitespace-pre-wrap mb-8">
+            {activePost.content}
+          </div>
+          <div className="pt-6 border-t border-slate-800 flex items-center gap-6">
+            <div className="text-blue-400 text-xs font-bold flex items-center gap-2">
+              <MessageSquare size={16} /> {activePost.replies} Respostas na discussão
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-bold text-white px-2">Comentários e Soluções</h3>
+          
+          <div className="space-y-4">
+            {activeReplies.map(reply => (
+              <div key={reply.id} className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl relative group">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-xs font-bold text-slate-400 border border-slate-700">
+                      {reply.author.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white">{reply.author}</p>
+                      <p className="text-[9px] text-slate-500 uppercase tracking-widest">{reply.date}</p>
+                    </div>
+                  </div>
+                  
+                  {(reply.authorEmail === user.email || isAdmin) && (
+                    <button 
+                      onClick={() => handleEditReply(reply)}
+                      className="opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-blue-400 transition-all"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  )}
+                </div>
+
+                {editingReplyId === reply.id ? (
+                  <form onSubmit={saveEdit} className="space-y-3">
+                    <textarea 
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="w-full bg-slate-950 border border-blue-600/50 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 min-h-[100px]"
+                    />
+                    <div className="flex gap-2">
+                      <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                        <Check size={14} /> Salvar Alterações
+                      </button>
+                      <button onClick={() => setEditingReplyId(null)} className="text-slate-500 hover:text-white px-4 py-2 text-xs font-bold">
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-300 leading-relaxed">{reply.content}</p>
+                    {reply.isEdited && (
+                      <p className="text-[8px] text-slate-600 font-black uppercase italic tracking-tighter">
+                        Editado por {reply.editedBy}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {activeReplies.length === 0 && (
+              <div className="text-center py-10 bg-slate-900/20 border border-dashed border-slate-800 rounded-3xl">
+                <p className="text-slate-500 text-sm italic">Nenhuma resposta técnica enviada ainda. Seja o primeiro!</p>
+              </div>
+            )}
+          </div>
+
+          <form onSubmit={handleReplySubmit} className="bg-slate-900 border border-slate-800 p-6 rounded-[32px] shadow-xl mt-8">
+            <h4 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Sua Contribuição Técnica</h4>
+            <div className="relative">
+              <textarea 
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Digite sua resposta ou sugestão de solução..."
+                className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white text-sm outline-none focus:ring-2 focus:ring-blue-600 transition-all min-h-[120px] pb-14"
+              />
+              <button 
+                type="submit"
+                disabled={!replyText.trim()}
+                className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-600 text-white p-3 rounded-xl shadow-lg transition-all flex items-center gap-2 font-bold text-xs uppercase"
+              >
+                Enviar Resposta <Send size={16} />
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-20">
@@ -153,7 +334,12 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
               <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed mb-4">{post.content}</p>
               <div className="flex items-center justify-between">
                 <div className="text-blue-400 text-xs font-bold flex items-center gap-1"><MessageSquare size={14} /> {post.replies} Respostas</div>
-                <button className="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase">Participar <ArrowRight size={14} /></button>
+                <button 
+                  onClick={() => setSelectedPostId(post.id)}
+                  className="text-slate-500 hover:text-white flex items-center gap-1 text-xs font-bold uppercase"
+                >
+                  Participar <ArrowRight size={14} />
+                </button>
               </div>
             </div>
           ))}
