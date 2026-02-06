@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { INITIAL_ARTICLES, CATEGORIES_FREE, CATEGORIES_PREMIUM, INITIAL_CATALOGS, LEVELS } from '../constants';
-// Added X to the import list below to resolve the "Cannot find name 'X'" error
 import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle, Plus, Upload, Trash2, FolderPlus, File as FileIcon, X } from 'lucide-react';
 import { Link, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { UserProfile, Catalog } from '../types';
@@ -88,7 +87,10 @@ const ArticleDetail: React.FC<{
               <span className="bg-blue-600/20 border border-blue-600/30 text-blue-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{article.category}</span>
               {article.isPremium && <Crown size={14} className="text-amber-500" />}
             </div>
-            <h1 className="text-2xl md:text-4xl font-black text-white mt-3 md:mt-4 tracking-tight leading-tight">{article.title}</h1>
+            <h1 className="text-2xl md:text-4xl font-black text-white mt-3 md:mt-4 tracking-tight leading-tight flex items-center flex-wrap gap-2">
+              {article.title}
+              {article.isPremium && <Crown size={24} className="text-amber-500 ml-1" />}
+            </h1>
             <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-3 md:mt-4 text-slate-500 text-[10px] md:text-sm font-bold uppercase tracking-widest">
               <span className="flex items-center gap-1.5"><Clock size={14} /> {article.readTime} min</span>
               <span className="flex items-center gap-1.5"><Tag size={14} /> Especialista</span>
@@ -283,7 +285,10 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
                     </div>
                   </div>
                   <div className="p-5 flex-1 flex flex-col">
-                    <h4 className="font-bold text-white text-base leading-tight mb-4 group-hover:text-blue-400 transition-colors line-clamp-2">{article.title}</h4>
+                    <h4 className="font-bold text-white text-base leading-tight mb-4 group-hover:text-blue-400 transition-colors line-clamp-2">
+                      {article.title}
+                      {article.isPremium && <Crown size={14} className="inline-block ml-1.5 text-amber-500 mb-0.5" />}
+                    </h4>
                     <div className="mt-auto flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                       <span className="flex items-center gap-1.5"><Clock size={12} /> {article.readTime} min</span>
                       <span className="flex items-center gap-1 text-blue-500">Ler Agora <ChevronRight size={12} /></span>

@@ -15,8 +15,8 @@ export const MERCADO_PAGO_LINKS = {
   ANNUAL: 'https://mpago.la/1FnF6qV'
 };
 
-export const CATEGORIES_FREE = ['Hidráulica', 'Mecânica', 'Informática', 'Britagem / Mineração', 'Segurança', 'Inspeção e Confiabilidade'];
-export const CATEGORIES_PREMIUM = ['Sistemas Térmicos', 'Elétrica', 'Pneumática', 'Automação', 'Instrumentação', 'Fadiga dos Materiais', 'Magnetismo', 'Metalografia'];
+export const CATEGORIES_FREE = ['Hidráulica', 'Mecânica', 'Informática', 'Segurança'];
+export const CATEGORIES_PREMIUM = ['Britagem / Mineração', 'Inspeção e Confiabilidade', 'Sistemas Térmicos', 'Elétrica', 'Pneumática', 'Automação', 'Instrumentação', 'Fadiga dos Materiais', 'Magnetismo', 'Metalografia'];
 
 const categoryImages: Record<string, string> = {
   'Hidráulica': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',

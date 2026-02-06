@@ -64,6 +64,7 @@ export interface Checklist {
   location?: string;
   inspectorName?: string;
   role?: string;
+  images?: string[];
 }
 
 export interface ForumPost {
