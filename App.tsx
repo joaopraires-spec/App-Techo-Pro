@@ -251,10 +251,21 @@ const AppContent: React.FC = () => {
     localStorage.setItem('techpro_user', JSON.stringify(updatedUser));
   };
 
+  const validateEmailFormat = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleAuthSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
+    
+    if (!validateEmailFormat(email)) {
+      alert("Por favor, insira um e-mail em formato válido.");
+      return;
+    }
+
     const password = formData.get('password') as string;
     const name = (formData.get('name') as string) || (email === ADMIN_EMAIL ? 'Administrador' : 'Usuário Tech');
     const area = (formData.get('area') as string) || 'Manutenção Industrial';
@@ -293,6 +304,11 @@ const AppContent: React.FC = () => {
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const name = formData.get('name') as string;
+
+    if (!validateEmailFormat(email)) {
+      alert("Por favor, insira um e-mail em formato válido.");
+      return;
+    }
 
     const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
     const foundUser = registeredUsers.find((u: any) => u.email === email && u.name.toLowerCase().includes(name.toLowerCase()));
