@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-import { Send, CheckCircle2, Phone, ListFilter } from 'lucide-react';
+import { Send, CheckCircle2, Phone, ListFilter, AlertCircle } from 'lucide-react';
 
 const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   
-  // Estado para os campos do formulário para torná-los controlados e pré-preenchidos
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email,
@@ -16,7 +16,6 @@ const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
     message: ''
   });
 
-  // Atualiza os campos se o objeto user mudar (ex: após edição no perfil)
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
@@ -26,13 +25,60 @@ const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
     }));
   }, [user]);
 
+  const applyPhoneMask = (value: string) => {
+    // Remove tudo que não for dígito
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    
+    let masked = digits;
+    if (digits.length > 0) {
+      masked = `(${digits.slice(0, 2)}`;
+    }
+    if (digits.length > 2) {
+      masked = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}`;
+    }
+    if (digits.length > 7) {
+      masked = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+    }
+    return masked;
+  };
+
+  const validatePhone = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length === 0) return null;
+    
+    // Validação básica brasileira: Celulares tem 11 dígitos e começam com 9 após o DDD
+    if (digits.length === 11) {
+      if (digits[2] !== '9') {
+        return "Celulares devem começar com o dígito 9.";
+      }
+      return null;
+    } else if (digits.length < 10) {
+      return "Telefone incompleto.";
+    }
+    return null;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'phone') {
+      const maskedValue = applyPhoneMask(value);
+      setFormData(prev => ({ ...prev, [name]: maskedValue }));
+      setPhoneError(validatePhone(maskedValue));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const error = validatePhone(formData.phone);
+    if (error) {
+      setPhoneError(error);
+      return;
+    }
+
     setStatus('sending');
     // Simulação de envio
     setTimeout(() => setStatus('sent'), 1500);
@@ -49,7 +95,7 @@ const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
         <button 
           onClick={() => {
             setStatus('idle');
-            setFormData(prev => ({ ...prev, message: '', subject: '' }));
+            setFormData(prev => ({ ...prev, message: '', subject: '', phone: '' }));
           }} 
           className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl font-bold transition-all"
         >
@@ -103,9 +149,14 @@ const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
               value={formData.phone}
               onChange={handleChange}
               required 
-              className="w-full bg-slate-800 border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all" 
+              className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all ${phoneError ? 'border-red-500/50 focus:ring-red-500' : 'border-slate-700'}`}
               placeholder="(00) 00000-0000"
             />
+            {phoneError && (
+              <p className="text-red-400 text-[10px] mt-1 flex items-center gap-1">
+                <AlertCircle size={10} /> {phoneError}
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-2 flex items-center gap-2">
@@ -155,7 +206,7 @@ const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
 
         <button 
           type="submit"
-          disabled={status === 'sending'}
+          disabled={status === 'sending' || !!phoneError}
           className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-3"
         >
           {status === 'sending' ? 'Enviando...' : 'Enviar Mensagem para o Desenvolvedor'} <Send size={20} />
