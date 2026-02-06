@@ -19,12 +19,12 @@ export const CATEGORIES_FREE = ['Hidráulica', 'Mecânica', 'Informática', 'Bri
 export const CATEGORIES_PREMIUM = ['Sistemas Térmicos', 'Elétrica', 'Pneumática', 'Automação', 'Instrumentação', 'Fadiga dos Materiais', 'Magnetismo', 'Metalografia'];
 
 const categoryImages: Record<string, string> = {
-  'Hidráulica': 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=2070&auto=format&fit=crop',
-  'Mecânica': 'https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=2070&auto=format&fit=crop',
-  'Informática': 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop',
-  'Britagem / Mineração': 'https://images.unsplash.com/photo-1583162855819-0f04e9086884?q=80&w=2070&auto=format&fit=crop',
-  'Segurança': 'https://images.unsplash.com/photo-1590486803833-ffc6f98629e8?q=80&w=2070&auto=format&fit=crop',
-  'Inspeção e Confiabilidade': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop',
+  'Hidráulica': 'https://images.unsplash.com/photo-1503694978374-8a2fa686963a?q=80&w=2070&auto=format&fit=crop',
+  'Mecânica': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop',
+  'Informática': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
+  'Britagem / Mineração': 'https://images.unsplash.com/photo-1579450841234-491c2e43909c?q=80&w=2070&auto=format&fit=crop',
+  'Segurança': 'https://images.unsplash.com/photo-1584467541268-b040f83be3fd?q=80&w=2070&auto=format&fit=crop',
+  'Inspeção e Confiabilidade': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=2070&auto=format&fit=crop',
   'Sistemas Térmicos': 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2070&auto=format&fit=crop',
   'Elétrica': 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=2070&auto=format&fit=crop',
   'Pneumática': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop',
