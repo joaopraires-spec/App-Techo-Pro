@@ -123,7 +123,7 @@ const ArticleDetail: React.FC<{
   );
 };
 
-const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean }> = ({ isPremium, isAdmin }) => {
+const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserProfile }> = ({ isPremium, isAdmin, user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [viewTab, setViewTab] = useState<'articles' | 'catalogs'>('articles');
@@ -250,33 +250,48 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean }> = ({ isPre
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredArticles.map(article => (
-              <Link 
-                key={article.id}
-                to={`/library/article/${article.id}`}
-                className="bg-slate-900 border border-slate-800 rounded-[24px] overflow-hidden group hover:border-blue-500 transition-all active:scale-95 touch-manipulation flex flex-col"
-              >
-                <div className="h-40 relative overflow-hidden">
-                  <img src={article.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                  {article.isPremium && (
-                    <div className="absolute top-4 right-4 bg-amber-500 text-slate-950 p-1.5 rounded-lg shadow-lg">
-                      <Crown size={14} />
+            {filteredArticles.map(article => {
+              const isRead = user.readArticlesIds.includes(article.id);
+              const isStarted = user.startedArticlesIds?.includes(article.id);
+              
+              return (
+                <Link 
+                  key={article.id}
+                  to={`/library/article/${article.id}`}
+                  className="bg-slate-900 border border-slate-800 rounded-[24px] overflow-hidden group hover:border-blue-500 transition-all active:scale-95 touch-manipulation flex flex-col"
+                >
+                  <div className="h-40 relative overflow-hidden">
+                    <img src={article.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                    {article.isPremium && (
+                      <div className="absolute top-4 right-4 bg-amber-500 text-slate-950 p-1.5 rounded-lg shadow-lg">
+                        <Crown size={14} />
+                      </div>
+                    )}
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                       <span className="bg-blue-600/20 border border-blue-600/30 text-blue-400 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">{article.category}</span>
+                       {isRead && (
+                         <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1">
+                           <CheckCircle2 size={10} /> Concluído
+                         </span>
+                       )}
+                       {(!isRead && isStarted) && (
+                         <span className="bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                           <Clock size={10} /> Em Curso
+                         </span>
+                       )}
                     </div>
-                  )}
-                  <div className="absolute bottom-4 left-4">
-                     <span className="bg-blue-600/20 border border-blue-600/30 text-blue-400 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">{article.category}</span>
                   </div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col">
-                  <h4 className="font-bold text-white text-base leading-tight mb-4 group-hover:text-blue-400 transition-colors line-clamp-2">{article.title}</h4>
-                  <div className="mt-auto flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                    <span className="flex items-center gap-1.5"><Clock size={12} /> {article.readTime} min</span>
-                    <span className="flex items-center gap-1 text-blue-500">Ler Agora <ChevronRight size={12} /></span>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <h4 className="font-bold text-white text-base leading-tight mb-4 group-hover:text-blue-400 transition-colors line-clamp-2">{article.title}</h4>
+                    <div className="mt-auto flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                      <span className="flex items-center gap-1.5"><Clock size={12} /> {article.readTime} min</span>
+                      <span className="flex items-center gap-1 text-blue-500">Ler Agora <ChevronRight size={12} /></span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </>
       ) : (
@@ -496,7 +511,7 @@ const Library: React.FC<{
 }> = ({ isPremium, isAdmin, user, onUpdateUser }) => {
   return (
     <Routes>
-      <Route path="/" element={<LibraryList isPremium={isPremium} isAdmin={isAdmin} />} />
+      <Route path="/" element={<LibraryList isPremium={isPremium} isAdmin={isAdmin} user={user} />} />
       <Route path="/article/:articleId" element={<ArticleDetail isPremium={isPremium} user={user} onUpdateUser={onUpdateUser} />} />
     </Routes>
   );

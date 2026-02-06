@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { UserProfile, Checklist } from '../types';
-import { Plus, Trash2, CheckCircle2, Circle, FileDown, Search, CheckSquare, MapPin, User as UserIcon, Briefcase } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Circle, FileDown, Search, CheckSquare, MapPin, User as UserIcon, Briefcase, X } from 'lucide-react';
 
 const Checklists: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [checklists, setChecklists] = useState<Checklist[]>([
@@ -21,6 +21,15 @@ const Checklists: React.FC<{ user: UserProfile }> = ({ user }) => {
     }
   ]);
   const [activeChecklist, setActiveChecklist] = useState<Checklist | null>(checklists[0]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Estado para o novo formulário de checklist
+  const [newChecklistData, setNewChecklistData] = useState({
+    title: '',
+    category: '',
+    location: '',
+    items: [''] // Começa com um item vazio
+  });
 
   const toggleItem = (checklistId: string, itemId: string) => {
     setChecklists(prev => prev.map(cl => {
@@ -38,6 +47,52 @@ const Checklists: React.FC<{ user: UserProfile }> = ({ user }) => {
     window.print();
   };
 
+  const handleAddItemField = () => {
+    setNewChecklistData(prev => ({
+      ...prev,
+      items: [...prev.items, '']
+    }));
+  };
+
+  const handleRemoveItemField = (index: number) => {
+    setNewChecklistData(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleItemChange = (index: number, value: string) => {
+    const newItems = [...newChecklistData.items];
+    newItems[index] = value;
+    setNewChecklistData(prev => ({ ...prev, items: newItems }));
+  };
+
+  const handleCreateChecklist = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const newCl: Checklist = {
+      id: Date.now().toString(),
+      title: newChecklistData.title,
+      category: newChecklistData.category,
+      location: newChecklistData.location,
+      inspectorName: user.name,
+      role: user.area,
+      lastUpdated: new Date().toISOString(),
+      items: newChecklistData.items
+        .filter(text => text.trim() !== '')
+        .map((text, idx) => ({
+          id: `new-item-${idx}-${Date.now()}`,
+          text,
+          completed: false
+        }))
+    };
+
+    setChecklists([newCl, ...checklists]);
+    setActiveChecklist(newCl);
+    setIsModalOpen(false);
+    setNewChecklistData({ title: '', category: '', location: '', items: [''] });
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
@@ -45,7 +100,10 @@ const Checklists: React.FC<{ user: UserProfile }> = ({ user }) => {
           <h2 className="text-3xl font-bold text-white">Checklists Operacionais</h2>
           <p className="text-slate-400">Registro profissional com exportação para auditoria.</p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95"
+        >
           <Plus size={20} /> Novo Relatório
         </button>
       </div>
@@ -77,11 +135,11 @@ const Checklists: React.FC<{ user: UserProfile }> = ({ user }) => {
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 print:bg-white print:text-black print:border-none print:shadow-none">
               <div className="flex items-center justify-between mb-8">
                 <div className="hidden print:block">
-                  <h1 className="text-2xl font-black mb-1">RELATÓRIO TÉCNICO DE INSPEÇÃO</h1>
+                  <h1 className="text-2xl font-black mb-1 text-slate-900">RELATÓRIO TÉCNICO DE INSPEÇÃO</h1>
                   <p className="text-xs uppercase font-bold text-slate-600">Documento Gerado via Tech Pro v2.5</p>
                 </div>
                 <h3 className="text-2xl font-bold text-white print:hidden">{activeChecklist.title}</h3>
-                <button onClick={handleExportPDF} className="no-print flex items-center gap-2 text-blue-400 font-bold text-sm bg-blue-600/10 px-4 py-2 rounded-lg border border-blue-600/20"><FileDown size={18} /> Exportar Relatório</button>
+                <button onClick={handleExportPDF} className="no-print flex items-center gap-2 text-blue-400 font-bold text-sm bg-blue-600/10 px-4 py-2 rounded-lg border border-blue-600/20 hover:bg-blue-600/20 transition-all"><FileDown size={18} /> Exportar Relatório</button>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-8 bg-slate-950/50 p-6 rounded-2xl border border-slate-800 print:bg-slate-50 print:border-slate-200">
@@ -130,7 +188,7 @@ const Checklists: React.FC<{ user: UserProfile }> = ({ user }) => {
               </div>
 
               <div className="no-print mt-10">
-                 <button className="w-full py-4 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 font-bold hover:border-blue-500 transition-all">+ Adicionar Item de Verificação</button>
+                 <button className="w-full py-4 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 font-bold hover:border-blue-500 hover:text-blue-400 transition-all">+ Adicionar Item de Verificação</button>
               </div>
 
               <div className="hidden print:block mt-20 pt-10 border-t">
@@ -149,6 +207,101 @@ const Checklists: React.FC<{ user: UserProfile }> = ({ user }) => {
           )}
         </div>
       </div>
+
+      {/* Modal para Novo Checklist */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/90 z-[100] flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-[32px] p-6 md:p-10 relative shadow-2xl my-8 animate-in fade-in zoom-in-95 duration-300">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+            
+            <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-3">
+              <CheckSquare className="text-blue-500" /> Novo Tipo de Checklist
+            </h3>
+            <p className="text-slate-500 text-sm mb-8">Defina os parâmetros técnicos para o seu novo relatório de campo.</p>
+            
+            <form onSubmit={handleCreateChecklist} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Título do Checklist</label>
+                  <input 
+                    required
+                    value={newChecklistData.title}
+                    onChange={(e) => setNewChecklistData({...newChecklistData, title: e.target.value})}
+                    placeholder="Ex: Inspeção de Correia Transportadora"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Categoria Técnica</label>
+                  <input 
+                    required
+                    value={newChecklistData.category}
+                    onChange={(e) => setNewChecklistData({...newChecklistData, category: e.target.value})}
+                    placeholder="Ex: Mecânica / Elétrica"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Localização Padrão</label>
+                <input 
+                  required
+                  value={newChecklistData.location}
+                  onChange={(e) => setNewChecklistData({...newChecklistData, location: e.target.value})}
+                  placeholder="Ex: Planta Industrial Sul - Setor 04"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Itens de Verificação</label>
+                <div className="space-y-3 max-h-60 overflow-y-auto no-scrollbar pr-2">
+                  {newChecklistData.items.map((item, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input 
+                        required
+                        value={item}
+                        onChange={(e) => handleItemChange(index, e.target.value)}
+                        placeholder={`Item ${index + 1}...`}
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600"
+                      />
+                      {newChecklistData.items.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveItemField(index)}
+                          className="p-3 text-slate-600 hover:text-red-500 transition-colors bg-slate-800/50 rounded-xl"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  type="button"
+                  onClick={handleAddItemField}
+                  className="w-full py-3 border-2 border-dashed border-slate-800 rounded-xl text-slate-500 text-xs font-bold hover:border-blue-500 hover:text-blue-400 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus size={14} /> Adicionar Linha de Verificação
+                </button>
+              </div>
+
+              <button 
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl shadow-xl transition-all uppercase tracking-widest text-xs active:scale-95"
+              >
+                Salvar e Criar Checklist
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
