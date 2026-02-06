@@ -78,7 +78,7 @@ const LGPD: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 flex-1">
               <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">E-mail Direto</p>
-              <p className="text-lg font-bold text-blue-400">privacidade@techproapp.com.br</p>
+              <p className="text-lg font-bold text-blue-400">suporte.techproapp@gmail.com</p>
             </div>
             <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 flex-1">
               <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Tempo de Resposta</p>
