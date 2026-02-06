@@ -14,9 +14,9 @@ import {
 const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }> = ({ user, setUser }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
-    name: user.name,
-    area: user.area,
-    avatar: user.avatar
+    name: user.name || '',
+    area: user.area || '',
+    avatar: user.avatar || ''
   });
   
   const [savedChecklistsCount, setSavedChecklistsCount] = useState(0);
@@ -26,7 +26,14 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
   useEffect(() => {
     const saved = localStorage.getItem('techpro_saved_reports');
     if (saved) {
-      setSavedChecklistsCount(JSON.parse(saved).length);
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setSavedChecklistsCount(parsed.length);
+        }
+      } catch (e) {
+        console.error("Erro ao carregar checklists salvos:", e);
+      }
     }
   }, []);
 
@@ -42,9 +49,9 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
 
   const handleCancel = () => {
     setEditData({
-      name: user.name,
-      area: user.area,
-      avatar: user.avatar
+      name: user.name || '',
+      area: user.area || '',
+      avatar: user.avatar || ''
     });
     setIsEditing(false);
   };
@@ -60,7 +67,7 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
     }
   };
 
-  const readArticles = INITIAL_ARTICLES.filter(art => user.readArticlesIds.includes(art.id));
+  const readArticles = INITIAL_ARTICLES.filter(art => (user.readArticlesIds || []).includes(art.id));
 
   const xpTips = [
     { text: 'Complete um Checklist técnico de inspeção', xp: '+150 XP', icon: CheckCircle2, color: 'text-emerald-500' },
@@ -71,6 +78,17 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
   ];
 
   const isPremium = user.plan === UserPlan.ANNUAL || user.plan === UserPlan.MONTHLY || user.plan === UserPlan.ADMIN;
+
+  // Formatação segura de data
+  const formattedJoinedAt = () => {
+    try {
+      const date = new Date(user.joinedAt);
+      if (isNaN(date.getTime())) return 'Membro Recente';
+      return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    } catch (e) {
+      return 'Membro Recente';
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-24 page-fade-in">
@@ -83,7 +101,7 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
           {/* Avatar Area */}
           <div className="relative group">
             <div className="w-44 h-44 rounded-[40px] border-8 border-slate-800/50 overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-105">
-              <img src={editData.avatar} className="w-full h-full object-cover" alt="Profile Avatar" />
+              <img src={editData.avatar || 'https://i.pravatar.cc/150?u=techpro'} className="w-full h-full object-cover" alt="Profile Avatar" />
             </div>
             {isEditing && (
               <div className="absolute inset-0 bg-slate-950/90 rounded-[40px] flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95">
@@ -126,7 +144,7 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
                     type="text" 
                     placeholder="Link da Imagem" 
                     className="w-full bg-slate-900 border border-slate-700 text-[10px] text-white p-2 rounded-xl outline-none focus:ring-1 focus:ring-blue-600" 
-                    value={editData.avatar.startsWith('data:') ? '' : editData.avatar}
+                    value={(editData.avatar || '').startsWith('data:') ? '' : editData.avatar}
                     onChange={e => setEditData({...editData, avatar: e.target.value})}
                   />
                 </div>
@@ -201,7 +219,7 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
           <div className="hidden lg:flex flex-col gap-4 shrink-0">
              <div className="bg-slate-950/80 border border-slate-800 p-6 rounded-[32px] text-center min-w-[200px] shadow-xl relative group">
                 <p className="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] mb-4">Membro desde</p>
-                <p className="text-lg font-bold text-white mb-1">{new Date(user.joinedAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</p>
+                <p className="text-lg font-bold text-white mb-1">{formattedJoinedAt()}</p>
                 <p className="text-[9px] text-blue-500 font-black uppercase">Conta Verificada</p>
                 <div className="absolute inset-0 bg-blue-600/5 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity" />
              </div>
