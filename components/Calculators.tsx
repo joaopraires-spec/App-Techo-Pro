@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { CALCULATORS } from '../constants';
-import { Lock, Calculator as CalcIcon, Info, ChevronRight, Settings2 } from 'lucide-react';
+import { Lock, Calculator as CalcIcon, Info, ChevronRight, Settings2, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
@@ -50,8 +50,11 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
                     : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
                 }`}
               >
-                <div>
-                  <p className="font-bold text-sm md:text-base">{calc.name}</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-sm md:text-base">{calc.name}</p>
+                    {calc.isPremium && <Crown size={12} className={activeCalc.id === calc.id ? 'text-blue-200' : 'text-amber-500'} />}
+                  </div>
                   <p className={`text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-0.5 ${activeCalc.id === calc.id ? 'text-blue-200' : 'text-slate-500'}`}>{calc.category}</p>
                 </div>
                 {calc.isPremium && !isPremium ? <Lock size={14} className="text-amber-500 shrink-0" /> : <ChevronRight size={16} className="shrink-0" />}
@@ -63,7 +66,10 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
         <div className="lg:col-span-8">
           {activeCalc.isPremium && !isPremium ? (
             <div className="bg-slate-900 border border-amber-500/20 rounded-[32px] p-8 md:p-16 text-center shadow-xl">
-              <Lock size={40} className="text-amber-500 mx-auto mb-6" />
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <Lock size={32} className="text-amber-500" />
+                <Crown size={32} className="text-amber-500" />
+              </div>
               <h3 className="text-xl md:text-2xl font-black text-white mb-3">Cálculo Avançado</h3>
               <p className="text-slate-500 mb-8 max-w-sm mx-auto text-sm">Esta ferramenta avançada de dimensionamento requer assinatura Premium.</p>
               <Link to="/profile" className="bg-amber-500 text-slate-950 px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] w-full md:w-auto inline-block active:scale-95 touch-manipulation">Liberar Agora</Link>
@@ -72,7 +78,10 @@ const Calculators: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
             <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-6 md:p-10 flex flex-col h-full shadow-2xl">
               <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-8">
                 <div className="order-2 md:order-1">
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-2">{activeCalc.name}</h3>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-xl md:text-2xl font-bold text-white">{activeCalc.name}</h3>
+                    {activeCalc.isPremium && <Crown size={20} className="text-amber-500" />}
+                  </div>
                   <p className="text-blue-500 font-mono text-xs md:text-sm font-bold bg-blue-500/10 px-3 py-1 rounded-lg inline-block">Fórmula: {activeCalc.formula}</p>
                 </div>
                 <div className="order-1 md:order-2 self-end md:self-auto bg-slate-800 px-4 py-2 rounded-xl text-blue-400 font-black uppercase tracking-widest text-[9px] md:text-[10px] border border-blue-600/20">

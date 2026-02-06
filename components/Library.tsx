@@ -60,7 +60,9 @@ const ArticleDetail: React.FC<{
           <Lock size={32} className="text-amber-500" />
         </div>
         <div className="space-y-3">
-          <h2 className="text-xl md:text-2xl font-black text-white">Conteúdo Premium</h2>
+          <h2 className="text-xl md:text-2xl font-black text-white flex items-center justify-center gap-2">
+            Conteúdo Premium <Crown size={24} className="text-amber-500" />
+          </h2>
           <p className="text-slate-500 text-sm md:text-base">Este artigo faz parte da base de conhecimento avançada exclusiva para assinantes.</p>
         </div>
         <Link to="/profile" className="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 px-8 py-4 rounded-xl font-black transition-all shadow-lg shadow-amber-500/20 uppercase tracking-widest text-[10px] md:text-xs w-full md:w-auto">
@@ -81,7 +83,10 @@ const ArticleDetail: React.FC<{
           <img src={article.imageUrl} className="w-full h-full object-cover opacity-50" alt="" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8">
-            <span className="bg-blue-600/20 border border-blue-600/30 text-blue-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{article.category}</span>
+            <div className="flex items-center gap-2">
+              <span className="bg-blue-600/20 border border-blue-600/30 text-blue-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{article.category}</span>
+              {article.isPremium && <Crown size={14} className="text-amber-500" />}
+            </div>
             <h1 className="text-2xl md:text-4xl font-black text-white mt-3 md:mt-4 tracking-tight leading-tight">{article.title}</h1>
             <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-3 md:mt-4 text-slate-500 text-[10px] md:text-sm font-bold uppercase tracking-widest">
               <span className="flex items-center gap-1.5"><Clock size={14} /> {article.readTime} min</span>
@@ -148,10 +153,10 @@ const LibraryList: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 pb-2">
+      <div className="flex overflow-x-auto gap-2 pb-4 custom-scrollbar whitespace-nowrap">
         <button 
           onClick={() => setActiveCategory(null)}
-          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${!activeCategory ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border shrink-0 ${!activeCategory ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700'}`}
         >
           Todos
         </button>
@@ -159,9 +164,10 @@ const LibraryList: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
           <button 
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${activeCategory === cat ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border shrink-0 flex items-center gap-2 ${activeCategory === cat ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700'}`}
           >
             {cat}
+            {CATEGORIES_PREMIUM.includes(cat) && <Crown size={12} className={activeCategory === cat ? 'text-blue-200' : 'text-amber-500'} />}
           </button>
         ))}
       </div>
@@ -199,7 +205,6 @@ const LibraryList: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
   );
 };
 
-// Fix for default export error in App.tsx
 const Library: React.FC<{ 
   isPremium: boolean; 
   isAdmin: boolean; 
