@@ -31,7 +31,8 @@ import {
   KeyRound,
   ArrowLeft,
   Eye,
-  EyeOff
+  EyeOff,
+  FileShield
 } from 'lucide-react';
 import { UserPlan, UserProfile } from './types.ts';
 import { ADMIN_EMAIL } from './constants.ts';
@@ -47,6 +48,7 @@ import Contact from './components/Contact.tsx';
 import ProfessionalLevel from './components/ProfessionalLevel.tsx';
 import ReadingHistory from './components/ReadingHistory.tsx';
 import StudyAnalytics from './components/StudyAnalytics.tsx';
+import LGPD from './components/LGPD.tsx';
 import { getDailyTip } from './services/gemini.ts';
 
 declare global {
@@ -469,6 +471,7 @@ const AppContent: React.FC = () => {
             <SidebarItem to="/checklists" icon={CheckSquare} label="Checklists" active={location.pathname.startsWith('/checklists')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/profile" icon={User} label="Perfil & Assinatura" active={location.pathname.startsWith('/profile')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/contact" icon={Send} label="Contato" active={location.pathname.startsWith('/contact')} onClick={() => setIsSidebarOpen(false)} />
+            <SidebarItem to="/lgpd" icon={ShieldCheck} label="Privacidade & LGPD" active={location.pathname.startsWith('/lgpd')} onClick={() => setIsSidebarOpen(false)} />
             {isAdmin && <SidebarItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname.startsWith('/admin')} onClick={() => setIsSidebarOpen(false)} />}
           </nav>
 
@@ -508,6 +511,7 @@ const AppContent: React.FC = () => {
             <Route path="/forum" element={<Forum user={user} />} />
             <Route path="/profile" element={<Profile user={user} setUser={handleUpdateUser} />} />
             <Route path="/contact" element={<Contact user={user} />} />
+            <Route path="/lgpd" element={<LGPD />} />
             {isAdmin && <Route path="/admin" element={<Admin user={user} />} />}
           </Routes>
         </div>
