@@ -419,7 +419,7 @@ const AppContent: React.FC = () => {
             <Route path="/analytics" element={<StudyAnalytics />} />
             <Route path="/calculators" element={<Calculators isPremium={isPremium} />} />
             <Route path="/conversions" element={isPremium ? <Conversions /> : <Navigate to="/profile" />} />
-            <Route path="/checklists" element={<Checklists user={user} />} />
+            <Route path="/checklists" element={<Checklists user={user} onUpdateUser={handleUpdateUser} />} />
             <Route path="/forum" element={<Forum user={user} />} />
             <Route path="/profile" element={<Profile user={user} setUser={handleUpdateUser} />} />
             <Route path="/contact" element={<Contact user={user} />} />
