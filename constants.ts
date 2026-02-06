@@ -22,7 +22,7 @@ const categoryImages: Record<string, string> = {
   'Hidráulica': 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=2070&auto=format&fit=crop',
   'Mecânica': 'https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=2070&auto=format&fit=crop',
   'Informática': 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop',
-  'Britagem / Mineração': 'https://images.unsplash.com/photo-1589578228447-e1a4e481c6c8?q=80&w=2070&auto=format&fit=crop',
+  'Britagem / Mineração': 'https://images.unsplash.com/photo-1529516548873-9ce57c8f155e?q=80&w=2070&auto=format&fit=crop',
   'Segurança': 'https://images.unsplash.com/photo-1590486803833-ffc6f98629e8?q=80&w=2070&auto=format&fit=crop',
   'Inspeção e Confiabilidade': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop',
   'Sistemas Térmicos': 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2070&auto=format&fit=crop',
