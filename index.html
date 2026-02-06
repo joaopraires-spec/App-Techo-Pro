@@ -28,6 +28,25 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        /* Custom scrollbar for technical horizontal lists */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa;
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 rgba(30, 41, 59, 0.5);
+        }
         @media print {
           .no-print { display: none !important; }
         }

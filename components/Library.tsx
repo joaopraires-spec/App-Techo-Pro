@@ -96,19 +96,19 @@ const ArticleDetail: React.FC<{
           </p>
           <div className="whitespace-pre-wrap text-sm md:text-base leading-relaxed opacity-90">{article.content}</div>
           
-          <div className="flex flex-col sm:flex-row gap-3 pt-8 md:pt-10 border-t border-slate-800">
+          <div className="flex flex-col md:flex-row gap-4 pt-8">
             <button 
               onClick={handleMarkAsRead}
               disabled={isRead}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs transition-all touch-manipulation ${isRead ? 'bg-emerald-600/20 text-emerald-500 border border-emerald-500/30' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg active:scale-95'}`}
+              className={`flex-1 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${isRead ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-900/20'}`}
             >
-              <CheckCircle2 size={18} /> {isRead ? 'Artigo Concluído' : 'Marcar como Lido (+50 XP)'}
+              {isRead ? <><CheckCircle2 size={20} /> Concluído</> : 'Marcar como Lido (+50 XP)'}
             </button>
             <button 
               onClick={handleOpenForum}
-              className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest text-[10px] md:text-xs transition-all border border-slate-700 active:scale-95 touch-manipulation"
+              className="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
             >
-              <MessageSquare size={18} /> Abrir Tópico no Fórum
+              <MessageSquare size={20} /> Discutir no Fórum
             </button>
           </div>
         </div>
@@ -117,151 +117,89 @@ const ArticleDetail: React.FC<{
   );
 };
 
-const LibraryHome: React.FC<{ isPremium: boolean, user: UserProfile }> = ({ isPremium, user }) => {
+const LibraryList: React.FC<{ isPremium: boolean }> = ({ isPremium }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Todas');
-  const [activeTab, setActiveTab] = useState<'articles' | 'catalogs'>('articles');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const filteredArticles = INITIAL_ARTICLES.filter(art => {
     const matchesSearch = art.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCat = activeCategory === 'Todas' || art.category === activeCategory;
-    return matchesSearch && matchesCat;
+    const matchesCategory = activeCategory ? art.category === activeCategory : true;
+    return matchesSearch && matchesCategory;
   });
 
-  const filteredCatalogs = INITIAL_CATALOGS.filter(cat => {
-    const matchesSearch = cat.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCat = activeCategory === 'Todas' || cat.category === activeCategory;
-    return matchesSearch && matchesCat;
-  });
-
-  const allCategories = ['Todas', ...CATEGORIES_FREE, ...CATEGORIES_PREMIUM];
+  const categories = [...new Set(INITIAL_ARTICLES.map(a => a.category))];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Biblioteca Técnica</h2>
-          <p className="text-slate-500 text-sm">Base de conhecimento profunda para o campo.</p>
+          <h2 className="text-3xl font-bold text-white">Biblioteca Técnica</h2>
+          <p className="text-slate-500">Acesse o conhecimento industrial mais avançado.</p>
         </div>
-        <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-xl self-start md:self-auto">
-          <button onClick={() => setActiveTab('articles')} className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'articles' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>Artigos</button>
-          <button onClick={() => setActiveTab('catalogs')} className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'catalogs' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>Catálogos</button>
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+          <input 
+            type="text" 
+            placeholder="Buscar artigo ou norma..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
+          />
         </div>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-        <input 
-          type="text" 
-          placeholder={`Buscar em ${activeTab === 'articles' ? 'artigos' : 'catálogos'}...`} 
-          className="w-full bg-[#111827]/80 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:ring-1 focus:ring-blue-600 transition-all shadow-inner text-base"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <div className="flex flex-wrap gap-2 pb-2">
+        <button 
+          onClick={() => setActiveCategory(null)}
+          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${!activeCategory ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+        >
+          Todos
+        </button>
+        {categories.map(cat => (
+          <button 
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${activeCategory === cat ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4 pt-1 touch-pan-x">
-        {allCategories.map(cat => {
-          const isCatPremium = CATEGORIES_PREMIUM.includes(cat);
-          return (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-[9px] md:text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all touch-manipulation ${
-                activeCategory === cat 
-                  ? 'bg-blue-600/20 border-blue-600/50 text-blue-400' 
-                  : 'bg-[#111827] border-slate-800 text-slate-500 hover:border-slate-700'
-              }`}
-            >
-              {isCatPremium && <Crown size={12} className="text-amber-500" />}
-              {cat}
-            </button>
-          );
-        })}
-      </div>
-
-      {activeTab === 'catalogs' && !isPremium ? (
-        <div className="bg-slate-900 border border-amber-500/20 rounded-[32px] p-10 md:p-16 text-center">
-          <Lock size={40} className="text-amber-500 mx-auto mb-6" />
-          <h3 className="text-xl md:text-2xl font-black text-white mb-3">Acesso Restrito</h3>
-          <p className="text-slate-500 mb-8 max-w-md mx-auto text-sm">Catálogos e manuais técnicos de fabricantes são exclusivos para assinantes Premium.</p>
-          <Link to="/profile" className="bg-amber-500 text-slate-950 px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] w-full md:w-auto inline-block">Upgrade Agora</Link>
-        </div>
-      ) : activeTab === 'catalogs' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredCatalogs.map(cat => (
-            <div key={cat.id} className="bg-slate-900 border border-slate-800 p-6 rounded-[32px] group hover:border-blue-500/50 transition-all">
-              <Folder size={32} className="text-blue-500 mb-4" />
-              <h4 className="font-bold text-white mb-1">{cat.name}</h4>
-              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-6">{cat.category}</p>
-              <button className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation">
-                <Download size={16} /> Baixar PDF
-              </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredArticles.map(article => (
+          <Link 
+            key={article.id}
+            to={`/library/article/${article.id}`}
+            className="bg-slate-900 border border-slate-800 rounded-[24px] overflow-hidden group hover:border-blue-500 transition-all active:scale-95 touch-manipulation flex flex-col"
+          >
+            <div className="h-40 relative overflow-hidden">
+              <img src={article.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+              {article.isPremium && (
+                <div className="absolute top-4 right-4 bg-amber-500 text-slate-950 p-1.5 rounded-lg shadow-lg">
+                  <Crown size={14} />
+                </div>
+              )}
+              <div className="absolute bottom-4 left-4">
+                 <span className="bg-blue-600/20 border border-blue-600/30 text-blue-400 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">{article.category}</span>
+              </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {filteredArticles.map(article => {
-            const isLocked = article.isPremium && !isPremium;
-            const isRead = user.readArticlesIds.includes(article.id);
-            const isStarted = user.startedArticlesIds?.includes(article.id);
-            
-            return (
-              <Link 
-                to={isLocked ? '/profile' : `/library/article/${article.id}`} 
-                key={article.id}
-                className="bg-slate-900 border border-slate-800 rounded-[28px] overflow-hidden group hover:border-blue-500/50 transition-all shadow-xl flex flex-col h-full active:scale-[0.98] touch-manipulation"
-              >
-                <div className="h-40 relative overflow-hidden shrink-0">
-                  <img src={article.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" alt="" />
-                  {isLocked && (
-                    <div className="absolute inset-0 bg-slate-950/80 flex items-center justify-center backdrop-blur-[2px]">
-                      <div className="text-center">
-                        <Lock size={20} className="text-amber-500 mx-auto mb-2" />
-                        <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Premium</span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-slate-950/80 text-blue-400 text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded border border-blue-500/20">{article.category}</span>
-                  </div>
-                  
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-800/50">
-                    <div 
-                      className={`h-full transition-all duration-700 ease-out ${
-                        isRead ? 'bg-emerald-500 w-full' : isStarted ? 'bg-blue-600 w-[35%]' : 'bg-slate-700 w-0'
-                      }`} 
-                    />
-                  </div>
-                </div>
-                <div className="p-5 md:p-6 flex flex-col flex-1">
-                  <h4 className="font-bold text-white text-base md:text-lg group-hover:text-blue-400 transition-colors leading-tight mb-4 line-clamp-2">{article.title}</h4>
-                  <div className="mt-auto flex items-center justify-between text-[9px] md:text-[10px] font-black uppercase tracking-widest">
-                    <div className="flex items-center gap-3 md:gap-4">
-                      <span className="flex items-center gap-1.5 text-slate-500"><Clock size={14} /> {article.readTime}m</span>
-                      {isRead ? (
-                        <span className="flex items-center gap-1.5 text-emerald-500">
-                          <CheckCircle2 size={14} /> Lido
-                        </span>
-                      ) : isStarted ? (
-                        <span className="flex items-center gap-1.5 text-blue-400">
-                           Lendo...
-                        </span>
-                      ) : null}
-                    </div>
-                    <ChevronRight size={16} className="group-hover:translate-x-1 transition-all text-blue-500" />
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+            <div className="p-5 flex-1 flex flex-col">
+              <h4 className="font-bold text-white text-base leading-tight mb-4 group-hover:text-blue-400 transition-colors line-clamp-2">{article.title}</h4>
+              <div className="mt-auto flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <span className="flex items-center gap-1.5"><Clock size={12} /> {article.readTime} min</span>
+                <span className="flex items-center gap-1 text-blue-500">Ler Agora <ChevronRight size={12} /></span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 };
 
+// Fix for default export error in App.tsx
 const Library: React.FC<{ 
   isPremium: boolean; 
   isAdmin: boolean; 
@@ -270,7 +208,7 @@ const Library: React.FC<{
 }> = ({ isPremium, isAdmin, user, onUpdateUser }) => {
   return (
     <Routes>
-      <Route path="/" element={<LibraryHome isPremium={isPremium} user={user} />} />
+      <Route path="/" element={<LibraryList isPremium={isPremium} />} />
       <Route path="/article/:articleId" element={<ArticleDetail isPremium={isPremium} user={user} onUpdateUser={onUpdateUser} />} />
     </Routes>
   );
