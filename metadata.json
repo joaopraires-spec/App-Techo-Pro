@@ -1,5 +1,7 @@
 {
   "name": "Final Version - Tech Pro App",
   "description": "Uma plataforma completa para engenheiros e técnicos com ferramentas de campo, biblioteca técnica, calculadoras, checklists e fórum profissional.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera"
+  ]
 }

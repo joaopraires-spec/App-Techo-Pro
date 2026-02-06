@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, UserPlan } from '../types';
 import { PRICING, MERCADO_PAGO_LINKS, INITIAL_ARTICLES } from '../constants';
 // Added Crown and CheckSquare to the lucide-react imports
@@ -8,7 +8,7 @@ import {
   ExternalLink, CheckCircle2, Award, Zap, Edit2, Save, X, 
   BarChart, History, Target, MessageSquare, BookOpen, 
   Calculator, RefreshCw, ChevronRight, User as UserIcon,
-  Trophy, TrendingUp, Layout, Crown, CheckSquare
+  Trophy, TrendingUp, Layout, Crown, CheckSquare, Upload, Image as ImageIcon
 } from 'lucide-react';
 
 const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }> = ({ user, setUser }) => {
@@ -20,6 +20,8 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
   });
   
   const [savedChecklistsCount, setSavedChecklistsCount] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('techpro_saved_reports');
@@ -45,6 +47,17 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
       avatar: user.avatar
     });
     setIsEditing(false);
+  };
+
+  const handleImageProcessing = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditData({ ...editData, avatar: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const readArticles = INITIAL_ARTICLES.filter(art => user.readArticlesIds.includes(art.id));
@@ -73,15 +86,50 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
               <img src={editData.avatar} className="w-full h-full object-cover" alt="Profile Avatar" />
             </div>
             {isEditing && (
-              <div className="absolute inset-0 bg-slate-950/80 rounded-[40px] flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95">
-                <Camera className="text-blue-500 mb-2" size={28} />
+              <div className="absolute inset-0 bg-slate-950/90 rounded-[40px] flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95">
+                <div className="flex gap-4 mb-4">
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-all"
+                    title="Carregar Arquivo"
+                  >
+                    <Upload size={20} />
+                  </button>
+                  <button 
+                    onClick={() => cameraInputRef.current?.click()}
+                    className="w-12 h-12 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-all"
+                    title="Tirar Foto"
+                  >
+                    <Camera size={20} />
+                  </button>
+                </div>
+                
                 <input 
-                  type="text" 
-                  placeholder="Link da Imagem" 
-                  className="w-full bg-slate-900 border border-slate-700 text-[10px] text-white p-2.5 rounded-xl outline-none focus:ring-1 focus:ring-blue-600" 
-                  value={editData.avatar}
-                  onChange={e => setEditData({...editData, avatar: e.target.value})}
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={handleImageProcessing} 
                 />
+                <input 
+                  type="file" 
+                  ref={cameraInputRef} 
+                  className="hidden" 
+                  accept="image/*" 
+                  capture="user" 
+                  onChange={handleImageProcessing} 
+                />
+
+                <div className="w-full px-2">
+                  <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-1 text-center">Ou cole a URL</label>
+                  <input 
+                    type="text" 
+                    placeholder="Link da Imagem" 
+                    className="w-full bg-slate-900 border border-slate-700 text-[10px] text-white p-2 rounded-xl outline-none focus:ring-1 focus:ring-blue-600" 
+                    value={editData.avatar.startsWith('data:') ? '' : editData.avatar}
+                    onChange={e => setEditData({...editData, avatar: e.target.value})}
+                  />
+                </div>
               </div>
             )}
             <div className="absolute -bottom-3 -right-3 bg-blue-600 p-3 rounded-2xl shadow-xl shadow-blue-900/40 text-white">
