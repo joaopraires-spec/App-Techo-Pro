@@ -10,8 +10,62 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
   const isAdmin = user.plan === UserPlan.ADMIN;
   
   const [posts, setPosts] = useState<ForumPost[]>([
-    { id: '1', title: 'Dúvida: Desgaste excessivo em camisas de britador primário', author: 'João Mecânico', date: '15/05/2024', content: 'Estamos notando um desgaste 30% mais rápido que o normal na britagem primária. Alguém já testou ligas de manganês customizadas?', replies: 12 },
-    { id: '2', title: 'Melhores práticas em lubrificação centralizada', author: 'Eng. Roberto', date: '14/05/2024', content: 'Qual a periodicidade ideal para inspeção de bicos em sistemas de graxa automática?', replies: 8 }
+    { 
+      id: '1', 
+      title: 'Dúvida: Desgaste excessivo em camisas de britador primário', 
+      author: 'João Mecânico', 
+      date: '15/05/2024', 
+      content: 'Estamos notando um desgaste 30% mais rápido que o normal na britagem primária. Alguém já testou ligas de manganês customizadas ou ajustou o setting de fechamento para mitigar isso?', 
+      replies: 12 
+    },
+    { 
+      id: '2', 
+      title: 'Melhores práticas em lubrificação centralizada', 
+      author: 'Eng. Roberto', 
+      date: '14/05/2024', 
+      content: 'Qual a periodicidade ideal para inspeção de bicos em sistemas de graxa automática em ambientes de alta poeira? Estamos tendo entupimentos frequentes nos distribuidores progressivos.', 
+      replies: 8 
+    },
+    { 
+      id: '3', 
+      title: 'Falha catastrófica em redutores SEW - Análise de óleo', 
+      author: 'Téc. Marcos Silva', 
+      date: '02/05/2024', 
+      content: 'A última análise de óleo indicou alta concentração de partículas de ferro (PQ Index acima de 500). Suspeitamos de fadiga nos dentes do pinhão. Alguém já utilizou aditivos de extrema pressão para prolongar a vida útil antes do shutdown?', 
+      replies: 24 
+    },
+    { 
+      id: '4', 
+      title: 'Vibração excessiva em bombas centrífugas KSB', 
+      author: 'Carlos Manutenção', 
+      date: '20/04/2024', 
+      content: 'Bomba apresentando pico em 1x RPM e 2x RPM no espectro. Alinhamento a laser já foi refeito duas vezes e o problema persiste. Pode ser folga mecânica no mancal ou ressonância na tubulação?', 
+      replies: 15 
+    },
+    { 
+      id: '5', 
+      title: 'Configuração de inversores PowerFlex 755 via Studio 5000', 
+      author: 'Eng. Amanda Costa', 
+      date: '12/04/2024', 
+      content: 'Dificuldade em estabelecer comunicação estável via EtherNet/IP após upgrade de firmware do PLC. O drive perde o mapa de I/O aleatoriamente. Sugestões de parametrização no módulo de comunicação?', 
+      replies: 31 
+    },
+    { 
+      id: '6', 
+      title: 'Segurança: Bloqueio LOTO em subestações de 13.8kV', 
+      author: 'Segurança_Industrial', 
+      date: '28/03/2024', 
+      content: 'Estamos revisando nosso protocolo LOTO. Qual a melhor prática para garantir a energia zero em transformadores com alimentação redundante? O uso de detectores de tensão por contato é obrigatório em todos os casos na visão de vocês?', 
+      replies: 19 
+    },
+    { 
+      id: '7', 
+      title: 'Alinhamento a laser: Compensação de crescimento térmico', 
+      author: 'Ricardo Especialista', 
+      date: '10/04/2024', 
+      content: 'Gostaria de discutir os coeficientes de dilatação para motores acima de 500kW. No alinhamento a frio, quanto vocês costumam deixar de "offset" vertical para compensar o aquecimento em regime permanente?', 
+      replies: 6 
+    }
   ]);
   
   const [showForm, setShowForm] = useState(false);
