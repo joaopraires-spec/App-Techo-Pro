@@ -47,6 +47,12 @@ import ReadingHistory from './components/ReadingHistory.tsx';
 import StudyAnalytics from './components/StudyAnalytics.tsx';
 import { getDailyTip } from './services/gemini.ts';
 
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
 const SidebarItem = ({ to, icon: Icon, label, active, onClick, hasSubmenu, badge, premium }: any) => (
   <Link
     to={to}
@@ -106,6 +112,72 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!user && (authMode === 'login' || authMode === 'register')) {
+      const initGoogle = () => {
+        if (window.google) {
+          window.google.accounts.id.initialize({
+            client_id: "61427508688-66qf0062n3v3a863j8c8n14264789.apps.googleusercontent.com", // Placeholder real ID
+            callback: handleGoogleResponse,
+          });
+          window.google.accounts.id.renderButton(
+            document.getElementById("google-signin-button"),
+            { 
+              theme: "filled_blue", 
+              size: "large", 
+              width: 280, 
+              shape: "pill",
+              text: authMode === 'login' ? 'signin_with' : 'signup_with'
+            }
+          );
+        }
+      };
+
+      // Tenta inicializar ou aguarda carregamento
+      if (window.google) {
+        initGoogle();
+      } else {
+        const interval = setInterval(() => {
+          if (window.google) {
+            initGoogle();
+            clearInterval(interval);
+          }
+        }, 500);
+        return () => clearInterval(interval);
+      }
+    }
+  }, [authMode, user]);
+
+  const handleGoogleResponse = (response: any) => {
+    try {
+      // Decodificação manual do JWT do Google sem bibliotecas externas
+      const base64Url = response.credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      const payload = JSON.parse(jsonPayload);
+
+      const isAdm = payload.email === ADMIN_EMAIL;
+      const newUser: UserProfile = {
+        id: payload.sub,
+        name: payload.name,
+        email: payload.email,
+        avatar: payload.picture,
+        area: 'Engenharia de Campo',
+        plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE,
+        joinedAt: new Date().toISOString(),
+        xp: isAdm ? 1850 : 0,
+        level: isAdm ? 3 : 1,
+        readArticlesIds: [],
+        startedArticlesIds: [],
+        readingGoals: { dailyMinutes: 30, currentMinutesToday: isAdm ? 12 : 0, streak: isAdm ? 5 : 0 }
+      };
+      setUser(newUser);
+      localStorage.setItem('techpro_user', JSON.stringify(newUser));
+    } catch (err) {
+      console.error("Erro ao autenticar com Google:", err);
+    }
+  };
+
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('techpro_user');
@@ -125,9 +197,7 @@ const AppContent: React.FC = () => {
     const area = (formData.get('area') as string) || 'Manutenção Industrial';
     const isAdm = email === ADMIN_EMAIL;
     
-    // Simulação de banco de dados de usuários para recuperação
     const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
-    
     if (authMode === 'register') {
       const newUserRecord = { email, name, password, area };
       localStorage.setItem('techpro_registered_users', JSON.stringify([...registeredUsers, newUserRecord]));
@@ -137,7 +207,7 @@ const AppContent: React.FC = () => {
       id: Date.now().toString(),
       name,
       email,
-      password, // Armazenando para recuperação mockada
+      password,
       avatar: isAdm ? 'https://picsum.photos/seed/admin/200' : 'https://i.pravatar.cc/150?u=techpro',
       area,
       plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE,
@@ -162,7 +232,6 @@ const AppContent: React.FC = () => {
     const foundUser = registeredUsers.find((u: any) => u.email === email && u.name.toLowerCase().includes(name.toLowerCase()));
 
     if (foundUser || email === ADMIN_EMAIL) {
-      // Simulação de envio de e-mail
       setRecoveryStatus('success');
       console.log(`E-mail de recuperação enviado para ${email}. Senha: ${foundUser?.password || 'Admin Password'}`);
     } else {
@@ -175,7 +244,6 @@ const AppContent: React.FC = () => {
       <div className="min-h-screen bg-[#020617] flex items-center justify-center p-0 md:p-6 overflow-x-hidden">
         <div className="w-full max-w-6xl min-h-screen md:min-h-0 md:h-[700px] bg-slate-900 md:rounded-[40px] border-none md:border md:border-slate-800 shadow-2xl flex flex-col md:flex-row overflow-hidden">
           
-          {/* Mobile Only: Top Image Banner */}
           <div className="md:hidden w-full h-48 relative shrink-0">
             <img 
               src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" 
@@ -189,7 +257,6 @@ const AppContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Left Side: Desktop Only Content */}
           <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-blue-900">
             <img 
               src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" 
@@ -208,21 +275,9 @@ const AppContent: React.FC = () => {
               <p className="text-slate-300 text-lg font-medium max-w-sm">
                 A plataforma definitiva para engenheiros e técnicos que buscam excelência em manutenção industrial.
               </p>
-              <div className="mt-10 flex gap-6">
-                <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">100+</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Artigos Técnicos</span>
-                </div>
-                <div className="w-px h-10 bg-slate-800 self-center"></div>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">1.4k</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Profissionais</span>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Auth Form Container */}
           <div className="flex-1 md:w-1/2 p-6 md:p-16 flex flex-col justify-center bg-slate-900 overflow-y-auto no-scrollbar">
             {authMode === 'forgot' ? (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -230,11 +285,6 @@ const AppContent: React.FC = () => {
                   <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-3 justify-center md:justify-start">
                     <KeyRound className="text-blue-500" /> Recuperar Senha
                   </h2>
-                  <p className="text-slate-500 text-sm">
-                    {recoveryStatus === 'success' 
-                      ? 'E-mail de recuperação enviado com sucesso!' 
-                      : 'Informe seus dados para recuperar seu acesso.'}
-                  </p>
                 </div>
 
                 {recoveryStatus === 'success' ? (
@@ -242,9 +292,6 @@ const AppContent: React.FC = () => {
                     <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
                       <Send size={24} />
                     </div>
-                    <p className="text-slate-300 text-sm leading-relaxed">
-                      Sua senha foi enviada para o e-mail informado. Verifique sua caixa de entrada e spam.
-                    </p>
                     <button 
                       onClick={() => {
                         setAuthMode('login');
@@ -257,11 +304,6 @@ const AppContent: React.FC = () => {
                   </div>
                 ) : (
                   <form className="space-y-4" onSubmit={handleRecoverySubmit}>
-                    {recoveryStatus === 'error' && (
-                      <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl text-red-500 text-xs font-bold text-center">
-                        Usuário não encontrado. Verifique os dados.
-                      </div>
-                    )}
                     <div className="relative">
                       <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                       <input name="name" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Seu nome registrado" />
@@ -270,11 +312,9 @@ const AppContent: React.FC = () => {
                       <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                       <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-slate-600 text-base" placeholder="Seu e-mail de cadastro" />
                     </div>
-
                     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
                       Recuperar Senha <Send size={18} />
                     </button>
-                    
                     <button 
                       type="button"
                       onClick={() => {
@@ -294,14 +334,20 @@ const AppContent: React.FC = () => {
                   <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
                     {authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
                   </h2>
-                  <p className="text-slate-500 text-sm">
-                    {authMode === 'login' 
-                      ? 'Acesse sua conta para continuar sua jornada técnica.' 
-                      : 'Junte-se a maior comunidade técnica de manutenção.'}
-                  </p>
                 </div>
 
                 <div className="space-y-6">
+                  {/* Container para o Botão Google Real */}
+                  <div className="flex flex-col items-center gap-4">
+                    <div id="google-signin-button" className="w-full flex justify-center overflow-hidden rounded-full h-[50px]"></div>
+                    
+                    <div className="flex items-center gap-4 w-full text-slate-700 px-4">
+                      <div className="h-px bg-slate-800 flex-1"></div>
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">ou e-mail</span>
+                      <div className="h-px bg-slate-800 flex-1"></div>
+                    </div>
+                  </div>
+
                   <form className="space-y-4" onSubmit={handleAuthSubmit}>
                     {authMode === 'register' && (
                       <div className="grid grid-cols-1 gap-4">
@@ -367,7 +413,6 @@ const AppContent: React.FC = () => {
     <div className="flex min-h-screen bg-[#0a0f1e] text-slate-200 overflow-x-hidden">
       <DailyTipNotification area={user.area} />
       
-      {/* Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300" 
@@ -375,7 +420,6 @@ const AppContent: React.FC = () => {
         />
       )}
 
-      {/* Sidebar Navigation */}
       <aside className={`fixed lg:static inset-y-0 left-0 w-72 bg-[#111827]/95 backdrop-blur-xl border-r border-slate-800/50 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-full flex flex-col">
           <div className="p-6">
@@ -434,10 +478,9 @@ const AppContent: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <header className="lg:hidden p-4 bg-[#111827] border-b border-slate-800 flex items-center justify-between sticky top-0 z-30">
-          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors" aria-label="Abrir menu">
+          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors">
             <Menu size={24} />
           </button>
           <div className="font-black text-white tracking-tighter">TECHPRO</div>
