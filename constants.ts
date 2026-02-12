@@ -35,11 +35,29 @@ const categoryImages: Record<string, string> = {
   'Metalografia': 'https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2070&auto=format&fit=crop'
 };
 
+const TECHNICAL_CONTENT: Record<string, string> = {
+  'Hidráulica': "Este módulo aborda os fundamentos da mecânica dos fluidos aplicada a sistemas de potência. Estudaremos o Princípio de Pascal e como a multiplicação de força ocorre em circuitos fechados. Analisaremos a diferença entre fluxo laminar e turbulento (Número de Reynolds) e o impacto da viscosidade (ISO VG) na eficiência volumétrica de bombas de pistão. Discutiremos também a cavitação, o efeito 'diesel' em cilindros e as técnicas avançadas de contagem de partículas (ISO 4406) para garantir a longevidade dos componentes.",
+  'Mecânica': "Foco em elementos de máquinas e sistemas de transmissão. Discutiremos o cálculo de vida útil de rolamentos (L10h) sob diferentes cargas radiais e axiais. Abordaremos o alinhamento de precisão (comparador centesimal e laser) e a importância da compensação térmica. O estudo inclui análise de lubrificantes, aditivação EP (Extrema Pressão) e técnicas de montagem por interferência térmica, garantindo que o ajuste entre eixo e furo atenda às tolerâncias ISO.",
+  'Informática': "Convergência entre TI (Tecnologia da Informação) e TO (Tecnologia de Operação). Este módulo detalha a arquitetura de redes industriais, comparando protocolos determinísticos como Profinet e EtherNet/IP com Modbus TCP. Exploraremos a segurança cibernética em ambientes fabris, o uso de firewalls industriais e a implementação de gateways IIoT para coleta de dados em nuvem via MQTT ou OPC-UA, visando a Manutenção Preditiva 4.0.",
+  'Segurança': "Gestão de riscos e conformidade com as normas regulamentadoras (NR-12, NR-10 e NR-35). Analisaremos o método HRN (Hazard Rating Number) para quantificação de riscos em máquinas. Detalharemos os protocolos de bloqueio e etiquetagem (LOTO - Lockout Tagout), a especificação técnica de dispositivos de intertravamento categoria 4 e a importância da análise ergonômica do posto de trabalho para prevenir doenças ocupacionais.",
+  'Britagem / Mineração': "Engenharia de processamento mineral. Estudaremos o ciclo de vida de mandíbulas e mantos de britadores cônicos, focando na dureza Brinell e tenacidade ao impacto. Analisaremos a curva granulométrica resultante do ajuste do CSS (Closed Side Setting) e como o 'tramping' de metais pode causar falhas catastróficas. Discutiremos também a eficiência de peneiramento e o cálculo de carga circulante em circuitos fechados de moagem.",
+  'Inspeção e Confiabilidade': "Metodologias de manutenção de classe mundial. Abordaremos a RCM (Manutenção Centrada em Confiabilidade) e a condução de FMEA (Análise de Modos de Falha e Efeitos). Detalharemos técnicas de monitoramento de condição: análise de vibrações (envelope de aceleração), termografia infravermelha para detecção de pontos quentes em subestações e análise de óleo por ferrografia analítica para identificação de desgaste severo.",
+  'Sistemas Térmicos': "Termodinâmica aplicada e troca de calor. Estudaremos o Ciclo de Rankine em usinas térmicas e o balanceamento calórico em caldeiras a vapor. Analisaremos a eficiência de trocadores de calor de placas vs casco e tubos, focando no coeficiente global de transferência (U) e no 'fouling' (incrustação). O estudo inclui tratamento químico de água de alimentação e recuperação de condensado para otimização energética.",
+  'Elétrica': "Sistemas de potência e máquinas elétricas. Analisaremos o triângulo de potências (Ativa, Reativa e Aparente) e as técnicas de correção de fator de potência via bancos de capacitores automáticos. Estudaremos o funcionamento de inversores de frequência (VFDs) e o controle vetorial de torque em motores de indução. Abordaremos também a coordenação de proteção e o cálculo de energia incidente para vestimentas de arco elétrico.",
+  'Pneumática': "Automação pneumática avançada. Focaremos na preparação de ar comprimido (Unidade FRL) seguindo a norma ISO 8573-1 de pureza. Analisaremos o funcionamento de válvulas direcionais de 5/2 vias e lógica pneumática pura. Estudaremos a redução de consumo de ar via detecção de vazamentos ultrassônica e a otimização de circuitos através de reservatórios locais para compensação de picos de demanda.",
+  'Automação': "Lógica de controle industrial. Estudaremos a programação de CLPs (Controladores Lógicos Programáveis) conforme a norma IEC 61131-3, com foco em Ladder e Texto Estruturado. Analisaremos o ajuste de malhas PID (Proporcional-Integral-Derivativo) usando o método de Ziegler-Nichols e o design de interfaces IHM (Interface Homem-Máquina) baseado em padrões de alta performance para redução de carga cognitiva.",
+  'Instrumentação': "Medição e controle de processos. Detalharemos a calibração de transmissores de pressão e nível usando protocolos HART e loops de 4-20mA. Estudaremos a incerteza de medição e a rastreabilidade metrológica. Analisaremos medidores de vazão eletromagnéticos e de massa (Coriolis), focando na precisão e nos efeitos de perfil de velocidade do fluido no processo industrial.",
+  'Fadiga dos Materiais': "Mecânica da fratura e vida em fadiga. Analisaremos as curvas S-N (Wöhler) e o limite de resistência à fadiga para aços e ligas não-ferrosas. Estudaremos os fatores de concentração de tensão (Kt) em entalhes e furos. Abordaremos a iniciação e propagação de trincas (Lei de Paris) e as técnicas de ensaios não destrutivos (Líquido Penetrante e Partícula Magnética) para detecção precoce de falhas cíclicas.",
+  'Magnetismo': "Eletromagnetismo aplicado à inspeção. Estudaremos a indução magnética e as leis de Faraday e Lenz em aplicações industriais. Detalharemos o ensaio de Partículas Magnéticas e a técnica MFL (Magnetic Flux Leakage) para inspeção de dutos e cabos de aço. Analisaremos também o funcionamento de separadores magnéticos de alta intensidade usados no beneficiamento de minérios de ferro.",
+  'Metalografia': "Ciência dos materiais e microestrutura. Abordaremos o preparo de amostras (corte, embutimento, lixamento e polimento) e o ataque químico para revelação de contornos de grão. Analisaremos diagramas de fase Ferro-Carbono (Fe-C) e o impacto dos tratamentos térmicos (têmpera, revenimento e normalização) nas fases perlita, martensita e austenita retida."
+};
+
 const generateArticles = () => {
   const articles: Article[] = [];
   const allCats = [...CATEGORIES_FREE, ...CATEGORIES_PREMIUM];
   
   allCats.forEach(cat => {
+    const baseContent = TECHNICAL_CONTENT[cat] || `Conteúdo técnico especializado sobre ${cat}.`;
     for (let i = 1; i <= 17; i++) {
       const imageUrl = categoryImages[cat] || `https://loremflickr.com/800/600/industrial?lock=${cat.length + i}`;
       articles.push({
@@ -49,7 +67,7 @@ const generateArticles = () => {
         isPremium: CATEGORIES_PREMIUM.includes(cat),
         readTime: 25,
         imageUrl: imageUrl,
-        content: `Este é um artigo técnico profundo sobre ${cat}. A manutenção industrial moderna exige conhecimentos específicos sobre variáveis de campo, termodinâmica e análise de falhas...`
+        content: `${baseContent}\n\nNo Módulo ${i}, aprofundamos a aplicação prática destes conceitos em cenários reais de manutenção e engenharia de campo, focando em diagnósticos de precisão e metodologias de análise de falha raíz (RCFA).`
       });
     }
   });
