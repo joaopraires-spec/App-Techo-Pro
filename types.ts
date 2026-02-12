@@ -6,15 +6,29 @@ export enum UserPlan {
   ADMIN = 'Admin'
 }
 
+export enum UserStatus {
+  ACTIVE = 'ativo',
+  SUSPENDED = 'suspenso',
+  EXPIRED = 'expirado'
+}
+
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'usuário'
+}
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  password?: string;
+  passwordHash?: string; // Nunca armazenar texto puro
   avatar: string;
   area: string;
   plan: UserPlan;
+  role: UserRole;
+  status: UserStatus;
   joinedAt: string;
+  lastLogin: string;
   xp: number; 
   level: number;
   readArticlesIds: string[]; 
@@ -22,11 +36,21 @@ export interface UserProfile {
   calculationsCount?: number;
   conversionsCount?: number;
   checklistsCount?: number;
+  planExpiryDate?: string;
   readingGoals: {
     dailyMinutes: number;
     currentMinutesToday: number;
     streak: number;
   };
+}
+
+export interface PlanDefinition {
+  id: string;
+  name: UserPlan;
+  maxLevel: string;
+  features: string[];
+  simulationLimit: number;
+  hasAuditAccess: boolean;
 }
 
 export interface Article {
