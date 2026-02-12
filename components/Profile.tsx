@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, UserPlan } from '../types';
-import { PRICING, MERCADO_PAGO_LINKS, INITIAL_ARTICLES } from '../constants';
+import { PRICING, MERCADO_PAGO_LINKS, INITIAL_ARTICLES, LEVELS } from '../constants';
 import { 
   Shield, Gem, Star, Check, Camera, Mail, Briefcase, CreditCard, 
   ExternalLink, CheckCircle2, Award, Zap, Edit2, Save, X, 
@@ -22,6 +22,8 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
   const [savedChecklistsCount, setSavedChecklistsCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const currentLevelInfo = LEVELS.find(l => l.level === user.level) || LEVELS[0];
 
   useEffect(() => {
     const saved = localStorage.getItem('techpro_saved_reports');
@@ -194,7 +196,9 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                    <span className="px-4 py-1.5 bg-blue-600/10 text-blue-500 rounded-full border border-blue-600/20 text-xs font-black uppercase tracking-widest">Nível {user.level}</span>
+                    <span className="px-4 py-1.5 bg-blue-600/10 text-blue-500 rounded-full border border-blue-600/20 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                      {currentLevelInfo.medal} Nível {user.level}
+                    </span>
                     <span className="px-4 py-1.5 bg-amber-500/10 text-amber-500 rounded-full border border-amber-500/20 text-xs font-black uppercase tracking-widest flex items-center gap-1.5">
                       <Zap size={14} className="fill-amber-500" /> {user.xp} XP Totais
                     </span>

@@ -46,7 +46,7 @@ const ProfessionalLevel: React.FC<{ user: UserProfile }> = ({ user }) => {
           <div className="h-10 w-px bg-slate-800"></div>
           <div className="flex flex-col items-center">
             <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Nível</p>
-            <p className="text-lg font-black text-blue-500">{user.level}</p>
+            <p className="text-lg font-black text-blue-500">{currentLevelInfo.medal} {user.level}</p>
           </div>
         </div>
       </div>
@@ -61,7 +61,9 @@ const ProfessionalLevel: React.FC<{ user: UserProfile }> = ({ user }) => {
           <div className="space-y-6">
             <div>
               <span className="bg-blue-600/10 text-blue-500 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-blue-500/20">Status: {currentLevelInfo.title}</span>
-              <h3 className="text-4xl font-black text-white mt-4 tracking-tight">Nível {user.level}</h3>
+              <h3 className="text-4xl font-black text-white mt-4 tracking-tight flex items-center gap-3">
+                {currentLevelInfo.medal} Nível {user.level}
+              </h3>
               <p className="text-slate-400 mt-4 leading-relaxed max-w-md italic">
                 "{currentLevelInfo.message}"
               </p>

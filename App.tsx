@@ -35,7 +35,7 @@ import {
   FileShield
 } from 'lucide-react';
 import { UserPlan, UserProfile } from './types.ts';
-import { ADMIN_EMAIL } from './constants.ts';
+import { ADMIN_EMAIL, LEVELS } from './constants.ts';
 import Dashboard from './components/Dashboard.tsx';
 import Library from './components/Library.tsx';
 import Calculators from './components/Calculators.tsx';
@@ -453,6 +453,7 @@ const AppContent: React.FC = () => {
 
   const isAdmin = user.plan === UserPlan.ADMIN;
   const isPremium = user.plan === UserPlan.ANNUAL || user.plan === UserPlan.MONTHLY || isAdmin;
+  const currentLevelMedal = LEVELS.find(l => l.level === user.level)?.medal || '🥉';
 
   return (
     <div className="flex min-h-screen bg-[#0a0f1e] text-slate-200 overflow-x-hidden">
@@ -481,11 +482,11 @@ const AppContent: React.FC = () => {
 
           <nav className="flex-1 px-4 space-y-1 overflow-y-auto no-scrollbar pb-10">
             <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/level" icon={TrendingUp} label="Nível Profissional" active={location.pathname.startsWith('/level')} onClick={() => setIsSidebarOpen(false)} badge={`NV ${user.level}`} />
+            <SidebarItem to="/level" icon={TrendingUp} label="Nível Profissional" active={location.pathname.startsWith('/level')} onClick={() => setIsSidebarOpen(false)} badge={`${currentLevelMedal} NV ${user.level}`} />
             <SidebarItem to="/library" icon={BookOpen} label="Biblioteca" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} hasSubmenu={true} />
             <SidebarItem to="/forum" icon={MessageSquare} label="Fórum" active={location.pathname.startsWith('/forum')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/calculators" icon={CalcIcon} label="Calculadoras" active={location.pathname.startsWith('/calculators')} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/conversions" icon={RefreshCw} label="Conversões" active={location.pathname.startsWith('/conversions')} onClick={() => setIsSidebarOpen(false)} premium={!isAdmin} />
+            <SidebarItem to="/conversions" icon={RefreshCw} label="Conversões" active={location.pathname.startsWith('/conversions')} onClick={() => setIsSidebarOpen(false)} premium={!isPremium} />
             <SidebarItem to="/checklists" icon={CheckSquare} label="Checklists" active={location.pathname.startsWith('/checklists')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/profile" icon={User} label="Perfil & Assinatura" active={location.pathname.startsWith('/profile')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/contact" icon={Send} label="Contato" active={location.pathname.startsWith('/contact')} onClick={() => setIsSidebarOpen(false)} />
@@ -524,7 +525,7 @@ const AppContent: React.FC = () => {
             <Route path="/history" element={<ReadingHistory user={user} />} />
             <Route path="/analytics" element={<StudyAnalytics />} />
             <Route path="/calculators" element={<Calculators isPremium={isPremium} user={user} onUpdateUser={handleUpdateUser} />} />
-            <Route path="/conversions" element={isPremium ? <Conversions user={user} onUpdateUser={handleUpdateUser} /> : <Navigate to="/profile" />} />
+            <Route path="/conversions" element={<Conversions isPremium={isPremium} user={user} onUpdateUser={handleUpdateUser} />} />
             <Route path="/checklists" element={<Checklists user={user} onUpdateUser={handleUpdateUser} />} />
             <Route path="/forum" element={<Forum user={user} />} />
             <Route path="/profile" element={<Profile user={user} setUser={handleUpdateUser} />} />
