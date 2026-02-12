@@ -79,13 +79,11 @@ const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg
             <stop offset="100%" stopColor="#d97706" />
           </linearGradient>
         </defs>
-        {/* Hexágono de Fundo - Engenharia */}
         <path 
           d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" 
           fill="url(#blueGrad)" 
           className="opacity-90"
         />
-        {/* Acentuação em Ouro - Avanço Profissional */}
         <path 
           d="M50 15 L82 33 L82 67 L50 85 L18 67 L18 33 Z" 
           fill="none" 
@@ -93,7 +91,6 @@ const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg
           strokeWidth="3" 
           className="opacity-50"
         />
-        {/* Letras Estilizadas */}
         <path 
           d="M35 35 H65 M50 35 V65" 
           stroke="white" 
@@ -107,7 +104,6 @@ const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg
           fill="none" 
           strokeLinecap="round" 
         />
-        {/* Detalhe de Tecnologia/Circuito */}
         <circle cx="50" cy="95" r="3" fill="#fbbf24" />
         <circle cx="90" cy="27.5" r="2" fill="#fbbf24" />
         <circle cx="10" cy="27.5" r="2" fill="#fbbf24" />
@@ -183,6 +179,7 @@ const AppContent: React.FC = () => {
           window.google.accounts.id.initialize({
             client_id: "61427508688-66qf0062n3v3a863j8c8n14264789.apps.googleusercontent.com",
             callback: handleGoogleResponse,
+            auto_select: false // Garante que o usuário possa optar por contas
           });
           window.google.accounts.id.renderButton(
             document.getElementById("google-signin-button"),
@@ -213,28 +210,32 @@ const AppContent: React.FC = () => {
 
   const handleGoogleResponse = (response: any) => {
     try {
+      if (!response.credential) return;
+
+      // Lógica de decodificação de JWT mais segura e robusta
       const base64Url = response.credential.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      
-      // Adição de padding para evitar erro no atob()
       const paddedBase64 = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
       
-      const jsonPayload = decodeURIComponent(atob(paddedBase64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      const jsonPayload = decodeURIComponent(window.atob(paddedBase64).split('').map((c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      
       const payload = JSON.parse(jsonPayload);
-
       const isAdm = payload.email === ADMIN_EMAIL;
       
-      // Sincronizar com a lista global de usuários reais
+      // Sincronizar com a lista de usuários reais no localStorage
       const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
-      const userExists = registeredUsers.some((u: any) => u.email === payload.email);
+      const existingUserIndex = registeredUsers.findIndex((u: any) => u.email === payload.email);
       
-      if (!userExists) {
+      if (existingUserIndex === -1) {
         const googleUserRecord = { 
           email: payload.email, 
           name: payload.name, 
           avatar: payload.picture,
           area: 'Engenharia de Campo',
-          joinedAt: new Date().toISOString()
+          joinedAt: new Date().toISOString(),
+          plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE
         };
         localStorage.setItem('techpro_registered_users', JSON.stringify([...registeredUsers, googleUserRecord]));
       }
@@ -256,10 +257,12 @@ const AppContent: React.FC = () => {
         checklistsCount: 0,
         readingGoals: { dailyMinutes: 30, currentMinutesToday: isAdm ? 12 : 0, streak: isAdm ? 5 : 0 }
       };
+      
       setUser(newUser);
       localStorage.setItem('techpro_user', JSON.stringify(newUser));
     } catch (err) {
-      console.error("Erro ao autenticar com Google:", err);
+      console.error("Erro crítico ao processar login Google:", err);
+      alert("Houve um erro ao processar seu login com o Google. Verifique sua conexão ou tente usar e-mail e senha.");
     }
   };
 
@@ -295,7 +298,7 @@ const AppContent: React.FC = () => {
     
     const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
     if (authMode === 'register') {
-      const newUserRecord = { email, name, password, area, joinedAt: new Date().toISOString() };
+      const newUserRecord = { email, name, password, area, joinedAt: new Date().toISOString(), plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE };
       localStorage.setItem('techpro_registered_users', JSON.stringify([...registeredUsers, newUserRecord]));
     }
 
@@ -304,7 +307,7 @@ const AppContent: React.FC = () => {
       name,
       email,
       password,
-      avatar: isAdm ? 'https://picsum.photos/seed/admin/200' : 'https://i.pravatar.cc/150?u=techpro',
+      avatar: isAdm ? 'https://picsum.photos/seed/admin/200' : 'https://i.pravatar.cc/150?u=' + encodeURIComponent(email),
       area,
       plan: isAdm ? UserPlan.ADMIN : UserPlan.FREE,
       joinedAt: new Date().toISOString(),
@@ -326,11 +329,6 @@ const AppContent: React.FC = () => {
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const name = formData.get('name') as string;
-
-    if (!validateEmailFormat(email)) {
-      alert("Por favor, insira um e-mail em formato válido.");
-      return;
-    }
 
     const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
     const foundUser = registeredUsers.find((u: any) => u.email === email && u.name.toLowerCase().includes(name.toLowerCase()));
