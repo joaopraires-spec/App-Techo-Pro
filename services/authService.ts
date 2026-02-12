@@ -1,5 +1,6 @@
 
 import { UserProfile, UserStatus, UserRole, UserPlan } from '../types';
+import { ADMIN_EMAIL } from '../constants';
 
 // Simulação de Hash (em um app real usaria WebCrypto API ou bcrypt no backend)
 const simpleHash = (str: string) => {
@@ -23,6 +24,9 @@ export const authService = {
       return { success: false, message: 'Este e-mail já está cadastrado.' };
     }
 
+    // Verifica se é o e-mail administrativo mestre
+    const isSystemAdmin = data.email === ADMIN_EMAIL;
+
     const newUser: UserProfile = {
       id: Date.now().toString(),
       name: data.name || '',
@@ -30,8 +34,8 @@ export const authService = {
       passwordHash: data.passwordHash ? simpleHash(data.passwordHash) : undefined,
       avatar: data.avatar || `https://i.pravatar.cc/150?u=${data.email}`,
       area: data.area || 'Manutenção Industrial',
-      plan: data.plan || UserPlan.FREE,
-      role: data.role || UserRole.USER,
+      plan: isSystemAdmin ? UserPlan.ADMIN : (data.plan || UserPlan.FREE),
+      role: isSystemAdmin ? UserRole.ADMIN : (data.role || UserRole.USER),
       status: UserStatus.ACTIVE,
       joinedAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
@@ -53,7 +57,8 @@ export const authService = {
   // Login com e-mail e senha
   login: (email: string, password: string): { success: boolean; user?: UserProfile; message: string } => {
     const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
-    const user = users.find((u: any) => u.email === email);
+    const userIndex = users.findIndex((u: any) => u.email === email);
+    const user = users[userIndex];
 
     if (!user) {
       return { success: false, message: 'Usuário não encontrado. Cadastre-se primeiro.' };
@@ -65,6 +70,14 @@ export const authService = {
 
     if (user.passwordHash !== simpleHash(password)) {
       return { success: false, message: 'Senha incorreta. Verifique suas credenciais.' };
+    }
+
+    // Ativação forçada do Admin se for o e-mail mestre e ainda não tiver o cargo
+    if (email === ADMIN_EMAIL && user.role !== UserRole.ADMIN) {
+      user.role = UserRole.ADMIN;
+      user.plan = UserPlan.ADMIN;
+      users[userIndex] = user;
+      localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
     }
 
     // Criar Sessão

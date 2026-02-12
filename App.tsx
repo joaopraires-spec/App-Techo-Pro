@@ -34,7 +34,9 @@ import {
   EyeOff,
   FileShield,
   Instagram,
-  AlertTriangle
+  AlertTriangle,
+  FileText,
+  ShieldAlert
 } from 'lucide-react';
 import { UserPlan, UserProfile, UserRole, UserStatus } from './types.ts';
 import { ADMIN_EMAIL, LEVELS } from './constants.ts';
@@ -51,7 +53,6 @@ import ProfessionalLevel from './components/ProfessionalLevel.tsx';
 import ReadingHistory from './components/ReadingHistory.tsx';
 import StudyAnalytics from './components/StudyAnalytics.tsx';
 import LGPD from './components/LGPD.tsx';
-import { getDailyTip } from './services/gemini.ts';
 import { authService } from './services/authService.ts';
 
 declare global {
@@ -83,25 +84,38 @@ const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg
   );
 };
 
-const SidebarItem = ({ to, icon: Icon, label, active, onClick, hasSubmenu, badge, premium }: any) => (
-  <Link
-    to={to}
-    onClick={onClick}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative active:scale-95 ${
-      active 
-        ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]' 
-        : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
-    } ${premium ? 'border-amber-500/20 hover:border-amber-500/40' : ''}`}
-  >
-    <Icon size={20} className={active ? 'text-blue-400' : 'group-hover:text-blue-400'} />
-    <span className="font-medium text-sm flex-1">{label}</span>
-    {premium && <Crown size={12} className="text-amber-500 absolute top-2 right-2" />}
-    {badge && (
-      <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold shadow-md">{badge}</span>
-    )}
-    {hasSubmenu && <ChevronRight size={14} className="text-slate-600" />}
-  </Link>
-);
+const SidebarItem = ({ to, icon: Icon, label, active, onClick, badge, premium, external }: any) => {
+  const content = (
+    <>
+      <Icon size={20} className={active ? 'text-blue-400' : 'group-hover:text-blue-400'} />
+      <span className="font-medium text-sm flex-1">{label}</span>
+      {premium && <Crown size={12} className="text-amber-500 absolute top-2 right-2" />}
+      {badge && (
+        <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold shadow-md">{badge}</span>
+      )}
+    </>
+  );
+
+  const className = `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative active:scale-95 ${
+    active 
+      ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]' 
+      : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+  } ${premium ? 'border-amber-500/20 hover:border-amber-500/40' : ''}`;
+
+  if (external) {
+    return (
+      <a href={to} target="_blank" rel="noopener noreferrer" className={className}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={to} onClick={onClick} className={className}>
+      {content}
+    </Link>
+  );
+};
 
 const AppContent: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -112,7 +126,6 @@ const AppContent: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Validar sessão ao carregar
     const isValid = authService.validateSession();
     const savedUser = localStorage.getItem('techpro_user');
     if (isValid && savedUser) {
@@ -159,7 +172,6 @@ const AppContent: React.FC = () => {
           setErrorMsg("Conta Google não cadastrada. Por favor, registre-se primeiro.");
           return;
         }
-        // Registro automático via Google
         const newUser: UserProfile = {
           id: payload.sub,
           name: payload.name,
@@ -343,12 +355,21 @@ const AppContent: React.FC = () => {
             <SidebarItem to="/library" icon={BookOpen} label="Biblioteca" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/forum" icon={MessageSquare} label="Fórum" active={location.pathname === '/forum'} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/calculators" icon={CalcIcon} label="Calculadoras" active={location.pathname === '/calculators'} onClick={() => setIsSidebarOpen(false)} />
+            <SidebarItem to="/conversions" icon={RefreshCw} label="Conversões" active={location.pathname === '/conversions'} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/checklists" icon={CheckSquare} label="Inspeções" active={location.pathname === '/checklists'} onClick={() => setIsSidebarOpen(false)} />
             <SidebarItem to="/profile" icon={User} label="Perfil" active={location.pathname === '/profile'} onClick={() => setIsSidebarOpen(false)} />
+            <SidebarItem to="/contact" icon={Mail} label="Suporte Técnico" active={location.pathname === '/contact'} onClick={() => setIsSidebarOpen(false)} />
+            <SidebarItem to="/lgpd" icon={ShieldAlert} label="Privacidade & LGPD" active={location.pathname === '/lgpd'} onClick={() => setIsSidebarOpen(false)} />
             {isAdmin && <SidebarItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname === '/admin'} onClick={() => setIsSidebarOpen(false)} />}
           </nav>
 
-          <div className="p-4 border-t border-slate-800/50">
+          <div className="p-4 border-t border-slate-800/50 space-y-2">
+            <SidebarItem 
+              to="https://instagram.com/techpro_industrial" 
+              icon={Instagram} 
+              label="Instagram" 
+              external 
+            />
             <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-4 text-slate-500 hover:text-red-400 transition-all w-full text-sm font-bold">
               <LogOut size={20} /> <span>Sair com Segurança</span>
             </button>
@@ -362,9 +383,12 @@ const AppContent: React.FC = () => {
           <Route path="/level" element={<ProfessionalLevel user={user} />} />
           <Route path="/library/*" element={<Library isPremium={isPremium} isAdmin={isAdmin} user={user} onUpdateUser={setUser} />} />
           <Route path="/calculators" element={<Calculators isPremium={isPremium} user={user} onUpdateUser={setUser} />} />
+          <Route path="/conversions" element={<Conversions isPremium={isPremium} user={user} onUpdateUser={setUser} />} />
           <Route path="/checklists" element={<Checklists user={user} onUpdateUser={setUser} />} />
           <Route path="/forum" element={<Forum user={user} />} />
           <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+          <Route path="/contact" element={<Contact user={user} />} />
+          <Route path="/lgpd" element={<LGPD />} />
           {isAdmin && <Route path="/admin" element={<Admin user={user} />} />}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
