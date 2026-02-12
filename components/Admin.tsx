@@ -38,47 +38,55 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<AdminUserView | null>(null);
   const [chatMessage, setChatMessage] = useState('');
-  const [userChats, setUserChats] = useState<Record<string, ChatMessage[]>>({
-    '1': [
-      { id: '1', sender: 'user', text: 'Olá, gostaria de saber sobre o curso de hidráulica.', timestamp: '10:30' },
-      { id: '2', sender: 'admin', text: 'Olá João! Já está disponível na aba biblioteca.', timestamp: '10:35' }
-    ]
-  });
+  const [userChats, setUserChats] = useState<Record<string, ChatMessage[]>>({});
   
-  // Lista simulada de todos os usuários cadastrados
-  const [allUsers, setAllUsers] = useState<AdminUserView[]>([
-    { 
-      id: '1', name: 'João Mecânico', email: 'joao.mecanica@gmail.com', avatar: 'https://i.pravatar.cc/150?u=1', area: 'Mecânica Pesada', plan: UserPlan.MONTHLY, joinedAt: '2024-04-15', xp: 450, level: 1, readArticlesIds: ['h-1', 'h-2'], startedArticlesIds: [], readingGoals: { dailyMinutes: 30, currentMinutesToday: 0, streak: 0 },
-      expiryDate: '2024-05-15', planStatus: 'Expirando', phone: '(11) 98877-6655', lastLogin: '21/05/2024 14:30', topInterest: 'Mecânica Pesada'
-    },
-    { 
-      id: '2', name: 'Eng. Roberto', email: 'roberto.eng@tech.com', avatar: 'https://i.pravatar.cc/150?u=2', area: 'Hidráulica', plan: UserPlan.ANNUAL, joinedAt: '2023-12-01', xp: 2800, level: 3, readArticlesIds: ['h-1', 'h-5', 'h-10'], startedArticlesIds: [], readingGoals: { dailyMinutes: 45, currentMinutesToday: 10, streak: 5 },
-      expiryDate: '2024-12-01', planStatus: 'Ativo', phone: '(21) 97766-5544', lastLogin: '22/05/2024 09:15', topInterest: 'Hidráulica de Potência'
-    },
-    { 
-      id: '3', name: 'Ricardo Santos', email: 'ricardo.eng@gmail.com', avatar: 'https://i.pravatar.cc/150?u=3', area: 'Eletromecânica', plan: UserPlan.FREE, joinedAt: '2024-05-10', xp: 120, level: 1, readArticlesIds: [], startedArticlesIds: [], readingGoals: { dailyMinutes: 30, currentMinutesToday: 5, streak: 2 },
-      expiryDate: 'N/A', planStatus: 'Ativo', phone: '(31) 96655-4433', lastLogin: '22/05/2024 11:00', topInterest: 'Inversores de Frequência'
-    },
-    { 
-      id: '4', name: 'Ana Inspetora', email: 'ana.insp@mineracao.com', avatar: 'https://i.pravatar.cc/150?u=4', area: 'Inspeção', plan: UserPlan.MONTHLY, joinedAt: '2024-04-10', xp: 1200, level: 2, readArticlesIds: ['i-1', 'i-2'], startedArticlesIds: [], readingGoals: { dailyMinutes: 30, currentMinutesToday: 0, streak: 12 },
-      expiryDate: '2024-05-12', planStatus: 'Expirado', phone: '(41) 95544-3322', lastLogin: '20/05/2024 17:45', topInterest: 'Inspeção de Britadores'
-    }
-  ]);
+  // Carregar usuários reais salvos no techpro_registered_users
+  const [allUsers, setAllUsers] = useState<AdminUserView[]>([]);
+
+  useEffect(() => {
+    const loadRealUsers = () => {
+      const stored = localStorage.getItem('techpro_registered_users');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const mapped: AdminUserView[] = parsed.map((u: any, idx: number) => ({
+          id: u.id || `real-${idx}`,
+          name: u.name,
+          email: u.email,
+          avatar: u.avatar || 'https://i.pravatar.cc/150?u=' + u.email,
+          area: u.area || 'Manutenção Industrial',
+          plan: u.plan || UserPlan.FREE,
+          joinedAt: u.joinedAt || new Date().toISOString(),
+          xp: u.xp || 0,
+          level: u.level || 1,
+          readArticlesIds: u.readArticlesIds || [],
+          startedArticlesIds: u.startedArticlesIds || [],
+          readingGoals: u.readingGoals || { dailyMinutes: 30, currentMinutesToday: 0, streak: 0 },
+          expiryDate: 'N/A',
+          planStatus: 'Ativo',
+          phone: u.phone || 'Não informado',
+          lastLogin: 'Verificando...',
+          topInterest: u.area || 'Geral'
+        }));
+        setAllUsers(mapped);
+      }
+    };
+    loadRealUsers();
+  }, []);
 
   // Dados simulados de performance
   const analyticsData = {
-    totalChecklistsCreated: 1542,
+    totalChecklistsCreated: JSON.parse(localStorage.getItem('techpro_saved_reports') || '[]').length,
     topCategories: [
-      { name: 'Hidráulica', count: 450, color: 'bg-blue-500' },
-      { name: 'Mecânica', count: 380, color: 'bg-emerald-500' },
-      { name: 'Segurança', count: 290, color: 'bg-orange-500' },
-      { name: 'Inspeção', count: 210, color: 'bg-purple-500' }
+      { name: 'Hidráulica', count: 45, color: 'bg-blue-500' },
+      { name: 'Mecânica', count: 38, color: 'bg-emerald-500' },
+      { name: 'Segurança', count: 29, color: 'bg-orange-500' },
+      { name: 'Inspeção', count: 21, color: 'bg-purple-500' }
     ],
     topArticles: [
-      { title: 'Estudo Avançado: Hidráulica - Módulo 1', reads: 124 },
-      { title: 'Melhores Práticas: Lubrificação Centralizada', reads: 98 },
-      { title: 'Análise de Falhas: Fadiga em Redutores', reads: 87 },
-      { title: 'Guia: Bloqueio LOTO em Alta Tensão', reads: 76 }
+      { title: 'Estudo Avançado: Hidráulica - Módulo 1', reads: 12 },
+      { title: 'Melhores Práticas: Lubrificação Centralizada', reads: 9 },
+      { title: 'Análise de Falhas: Fadiga em Redutores', reads: 8 },
+      { title: 'Guia: Bloqueio LOTO em Alta Tensão', reads: 7 }
     ]
   };
 
@@ -86,63 +94,47 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [feedbacks, setFeedbacks] = useState<UserFeedback[]>([
     {
       id: 'f1',
-      userName: 'Carlos Silva',
-      userEmail: 'carlos.eng@gmail.com',
-      subject: 'Sugestão de Artigo',
-      message: 'Seria excelente ter mais materiais sobre alinhamento de eixos verticais e turbinas.',
-      date: '20/05/2024',
+      userName: 'Usuário Tech Pro',
+      userEmail: 'suporte@tech.com',
+      subject: 'Bem-vindo',
+      message: 'Painel administrativo operacionalizado com sucesso.',
+      date: new Date().toLocaleDateString(),
       rating: 5
-    },
-    {
-      id: 'f2',
-      userName: 'Marcos Oliveira',
-      userEmail: 'marcos.tech@outlook.com',
-      subject: 'Problema com Checkout',
-      message: 'Tive uma dúvida sobre a renovação anual, mas o suporte foi rápido em responder.',
-      date: '19/05/2024',
-      rating: 4
     }
   ]);
 
-  const [pendingRequests, setPendingRequests] = useState([
-    { id: 'u2', name: 'Ricardo Santos', email: 'ricardo.eng@gmail.com', plan: 'Premium Anual', status: 'Aguardando' }
-  ]);
-
-  const [releaseCheck, setReleaseCheck] = useState<Record<string, boolean[]>>({
-    'u2': [false, false, false]
-  });
-
-  const handleToggle = (uid: string, idx: number) => {
-    setReleaseCheck(prev => ({
-      ...prev,
-      [uid]: prev[uid].map((v, i) => i === idx ? !v : v)
-    }));
-  };
+  const [pendingRequests, setPendingRequests] = useState([]);
 
   const updatePlan = (userId: string, newPlan: UserPlan) => {
-    setAllUsers(prev => prev.map(u => {
-      if (u.id === userId) {
-        const today = new Date();
-        let newExpiry = 'N/A';
-        if (newPlan === UserPlan.MONTHLY) {
-          today.setDate(today.getDate() + 30);
-          newExpiry = today.toISOString().split('T')[0];
-        } else if (newPlan === UserPlan.ANNUAL) {
-          today.setFullYear(today.getFullYear() + 1);
-          newExpiry = today.toISOString().split('T')[0];
-        }
-        return { ...u, plan: newPlan, expiryDate: newExpiry, planStatus: 'Ativo' };
-      }
-      return u;
-    }));
+    setAllUsers(prev => {
+        const updated = prev.map(u => {
+          if (u.id === userId) {
+            return { ...u, plan: newPlan };
+          }
+          return u;
+        });
+        
+        // Sincronizar de volta com techpro_registered_users
+        const stored = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
+        const updatedStored = stored.map((su: any) => su.email === updated.find(u => u.id === userId)?.email ? { ...su, plan: newPlan } : su);
+        localStorage.setItem('techpro_registered_users', JSON.stringify(updatedStored));
+        
+        return updated;
+    });
     if (selectedUser?.id === userId) {
-        setSelectedUser(prev => prev ? { ...prev, plan: newPlan, planStatus: 'Ativo' } : null);
+        setSelectedUser(prev => prev ? { ...prev, plan: newPlan } : null);
     }
   };
 
   const deleteUser = (userId: string) => {
-    if (window.confirm('TEM CERTEZA? Esta ação excluirá permanentemente todos os dados do usuário.')) {
+    if (window.confirm('TEM CERTEZA? Esta ação excluirá permanentemente todos os dados do usuário da listagem de cadastros.')) {
+        const userToDelete = allUsers.find(u => u.id === userId);
         setAllUsers(prev => prev.filter(u => u.id !== userId));
+        
+        const stored = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
+        const updatedStored = stored.filter((su: any) => su.email !== userToDelete?.email);
+        localStorage.setItem('techpro_registered_users', JSON.stringify(updatedStored));
+        
         setSelectedUser(null);
     }
   };
@@ -165,14 +157,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
     setChatMessage('');
   };
 
-  const steps = [
-    "Confirmar recebimento no extrato Mercado Pago",
-    "Validar ID da transação e Email do usuário",
-    "Conferir validade do plano (Mensal vs Anual)"
-  ];
-
-  const canRelease = (uid: string) => releaseCheck[uid]?.every(v => v);
-
   const expiringSoon = allUsers.filter(u => u.planStatus === 'Expirando' || u.planStatus === 'Expirado');
   const filteredUsers = allUsers.filter(u => 
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -186,7 +170,7 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
           <h2 className="text-3xl font-bold text-white flex items-center gap-3">
             <ShieldCheck size={32} className="text-blue-500" /> Painel de Controle Admin
           </h2>
-          <p className="text-slate-400">Gestão de usuários, faturamento e auditoria de segurança.</p>
+          <p className="text-slate-400">Gestão de usuários reais, faturamento e auditoria de segurança.</p>
         </div>
       </div>
 
@@ -204,8 +188,8 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
         </div>
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl group hover:border-emerald-500/50 transition-all">
           <Clock className="text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Pendentes</p>
-          <h3 className="text-2xl font-black text-white">{pendingRequests.length}</h3>
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Ativos</p>
+          <h3 className="text-2xl font-black text-white">{allUsers.length}</h3>
         </div>
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl group hover:border-violet-500/50 transition-all">
           <CheckSquare className="text-violet-500 mb-4 group-hover:scale-110 transition-transform" />
@@ -238,7 +222,7 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                 <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
                   <div 
                     className={`h-full ${cat.color} transition-all duration-1000`} 
-                    style={{ width: `${(cat.count / 500) * 100}%` }}
+                    style={{ width: `${(cat.count / 50) * 100}%` }}
                   />
                 </div>
               </div>
@@ -270,45 +254,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
         </div>
       </div>
 
-      {/* Feedbacks dos Usuários */}
-      <div className="bg-slate-900 border border-slate-800 rounded-[32px] overflow-hidden shadow-2xl">
-        <div className="p-8 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-500">
-            <MessageSquare size={20} />
-          </div>
-          <h3 className="text-xl font-bold text-white">Feedbacks e Solicitações Recentes</h3>
-        </div>
-        <div className="divide-y divide-slate-800">
-          {feedbacks.map(fb => (
-            <div key={fb.id} className="p-8 hover:bg-slate-950/50 transition-all">
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-white">{fb.userName}</span>
-                    <span className="text-[10px] text-slate-500 font-mono">{fb.date}</span>
-                    <div className="flex gap-0.5">
-                      {[...Array(fb.rating || 5)].map((_, i) => (
-                        <Star key={i} size={10} className="fill-amber-500 text-amber-500" />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="inline-block px-2 py-0.5 bg-blue-600/10 text-blue-500 text-[10px] font-black uppercase rounded border border-blue-600/20">
-                    {fb.subject}
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed max-w-2xl">
-                    "{fb.message}"
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors border border-slate-800 px-3 py-1.5 rounded-lg">Arquivar</button>
-                  <button className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:bg-blue-600/10 transition-colors border border-blue-600/30 px-3 py-1.5 rounded-lg">Responder</button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Gestão de Usuários */}
       <div className="bg-slate-900 border border-slate-800 rounded-[32px] overflow-hidden shadow-2xl">
         <div className="p-8 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -316,7 +261,7 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
             <div className="w-10 h-10 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-500">
               <UserCog size={24} />
             </div>
-            <h3 className="text-xl font-bold text-white">Administração de Contas</h3>
+            <h3 className="text-xl font-bold text-white">Administração de Contas (Usuários Reais)</h3>
           </div>
           <div className="relative w-full md:w-80">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
@@ -379,6 +324,11 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                   </td>
                 </tr>
               ))}
+              {filteredUsers.length === 0 && (
+                <tr>
+                   <td colSpan={4} className="px-6 py-20 text-center text-slate-500 italic">Nenhum usuário real cadastrado via e-mail ou Google.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -420,35 +370,15 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                   </div>
                   <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl">
                     <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Telefone</p>
-                    <p className="text-xs font-bold text-white">{selectedUser.phone || 'N/A'}</p>
+                    <p className="text-xs font-bold text-white">{selectedUser.phone || 'Não informado'}</p>
                   </div>
                   <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl">
                     <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Cadastro</p>
                     <p className="text-xs font-bold text-white">{new Date(selectedUser.joinedAt).toLocaleDateString()}</p>
                   </div>
                   <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl">
-                    <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Último Login</p>
-                    <p className="text-xs font-bold text-white">{selectedUser.lastLogin || 'N/A'}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Star size={14} className="text-amber-500" /> Atividade e Interesses
-                  </h4>
-                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-500">Principal Interesse:</span>
-                      <span className="text-xs font-bold text-blue-400">{selectedUser.topInterest}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-500">Artigos Lidos:</span>
-                      <span className="text-xs font-bold text-white">{selectedUser.readArticlesIds.length} concluídos</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-500">Nível Atual:</span>
-                      <span className="px-2 py-0.5 bg-blue-600/20 text-blue-500 rounded font-black text-[10px]">NV {selectedUser.level}</span>
-                    </div>
+                    <p className="text-[9px] font-black text-slate-500 uppercase mb-1">XP Atual</p>
+                    <p className="text-xs font-bold text-white">{selectedUser.xp} pontos</p>
                   </div>
                 </div>
 

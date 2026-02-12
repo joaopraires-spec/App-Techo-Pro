@@ -215,10 +215,30 @@ const AppContent: React.FC = () => {
     try {
       const base64Url = response.credential.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      
+      // Adição de padding para evitar erro no atob()
+      const paddedBase64 = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+      
+      const jsonPayload = decodeURIComponent(atob(paddedBase64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
       const payload = JSON.parse(jsonPayload);
 
       const isAdm = payload.email === ADMIN_EMAIL;
+      
+      // Sincronizar com a lista global de usuários reais
+      const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
+      const userExists = registeredUsers.some((u: any) => u.email === payload.email);
+      
+      if (!userExists) {
+        const googleUserRecord = { 
+          email: payload.email, 
+          name: payload.name, 
+          avatar: payload.picture,
+          area: 'Engenharia de Campo',
+          joinedAt: new Date().toISOString()
+        };
+        localStorage.setItem('techpro_registered_users', JSON.stringify([...registeredUsers, googleUserRecord]));
+      }
+
       const newUser: UserProfile = {
         id: payload.sub,
         name: payload.name,
@@ -275,7 +295,7 @@ const AppContent: React.FC = () => {
     
     const registeredUsers = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
     if (authMode === 'register') {
-      const newUserRecord = { email, name, password, area };
+      const newUserRecord = { email, name, password, area, joinedAt: new Date().toISOString() };
       localStorage.setItem('techpro_registered_users', JSON.stringify([...registeredUsers, newUserRecord]));
     }
 
