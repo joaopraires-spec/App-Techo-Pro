@@ -35,8 +35,11 @@ import {
   FileShield,
   Instagram,
   AlertTriangle,
+  // Fix: Added missing CheckCircle import
+  CheckCircle,
   FileText,
-  ShieldAlert
+  ShieldAlert,
+  HelpCircle
 } from 'lucide-react';
 import { UserPlan, UserProfile, UserRole, UserStatus } from './types.ts';
 import { ADMIN_EMAIL, LEVELS } from './constants.ts';
@@ -54,12 +57,6 @@ import ReadingHistory from './components/ReadingHistory.tsx';
 import StudyAnalytics from './components/StudyAnalytics.tsx';
 import LGPD from './components/LGPD.tsx';
 import { authService } from './services/authService.ts';
-
-declare global {
-  interface Window {
-    google: any;
-  }
-}
 
 const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg" | "xl", className?: string }) => {
   const sizes = { sm: "w-8 h-8", md: "w-10 h-10", lg: "w-12 h-12", xl: "w-16 h-16" };
@@ -123,89 +120,24 @@ const AppContent: React.FC = () => {
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const location = useLocation();
 
   useEffect(() => {
     const isValid = authService.validateSession();
     const savedUser = localStorage.getItem('techpro_user');
     if (isValid && savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsedUser = JSON.parse(savedUser);
+      if (parsedUser.email === ADMIN_EMAIL) {
+        parsedUser.role = UserRole.ADMIN;
+        parsedUser.plan = UserPlan.ADMIN;
+      }
+      setUser(parsedUser);
     } else {
       setUser(null);
       localStorage.removeItem('techpro_user');
     }
   }, []);
-
-  useEffect(() => {
-    if (!user && (authMode === 'login' || authMode === 'register')) {
-      const initGoogle = () => {
-        if (window.google) {
-          window.google.accounts.id.initialize({
-            client_id: "61427508688-66qf0062n3v3a863j8c8n14264789.apps.googleusercontent.com",
-            callback: handleGoogleResponse
-          });
-          window.google.accounts.id.renderButton(
-            document.getElementById("google-signin-button"),
-            { theme: "filled_blue", size: "large", width: 280, shape: "pill", text: authMode === 'login' ? 'signin_with' : 'signup_with' }
-          );
-        }
-      };
-      if (window.google) initGoogle();
-      else {
-        const interval = setInterval(() => { if (window.google) { initGoogle(); clearInterval(interval); } }, 500);
-        return () => clearInterval(interval);
-      }
-    }
-  }, [authMode, user]);
-
-  const handleGoogleResponse = (response: any) => {
-    try {
-      const base64Url = response.credential.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(decodeURIComponent(window.atob(base64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-      
-      const users = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
-      let existingUser = users.find((u: any) => u.email === payload.email);
-      
-      if (!existingUser) {
-        if (authMode === 'login') {
-          setErrorMsg("Conta Google não cadastrada. Por favor, registre-se primeiro.");
-          return;
-        }
-        const newUser: UserProfile = {
-          id: payload.sub,
-          name: payload.name,
-          email: payload.email,
-          avatar: payload.picture,
-          area: 'Engenharia de Campo',
-          plan: payload.email === ADMIN_EMAIL ? UserPlan.ADMIN : UserPlan.FREE,
-          role: payload.email === ADMIN_EMAIL ? UserRole.ADMIN : UserRole.USER,
-          status: UserStatus.ACTIVE,
-          joinedAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          xp: 0,
-          level: 1,
-          readArticlesIds: [],
-          startedArticlesIds: [],
-          readingGoals: { dailyMinutes: 30, currentMinutesToday: 0, streak: 0 }
-        };
-        users.push(newUser);
-        localStorage.setItem('techpro_registered_users', JSON.stringify(users));
-        existingUser = newUser;
-      }
-
-      if (existingUser.status === UserStatus.SUSPENDED) {
-        setErrorMsg("Sua conta está suspensa.");
-        return;
-      }
-
-      setUser(existingUser);
-      localStorage.setItem('techpro_user', JSON.stringify(existingUser));
-      localStorage.setItem('techpro_session_token', JSON.stringify({ userId: existingUser.id, expiresAt: Date.now() + 86400000 }));
-    } catch (err) {
-      setErrorMsg("Erro ao processar login Google.");
-    }
-  };
 
   const handleLogout = () => {
     authService.logout();
@@ -215,25 +147,40 @@ const AppContent: React.FC = () => {
   const handleAuthSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg(null);
+    setSuccessMsg(null);
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
 
     if (authMode === 'register') {
+      const password = formData.get('password') as string;
       const name = formData.get('name') as string;
       const area = formData.get('area') as string;
       const res = authService.register({ name, email, passwordHash: password, area });
       if (res.success) {
         setAuthMode('login');
-        setErrorMsg("Conta criada! Por favor, faça login.");
+        setSuccessMsg("Conta criada! Por favor, faça login.");
       } else {
         setErrorMsg(res.message);
       }
-    } else {
+    } else if (authMode === 'login') {
+      const password = formData.get('password') as string;
       const res = authService.login(email, password);
       if (res.success && res.user) {
+        if (res.user.email === ADMIN_EMAIL) {
+          res.user.role = UserRole.ADMIN;
+          res.user.plan = UserPlan.ADMIN;
+        }
         setUser(res.user);
         localStorage.setItem('techpro_user', JSON.stringify(res.user));
+      } else {
+        setErrorMsg(res.message);
+      }
+    } else if (authMode === 'forgot') {
+      const name = formData.get('name') as string;
+      const res = authService.recoverPassword(email, name);
+      if (res.success) {
+        setSuccessMsg(res.message);
+        setTimeout(() => setAuthMode('login'), 3000);
       } else {
         setErrorMsg(res.message);
       }
@@ -258,54 +205,61 @@ const AppContent: React.FC = () => {
             <div className="animate-in fade-in duration-500">
               <div className="mb-8 text-center md:text-left">
                 <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
-                  {authMode === 'login' ? 'Login Specialist' : 'Novo Cadastro'}
+                  {authMode === 'login' ? 'Login Specialist' : authMode === 'register' ? 'Novo Cadastro' : 'Recuperar Senha'}
                 </h2>
                 {errorMsg && (
                   <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2 mt-4 animate-bounce">
                     <AlertTriangle size={14} /> {errorMsg}
                   </div>
                 )}
+                {successMsg && (
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2 mt-4 animate-pulse">
+                    <CheckCircle size={14} /> {successMsg}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-6">
-                <div id="google-signin-button" className="w-full flex justify-center"></div>
-                <div className="flex items-center gap-4 w-full text-slate-700 px-4">
-                  <div className="h-px bg-slate-800 flex-1"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">ou e-mail</span>
-                  <div className="h-px bg-slate-800 flex-1"></div>
-                </div>
-
                 <form className="space-y-4" onSubmit={handleAuthSubmit}>
-                  {authMode === 'register' && (
+                  {(authMode === 'register' || authMode === 'forgot') && (
                     <>
                       <div className="relative">
                         <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                         <input name="name" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Nome completo" />
                       </div>
-                      <div className="relative">
-                        <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                        <input name="area" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Especialidade (Ex: Mecânica)" />
-                      </div>
+                      {authMode === 'register' && (
+                        <div className="relative">
+                          <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                          <input name="area" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Especialidade (Ex: Mecânica)" />
+                        </div>
+                      )}
                     </>
                   )}
                   <div className="relative">
                     <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="E-mail profissional" />
                   </div>
-                  <div className="relative">
-                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                    <input name="password" type={showPassword ? "text" : "password"} required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-12 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Sua senha" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
+                  {authMode !== 'forgot' && (
+                    <div className="relative">
+                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input name="password" type={showPassword ? "text" : "password"} required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-12 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Sua senha" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  )}
                   <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95">
-                    {authMode === 'login' ? 'Entrar no Sistema' : 'Finalizar Cadastro'} <ChevronRight size={18} />
+                    {authMode === 'login' ? 'Entrar no Sistema' : authMode === 'register' ? 'Finalizar Cadastro' : 'Enviar Dados por E-mail'} <ChevronRight size={18} />
                   </button>
                 </form>
 
-                <div className="text-center flex flex-col items-center gap-2">
-                  <button onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setErrorMsg(null); }} className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors">
+                <div className="text-center flex flex-col items-center gap-3">
+                  {authMode === 'login' && (
+                    <button onClick={() => { setAuthMode('forgot'); setErrorMsg(null); setSuccessMsg(null); }} className="text-sm font-semibold text-slate-500 hover:text-blue-400 transition-colors flex items-center gap-1">
+                      <HelpCircle size={14} /> Esqueci minha senha
+                    </button>
+                  )}
+                  <button onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setErrorMsg(null); setSuccessMsg(null); }} className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors">
                     {authMode === 'login' ? 'Ainda não tem conta? Registre-se aqui' : 'Já possui cadastro? Faça login'}
                   </button>
                 </div>

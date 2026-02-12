@@ -94,6 +94,19 @@ export const authService = {
     return { success: true, user, message: 'Login bem-sucedido!' };
   },
 
+  // Recuperar senha (mock)
+  recoverPassword: (email: string, name: string): { success: boolean; message: string } => {
+    const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
+    const user = users.find((u: any) => u.email === email && u.name.toLowerCase().includes(name.toLowerCase()));
+
+    if (!user) {
+      return { success: false, message: 'Dados não conferem. Verifique o e-mail e nome digitados.' };
+    }
+
+    // Em um sistema real, aqui dispararia o e-mail.
+    return { success: true, message: 'Senha recuperada! Você receberá um e-mail com seus dados em breve.' };
+  },
+
   // Logout
   logout: () => {
     localStorage.removeItem(SESSION_KEY);
