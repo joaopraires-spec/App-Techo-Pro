@@ -93,26 +93,17 @@ const Conversions: React.FC<{ isPremium: boolean; user: UserProfile; onUpdateUse
 
   const getConvertedValue = () => {
     if (fromUnit === toUnit) return value;
-    // Lógica simplificada mantida conforme original (em produção seria um mapa de fatores real)
     return value * 1.5; 
   };
 
   const handleValueChange = (val: number) => {
     setValue(val);
-    
-    // Incrementar contagem de conversões e XP
     if (user && val !== 0) {
       const currentCount = user.conversionsCount || 0;
-      const newXp = user.xp + 0.5; // Ganho moderado por interação
+      const newXp = user.xp + 0.5;
       let newLevel = user.level;
       LEVELS.forEach(l => { if (newXp >= l.minXp) newLevel = l.level; });
-      
-      onUpdateUser({
-        ...user,
-        conversionsCount: currentCount + 1,
-        xp: newXp,
-        level: newLevel
-      });
+      onUpdateUser({ ...user, conversionsCount: currentCount + 1, xp: newXp, level: newLevel });
     }
   };
 
@@ -122,6 +113,9 @@ const Conversions: React.FC<{ isPremium: boolean; user: UserProfile; onUpdateUse
     setFromUnit(units[0]);
     setToUnit(units[1]);
   };
+
+  const freeCategories = categories.filter(cat => FREE_CONVERSIONS.includes(cat));
+  const premiumCategories = categories.filter(cat => !FREE_CONVERSIONS.includes(cat));
 
   return (
     <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto pb-10">
@@ -133,23 +127,21 @@ const Conversions: React.FC<{ isPremium: boolean; user: UserProfile; onUpdateUse
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-        {/* Sidebar - List of Grandezas */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="flex items-center gap-2 px-1 mb-3">
-             <RefreshCw size={14} className="text-slate-500" />
-             <h3 className="text-xs font-black text-slate-200 uppercase tracking-widest">Grandezas</h3>
-          </div>
+        <div className="lg:col-span-4 space-y-6">
+          {/* Gratuitas Section */}
           <div className="space-y-3">
-            {categories.map(cat => {
-              const isFree = FREE_CONVERSIONS.includes(cat);
-              const isActive = category === cat;
-              return (
+            <div className="flex items-center gap-2 px-1 mb-3">
+               <RefreshCw size={14} className="text-slate-500" />
+               <h3 className="text-xs font-black text-slate-200 uppercase tracking-widest">Gratuitas</h3>
+            </div>
+            <div className="space-y-3">
+              {freeCategories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => handleCategoryChange(cat)}
                   className={`w-full text-left p-3 md:p-4 rounded-[20px] transition-all flex items-center gap-4 group border ${
-                    isActive 
-                      ? (isFree || isPremium ? 'bg-slate-800/80 border-blue-600/50 shadow-lg' : 'bg-slate-800/80 border-amber-600/30 shadow-lg')
+                    category === cat 
+                      ? 'bg-slate-800/80 border-blue-600/50 shadow-lg' 
                       : 'bg-slate-900 border-slate-800 hover:border-slate-700'
                   }`}
                 >
@@ -158,18 +150,48 @@ const Conversions: React.FC<{ isPremium: boolean; user: UserProfile; onUpdateUse
                     <p className="font-bold text-white text-sm md:text-base truncate">{cat}</p>
                     <p className="text-[10px] text-slate-500 line-clamp-1">{getCategoryDescription(cat)}</p>
                   </div>
-                  {!isFree && !isPremium ? (
+                  <ChevronRight size={16} className={`shrink-0 transition-transform ${category === cat ? 'text-blue-500 translate-x-1' : 'text-slate-700'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Premium Section */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 px-1">
+               <Crown size={14} className="text-amber-500" />
+               <h3 className="text-xs font-black text-slate-200 uppercase tracking-widest">Premium</h3>
+            </div>
+            <div className="space-y-3">
+              {premiumCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat)}
+                  className={`w-full text-left p-3 md:p-4 rounded-[20px] transition-all flex items-center gap-4 group border ${
+                    category === cat 
+                      ? 'bg-slate-800/80 border-amber-600/30 shadow-lg' 
+                      : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  {getCategoryIcon(cat)}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="font-bold text-white text-sm md:text-base truncate">{cat}</p>
+                      <Crown size={12} className="text-amber-500" />
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">{getCategoryDescription(cat)}</p>
+                  </div>
+                  {!isPremium ? (
                     <Lock size={14} className="text-amber-500 shrink-0" />
                   ) : (
-                    <ChevronRight size={16} className={`shrink-0 transition-transform ${isActive ? 'text-blue-500 translate-x-1' : 'text-slate-700'}`} />
+                    <ChevronRight size={16} className={`shrink-0 transition-transform ${category === cat ? 'text-blue-500 translate-x-1' : 'text-slate-700'}`} />
                   )}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Right Content - Conversion Tool */}
         <div className="lg:col-span-8">
           {isLocked ? (
             <div className="bg-slate-900 border border-amber-500/20 rounded-[32px] p-8 md:p-16 text-center shadow-xl h-full flex flex-col items-center justify-center">

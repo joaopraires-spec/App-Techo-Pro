@@ -21,6 +21,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone: string; // Telefone com DDD
   password?: string; // Senha original para recuperação conforme solicitado
   passwordHash?: string; // Hash para validação de segurança
   avatar: string;

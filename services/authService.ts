@@ -17,7 +17,7 @@ const SESSION_KEY = 'techpro_session_token';
 const USERS_DB_KEY = 'techpro_registered_users';
 
 export const authService = {
-  register: (data: Partial<UserProfile & { passwordRaw?: string }>): { success: boolean; message: string } => {
+  register: (data: Partial<UserProfile>): { success: boolean; message: string } => {
     const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
     if (users.find((u: any) => u.email === data.email)) {
       return { success: false, message: 'Este e-mail já está cadastrado.' };
@@ -30,6 +30,7 @@ export const authService = {
       id: Date.now().toString(),
       name: data.name || '',
       email: data.email || '',
+      phone: data.phone || '', // Novo campo
       password: rawPassword, // Armazena senha para recuperação
       passwordHash: simpleHash(rawPassword),
       avatar: data.avatar || `https://i.pravatar.cc/150?u=${data.email}`,

@@ -1,225 +1,226 @@
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  BookOpen, 
-  Calculator as CalcIcon, 
-  RefreshCw, 
-  CheckSquare, 
-  MessageSquare, 
-  User, 
-  ShieldCheck, 
-  Menu, 
-  X, 
-  Bell,
-  LogOut,
-  ChevronRight,
-  Gem,
-  Send,
-  Crown,
-  ChevronDown,
-  TrendingUp,
-  Award,
-  History,
-  BarChart3,
-  Info,
-  Mail,
-  Lock,
-  UserPlus,
-  Briefcase,
-  KeyRound,
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  FileShield,
-  Instagram,
-  AlertTriangle,
-  CheckCircle,
-  FileText,
-  ShieldAlert,
-  HelpCircle,
-  Loader2
+  LayoutDashboard, BookOpen, Calculator, ClipboardCheck, 
+  MessageSquare, User, ShieldCheck, LogOut, Menu, X,
+  History, BarChart3, Phone, Award, RefreshCw,
+  Shield, AlertTriangle, ArrowRight, Mail, Key,
+  ChevronRight, Activity, Droplets, CheckCircle2
 } from 'lucide-react';
-import { UserPlan, UserProfile, UserRole, UserStatus } from './types.ts';
-import { ADMIN_EMAIL, LEVELS } from './constants.ts';
-import Dashboard from './components/Dashboard.tsx';
-import Library from './components/Library.tsx';
-import Calculators from './components/Calculators.tsx';
-import Conversions from './components/Conversions.tsx';
-import Checklists from './components/Checklists.tsx';
-import Forum from './components/Forum.tsx';
-import Profile from './components/Profile.tsx';
-import Admin from './components/Admin.tsx';
-import Contact from './components/Contact.tsx';
-import ProfessionalLevel from './components/ProfessionalLevel.tsx';
-import ReadingHistory from './components/ReadingHistory.tsx';
-import StudyAnalytics from './components/StudyAnalytics.tsx';
-import LGPD from './components/LGPD.tsx';
-import { authService } from './services/authService.ts';
-import { GoogleGenAI } from "@google/genai";
 
+import Dashboard from './components/Dashboard';
+import Library from './components/Library';
+import Calculators from './components/Calculators';
+import Checklists from './components/Checklists';
+import Forum from './components/Forum';
+import Profile from './components/Profile';
+import Admin from './components/Admin';
+import Conversions from './components/Conversions';
+import Contact from './components/Contact';
+import ProfessionalLevel from './components/ProfessionalLevel';
+import ReadingHistory from './components/ReadingHistory';
+import StudyAnalytics from './components/StudyAnalytics';
+import LGPD from './components/LGPD';
+
+import { authService } from './services/authService';
+import { UserProfile, UserRole, UserPlan } from './types';
+
+// Tech Pro Custom Logo Component
 const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg" | "xl", className?: string }) => {
-  const sizes = { sm: "w-8 h-8", md: "w-10 h-10", lg: "w-12 h-12", xl: "w-16 h-16" };
+  const sizes = {
+    sm: "w-8 h-8",
+    md: "w-10 h-10",
+    lg: "w-12 h-12",
+    xl: "w-16 h-16"
+  };
+
   return (
     <div className={`${sizes[size]} ${className} relative flex items-center justify-center shrink-0`}>
       <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-xl">
         <defs>
           <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" /><stop offset="100%" stopColor="#1d4ed8" />
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1d4ed8" />
           </linearGradient>
           <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fbbf24" /><stop offset="100%" stopColor="#d97706" />
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="100%" stopColor="#d97706" />
           </linearGradient>
         </defs>
-        <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" fill="url(#blueGrad)" className="opacity-90"/>
-        <path d="M50 15 L82 33 L82 67 L50 85 L18 67 L18 33 Z" fill="none" stroke="url(#goldGrad)" strokeWidth="3" className="opacity-50"/>
-        <path d="M35 35 H65 M50 35 V65" stroke="white" strokeWidth="8" strokeLinecap="round" />
-        <path d="M58 45 C65 45 65 55 58 55 H50" stroke="white" strokeWidth="6" fill="none" strokeLinecap="round" />
-        <circle cx="50" cy="95" r="3" fill="#fbbf24" /><circle cx="90" cy="27.5" r="2" fill="#fbbf24" /><circle cx="10" cy="27.5" r="2" fill="#fbbf24" />
+        {/* Hexagon Base */}
+        <path 
+          d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" 
+          fill="url(#blueGrad)" 
+          className="opacity-90"
+        />
+        {/* Inner Border */}
+        <path 
+          d="M50 15 L82 33 L82 67 L50 85 L18 67 L18 33 Z" 
+          fill="none" 
+          stroke="url(#goldGrad)" 
+          strokeWidth="3" 
+          className="opacity-50"
+        />
+        {/* Stylized 'Tp' */}
+        <path 
+          d="M35 35 H65 M50 35 V65" 
+          stroke="white" 
+          strokeWidth="8" 
+          strokeLinecap="round" 
+        />
+        <path 
+          d="M58 45 C65 45 65 55 58 55 H50" 
+          stroke="white" 
+          strokeWidth="6" 
+          fill="none" 
+          strokeLinecap="round" 
+        />
+        {/* Decorative dots */}
+        <circle cx="50" cy="95" r="3" fill="#fbbf24" />
+        <circle cx="90" cy="27.5" r="2" fill="#fbbf24" />
+        <circle cx="10" cy="27.5" r="2" fill="#fbbf24" />
       </svg>
     </div>
   );
 };
 
-const SidebarItem = ({ to, icon: Icon, label, active, onClick, badge, premium, external }: any) => {
-  const content = (
-    <>
-      <Icon size={20} className={active ? 'text-blue-400' : 'group-hover:text-blue-400'} />
-      <span className="font-medium text-sm flex-1">{label}</span>
-      {premium && <Crown size={12} className="text-amber-500 absolute top-2 right-2" />}
-      {badge && (
-        <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold shadow-md">{badge}</span>
-      )}
-    </>
-  );
-
-  const className = `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative active:scale-95 ${
-    active 
-      ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]' 
-      : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
-  } ${premium ? 'border-amber-500/20 hover:border-amber-500/40' : ''}`;
-
-  if (external) {
-    return (
-      <a href={to} target="_blank" rel="noopener noreferrer" className={className}>
-        {content}
-      </a>
-    );
-  }
-
-  return (
-    <Link to={to} onClick={onClick} className={className}>
-      {content}
-    </Link>
-  );
-};
+const NavItem = ({ to, icon: Icon, label, active, onClick }: any) => (
+  <Link 
+    to={to} 
+    onClick={onClick}
+    className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all ${
+      active 
+        ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20 font-bold' 
+        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+    }`}
+  >
+    <Icon size={20} />
+    <span className="text-sm">{label}</span>
+  </Link>
+);
 
 const AppContent: React.FC = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'recover'>('login');
+  
+  // Auth state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [recoveryPass, setRecoveryPass] = useState('');
 
   useEffect(() => {
-    const isValid = authService.validateSession();
     const savedUser = localStorage.getItem('techpro_user');
-    if (isValid && savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      if (parsedUser.email === ADMIN_EMAIL) {
-        parsedUser.role = UserRole.ADMIN;
-        parsedUser.plan = UserPlan.ADMIN;
+    if (savedUser && authService.validateSession()) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('techpro_user');
       }
-      setUser(parsedUser);
-    } else {
-      setUser(null);
-      localStorage.removeItem('techpro_user');
     }
+    setLoading(false);
   }, []);
+
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    if (authMode === 'login') {
+      const res = authService.login(email, password);
+      if (res.success && res.user) {
+        setUser(res.user);
+        localStorage.setItem('techpro_user', JSON.stringify(res.user));
+      } else {
+        setErrorMsg(res.message);
+      }
+    } else if (authMode === 'register') {
+      const res = authService.register({ name, email, phone, password });
+      if (res.success) {
+        setAuthMode('login');
+        setSuccessMsg('Cadastro realizado com sucesso! Faça login para continuar.');
+      } else {
+        setErrorMsg(res.message);
+      }
+    } else if (authMode === 'recover') {
+      const res = authService.recoverPassword(email, name);
+      if (res.success) {
+        setRecoveryPass(res.password || '');
+        setSuccessMsg('Usuário validado com sucesso.');
+      } else {
+        setErrorMsg(res.message);
+      }
+    }
+  };
 
   const handleLogout = () => {
     authService.logout();
     setUser(null);
   };
 
-  const handleAuthSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrorMsg(null);
-    setSuccessMsg(null);
-    setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-
-    try {
-      if (authMode === 'register') {
-        const password = formData.get('password') as string;
-        const name = formData.get('name') as string;
-        const area = formData.get('area') as string;
-        const res = authService.register({ name, email, password, area });
-        if (res.success) {
-          setAuthMode('login');
-          setSuccessMsg("Conta criada! Por favor, faça login.");
-        } else {
-          setErrorMsg(res.message);
-        }
-      } else if (authMode === 'login') {
-        const password = formData.get('password') as string;
-        const res = authService.login(email, password);
-        if (res.success && res.user) {
-          if (res.user.email === ADMIN_EMAIL) {
-            res.user.role = UserRole.ADMIN;
-            res.user.plan = UserPlan.ADMIN;
-          }
-          setUser(res.user);
-          localStorage.setItem('techpro_user', JSON.stringify(res.user));
-        } else {
-          setErrorMsg(res.message);
-        }
-      } else if (authMode === 'forgot') {
-        const name = formData.get('name') as string;
-        const res = authService.recoverPassword(email, name);
-        if (res.success) {
-          // Utilizar Gemini para gerar um e-mail profissional
-          const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-          const prompt = `Gere um corpo de e-mail corporativo e profissional para o usuário ${name} do app Tech Pro Industrial. Informe que a senha cadastrada é: "${res.password}". O e-mail deve ser formal, curto e encorajador.`;
-          const response = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: prompt,
-          });
-          
-          setSuccessMsg(`SIMULAÇÃO DE E-MAIL ENVIADO:\n\n${response.text}`);
-          // Não redireciona imediatamente para o usuário ver a senha simulada
-        } else {
-          setErrorMsg(res.message);
-        }
-      }
-    } catch (err) {
-      setErrorMsg("Ocorreu um erro inesperado. Tente novamente.");
-    } finally {
-      setIsLoading(false);
+  const handleUpdateUser = (updatedUser: UserProfile) => {
+    setUser(updatedUser);
+    localStorage.setItem('techpro_user', JSON.stringify(updatedUser));
+    const users = JSON.parse(localStorage.getItem('techpro_registered_users') || '[]');
+    const index = users.findIndex((u: any) => u.id === updatedUser.id);
+    if (index !== -1) {
+      users[index] = updatedUser;
+      localStorage.setItem('techpro_registered_users', JSON.stringify(users));
     }
   };
+
+  if (loading) return null;
 
   if (!user) {
     return (
       <div className="min-h-screen bg-[#020617] flex items-center justify-center p-0 md:p-6 overflow-x-hidden">
         <div className="w-full max-w-6xl min-h-screen md:min-h-0 md:h-[700px] bg-slate-900 md:rounded-[40px] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-slate-800/50">
-          <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-blue-900">
-            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-60" alt="Industrial Tech"/>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/40" />
-            <div className="relative z-10 p-12 flex flex-col justify-end h-full">
-              <TechProLogo size="xl" className="mb-6 shadow-2xl" />
-              <h1 className="text-5xl font-black text-white leading-tight mb-4 tracking-tighter">Segurança <br /><span className="text-blue-500">e Profissionalismo.</span></h1>
-              <p className="text-slate-300 text-lg font-medium max-w-sm">Acesse a maior base de conhecimento técnico verificada para engenheiros de campo.</p>
+          
+          {/* Lado Esquerdo - Branding (Oculto no Mobile) */}
+          <div className="hidden md:flex md:w-1/2 bg-[#020617] relative p-16 flex-col justify-between overflow-hidden">
+            <div className="absolute top-[-10%] left-[-10%] w-full h-full bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-full h-full bg-amber-500/5 blur-[100px] rounded-full pointer-events-none" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-10">
+                <TechProLogo size="lg" />
+                <h1 className="text-2xl font-black text-white tracking-tighter">TECH PRO</h1>
+              </div>
+              <h2 className="text-5xl font-black text-white leading-tight tracking-tighter">
+                A Revolução da <br />
+                <span className="text-blue-500">Engenharia de Campo</span>
+              </h2>
+              <p className="text-slate-500 mt-6 text-lg font-medium max-w-sm leading-relaxed">
+                Acesse ferramentas críticas, bibliotecas técnicas e suporte especializado em uma única plataforma industrial.
+              </p>
+            </div>
+
+            <div className="relative z-10 flex items-center gap-6">
+              <div className="flex -space-x-3">
+                {[1, 2, 3, 4].map(i => (
+                  <img key={i} src={`https://i.pravatar.cc/100?u=${i+10}`} className="w-10 h-10 rounded-full border-2 border-[#020617]" alt="" />
+                ))}
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                +2.500 Especialistas <br /> conectados hoje
+              </p>
+            </div>
+
+            {/* Background Decorative Element */}
+            <div className="absolute center inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+              <TechProLogo size="xl" className="scale-[8] rotate-12" />
             </div>
           </div>
 
-          <div className="flex-1 md:w-1/2 p-6 md:p-16 flex flex-col justify-center bg-slate-900">
+          {/* Lado Direito - Formulários */}
+          <div className="flex-1 md:w-1/2 p-6 md:p-16 flex flex-col justify-center bg-slate-900 overflow-y-auto">
             <div className="animate-in fade-in duration-500">
               <div className="mb-8 text-center md:text-left">
                 <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
@@ -231,65 +232,111 @@ const AppContent: React.FC = () => {
                   </div>
                 )}
                 {successMsg && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-2xl text-xs font-bold flex flex-col gap-3 mt-4 animate-pulse whitespace-pre-wrap">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle size={14} /> Solicitação Processada
-                    </div>
-                    <div className="bg-slate-950/50 p-3 rounded-xl font-mono text-slate-300 leading-relaxed border border-emerald-500/20">
-                      {successMsg}
-                    </div>
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2 mt-4 animate-pulse">
+                    {/* Fix: Added missing CheckCircle2 component from lucide-react */}
+                    <CheckCircle2 size={14} /> {successMsg}
                   </div>
                 )}
               </div>
 
-              <div className="space-y-6">
-                <form className="space-y-4" onSubmit={handleAuthSubmit}>
-                  {(authMode === 'register' || authMode === 'forgot') && (
-                    <>
-                      <div className="relative">
-                        <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                        <input name="name" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Nome completo" />
-                      </div>
-                      {authMode === 'register' && (
-                        <div className="relative">
-                          <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                          <input name="area" type="text" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Especialidade (Ex: Mecânica)" />
-                        </div>
-                      )}
-                    </>
-                  )}
+              <form onSubmit={handleAuthSubmit} className="space-y-4">
+                {authMode === 'register' && (
                   <div className="relative">
-                    <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                    <input name="email" type="email" required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="E-mail profissional" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <input 
+                      type="text" 
+                      placeholder="Nome Completo" 
+                      required 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-700"
+                      value={name} 
+                      onChange={e => setName(e.target.value)} 
+                    />
                   </div>
-                  {authMode !== 'forgot' && (
-                    <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                      <input name="password" type={showPassword ? "text" : "password"} required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl pl-12 pr-12 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-600" placeholder="Sua senha" />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  )}
-                  <button 
-                    type="submit" 
-                    disabled={isLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95"
-                  >
-                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : (authMode === 'login' ? 'Entrar no Sistema' : authMode === 'register' ? 'Finalizar Cadastro' : 'Enviar Dados por E-mail')} <ChevronRight size={18} />
-                  </button>
-                </form>
+                )}
 
-                <div className="text-center flex flex-col items-center gap-3">
-                  {authMode === 'login' && (
-                    <button onClick={() => { setAuthMode('forgot'); setErrorMsg(null); setSuccessMsg(null); }} className="text-sm font-semibold text-slate-500 hover:text-blue-400 transition-colors flex items-center gap-1">
-                      <HelpCircle size={14} /> Esqueci minha senha
-                    </button>
-                  )}
-                  <button onClick={() => { setAuthMode(authMode === 'login' || authMode === 'forgot' ? 'register' : 'login'); setErrorMsg(null); setSuccessMsg(null); }} className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors">
-                    {authMode === 'login' || authMode === 'forgot' ? 'Ainda não tem conta? Registre-se aqui' : 'Já possui cadastro? Faça login'}
-                  </button>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                  <input 
+                    type="email" 
+                    placeholder="E-mail Corporativo" 
+                    required 
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-700"
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                  />
                 </div>
+
+                {authMode === 'register' && (
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <input 
+                      type="tel" 
+                      placeholder="Telefone (DDD + Número)" 
+                      required 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-700"
+                      value={phone} 
+                      onChange={e => setPhone(e.target.value)} 
+                    />
+                  </div>
+                )}
+
+                {(authMode === 'login' || authMode === 'register') && (
+                  <div className="relative">
+                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <input 
+                      type="password" 
+                      placeholder="Senha de Acesso" 
+                      required 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-700"
+                      value={password} 
+                      onChange={e => setPassword(e.target.value)} 
+                    />
+                  </div>
+                )}
+
+                {authMode === 'recover' && (
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <input 
+                      type="text" 
+                      placeholder="Confirme seu Nome" 
+                      required 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-700"
+                      value={name} 
+                      onChange={e => setName(e.target.value)} 
+                    />
+                  </div>
+                )}
+
+                {recoveryPass && (
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-3xl text-center space-y-2">
+                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Sua Senha Recuperada</p>
+                    <p className="text-2xl font-black text-white">{recoveryPass}</p>
+                  </div>
+                )}
+
+                <button 
+                  type="submit" 
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-900/20 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  {authMode === 'login' ? 'Entrar na Plataforma' : authMode === 'register' ? 'Criar Minha Conta' : 'Solicitar Senha'}
+                  <ArrowRight size={16} />
+                </button>
+              </form>
+
+              <div className="mt-8 flex flex-col gap-4 text-center">
+                {authMode === 'login' ? (
+                  <>
+                    <button onClick={() => { setAuthMode('recover'); setErrorMsg(''); setSuccessMsg(''); }} className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors">Esqueci minha senha</button>
+                    <div className="h-px bg-slate-800 w-1/2 mx-auto" />
+                    <p className="text-sm text-slate-500">
+                      Ainda não tem acesso? 
+                      <button onClick={() => { setAuthMode('register'); setErrorMsg(''); setSuccessMsg(''); }} className="text-blue-500 font-bold ml-1 hover:underline">Cadastre-se</button>
+                    </p>
+                  </>
+                ) : (
+                  <button onClick={() => { setAuthMode('login'); setErrorMsg(''); setSuccessMsg(''); setRecoveryPass(''); }} className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors">Voltar para o Login</button>
+                )}
               </div>
             </div>
           </div>
@@ -299,89 +346,119 @@ const AppContent: React.FC = () => {
   }
 
   const isAdmin = user.role === UserRole.ADMIN;
-  const isPremium = user.plan === UserPlan.ANNUAL || user.plan === UserPlan.MONTHLY || isAdmin;
-  const currentLevelMedal = LEVELS.find(l => l.level === user.level)?.medal || '🥉';
+  const isPremium = user.plan !== UserPlan.FREE;
 
   return (
-    <div className="flex min-h-screen bg-[#0a0f1e] text-slate-200 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex font-sans selection:bg-blue-600/30 selection:text-blue-400">
+      {/* Mobile Nav Header */}
       <header className="lg:hidden p-4 bg-[#111827] border-b border-slate-800 flex items-center justify-between sticky top-0 z-30">
-        <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors"><Menu size={24} /></button>
+        <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors">
+          <Menu size={24} />
+        </button>
         <TechProLogo size="sm" />
-        <div className="w-10"></div>
+        <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-700">
+          <img src={user.avatar} className="w-full h-full object-cover" alt="" />
+        </div>
       </header>
 
-      {isSidebarOpen && <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
-
-      <aside className={`fixed lg:static inset-y-0 left-0 w-72 bg-[#111827]/95 backdrop-blur-xl border-r border-slate-800/50 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="h-full flex flex-col">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-8">
-              <TechProLogo size="md" />
-              <div><span className="block text-lg font-bold text-white tracking-tight">TechPro</span><span className="text-[10px] text-slate-500 uppercase">{user.area}</span></div>
+      {/* Sidebar Navigation */}
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 z-[70] transform transition-transform duration-300 lg:translate-x-0 lg:static ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-full flex flex-col p-6 overflow-y-auto no-scrollbar">
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-3">
+               <TechProLogo size="md" />
+               <h1 className="text-xl font-black tracking-tighter">TECH PRO</h1>
             </div>
-            <Link to="/profile" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 mb-6 p-3 rounded-2xl bg-slate-800/20 border border-slate-700/30 group">
-              <img src={user.avatar} className="w-11 h-11 rounded-full border border-slate-700 object-cover" alt="Avatar" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-white truncate">{user.name}</p>
-                <div className="flex items-center gap-1">
-                  {isPremium ? <><Crown size={10} className="text-amber-500" /><span className="text-[9px] text-amber-500 font-black uppercase">Premium</span></> : <span className="text-[9px] text-slate-500 font-bold uppercase">Plano Free</span>}
-                </div>
-              </div>
-            </Link>
+            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500"><X size={20} /></button>
           </div>
 
-          <nav className="flex-1 px-4 space-y-1 overflow-y-auto no-scrollbar pb-10">
-            <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/level" icon={TrendingUp} label="Evolução Técnica" active={location.pathname === '/level'} onClick={() => setIsSidebarOpen(false)} badge={`${currentLevelMedal} NV ${user.level}`} />
-            <SidebarItem to="/library" icon={BookOpen} label="Biblioteca" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/forum" icon={MessageSquare} label="Fórum" active={location.pathname === '/forum'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/calculators" icon={CalcIcon} label="Calculadoras" active={location.pathname === '/calculators'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/conversions" icon={RefreshCw} label="Conversões" active={location.pathname === '/conversions'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/checklists" icon={CheckSquare} label="Inspeções" active={location.pathname === '/checklists'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/profile" icon={User} label="Perfil" active={location.pathname === '/profile'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/contact" icon={Mail} label="Suporte Técnico" active={location.pathname === '/contact'} onClick={() => setIsSidebarOpen(false)} />
-            <SidebarItem to="/lgpd" icon={ShieldAlert} label="Privacidade & LGPD" active={location.pathname === '/lgpd'} onClick={() => setIsSidebarOpen(false)} />
-            {isAdmin && <SidebarItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname === '/admin'} onClick={() => setIsSidebarOpen(false)} />}
+          <nav className="space-y-1 mb-8">
+            <p className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Menu Principal</p>
+            <NavItem to="/" icon={LayoutDashboard} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/library" icon={BookOpen} label="Biblioteca Técnica" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/calculators" icon={Calculator} label="Calculadoras" active={location.pathname === '/calculators'} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/conversions" icon={RefreshCw} label="Conversores" active={location.pathname === '/conversions'} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/checklists" icon={ClipboardCheck} label="Inspeções / Check" active={location.pathname === '/checklists'} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/forum" icon={MessageSquare} label="Fórum Comunitário" active={location.pathname === '/forum'} onClick={() => setIsSidebarOpen(false)} />
           </nav>
 
-          <div className="p-4 border-t border-slate-800/50 space-y-2">
-            <SidebarItem 
-              to="https://instagram.com/techpro_industrial" 
-              icon={Instagram} 
-              label="Instagram" 
-              external 
-            />
-            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-4 text-slate-500 hover:text-red-400 transition-all w-full text-sm font-bold">
-              <LogOut size={20} /> <span>Sair com Segurança</span>
-            </button>
+          <nav className="space-y-1 mb-8">
+            <p className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Sua Carreira</p>
+            <NavItem to="/level" icon={Award} label="Nível Profissional" active={location.pathname === '/level'} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/history" icon={History} label="Histórico" active={location.pathname === '/history'} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/analytics" icon={BarChart3} label="Performance" active={location.pathname === '/analytics'} onClick={() => setIsSidebarOpen(false)} />
+          </nav>
+
+          <div className="mt-auto space-y-4 pt-6 border-t border-slate-800">
+            {isAdmin && (
+              <Link to="/admin" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all border ${location.pathname === '/admin' ? 'bg-blue-600 text-white border-blue-500' : 'bg-blue-600/10 text-blue-400 border-blue-600/20 hover:bg-blue-600/20'}`}>
+                <ShieldCheck size={20} />
+                <span className="text-sm font-bold">Painel Admin</span>
+              </Link>
+            )}
+            
+            <div className="bg-slate-950 p-4 rounded-[24px] border border-slate-800">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-800 shrink-0">
+                  <img src={user.avatar} className="w-full h-full object-cover" alt="" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                  <p className="text-[9px] text-slate-500 font-black uppercase truncate">{user.plan}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Fix: Changed UserIcon to User, which is the imported name from lucide-react */}
+                <Link to="/profile" className="p-2.5 bg-slate-900 hover:bg-slate-800 text-slate-400 rounded-xl flex items-center justify-center transition-all">
+                  <User size={18} />
+                </Link>
+                <button onClick={handleLogout} className="p-2.5 bg-slate-900 hover:bg-red-500/10 text-slate-400 hover:text-red-500 rounded-xl flex items-center justify-center transition-all">
+                  <LogOut size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between px-2 text-[8px] font-black text-slate-700 uppercase tracking-widest">
+              <Link to="/lgpd" className="hover:text-slate-500">Privacidade</Link>
+              <Link to="/contact" className="hover:text-slate-500">Suporte</Link>
+              <span>v1.0.2</span>
+            </div>
           </div>
         </div>
       </aside>
 
+      {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8 lg:p-10">
         <Routes>
           <Route path="/" element={<Dashboard user={user} />} />
-          <Route path="/level" element={<ProfessionalLevel user={user} />} />
-          <Route path="/library/*" element={<Library isPremium={isPremium} isAdmin={isAdmin} user={user} onUpdateUser={setUser} />} />
-          <Route path="/calculators" element={<Calculators isPremium={isPremium} user={user} onUpdateUser={setUser} />} />
-          <Route path="/conversions" element={<Conversions isPremium={isPremium} user={user} onUpdateUser={setUser} />} />
-          <Route path="/checklists" element={<Checklists user={user} onUpdateUser={setUser} />} />
+          <Route path="/library/*" element={<Library isPremium={isPremium} isAdmin={isAdmin} user={user} onUpdateUser={handleUpdateUser} />} />
+          <Route path="/calculators" element={<Calculators isPremium={isPremium} user={user} onUpdateUser={handleUpdateUser} />} />
+          <Route path="/conversions" element={<Conversions isPremium={isPremium} user={user} onUpdateUser={handleUpdateUser} />} />
+          <Route path="/checklists" element={<Checklists user={user} onUpdateUser={handleUpdateUser} />} />
           <Route path="/forum" element={<Forum user={user} />} />
-          <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+          <Route path="/profile" element={<Profile user={user} setUser={handleUpdateUser} />} />
+          <Route path="/level" element={<ProfessionalLevel user={user} />} />
+          <Route path="/history" element={<ReadingHistory user={user} />} />
+          <Route path="/analytics" element={<StudyAnalytics />} />
+          <Route path="/admin" element={isAdmin ? <Admin user={user} /> : <Navigate to="/" />} />
           <Route path="/contact" element={<Contact user={user} />} />
           <Route path="/lgpd" element={<LGPD />} />
-          {isAdmin && <Route path="/admin" element={<Admin user={user} />} />}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
+
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] lg:hidden" onClick={() => setIsSidebarOpen(false)} />
+      )}
     </div>
   );
 };
 
 const App: React.FC = () => (
-  <HashRouter>
+  <Router>
     <AppContent />
-  </HashRouter>
+  </Router>
 );
 
 export default App;

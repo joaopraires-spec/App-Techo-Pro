@@ -7,7 +7,8 @@ import {
   CheckSquare, MapPin, User as UserIcon, Briefcase, X, 
   Camera, Image as ImageIcon, Calendar, Edit3, Save, Copy,
   FolderOpen, FileText, LayoutList, ChevronRight, Check,
-  ArrowLeft, ClipboardCheck, History, Clock, MoreVertical
+  ArrowLeft, ClipboardCheck, History, Clock, MoreVertical,
+  AlertTriangle, Crown
 } from 'lucide-react';
 
 const TEMPLATE_MODELS: Partial<Checklist>[] = [
@@ -64,6 +65,15 @@ const Checklists: React.FC<{ user: UserProfile, onUpdateUser: (u: UserProfile) =
     localStorage.setItem('techpro_saved_reports', JSON.stringify(savedReports));
   }, [savedReports]);
 
+  // Cálculo de limite de uso mensal para Free
+  const isPremium = user.plan !== UserPlan.FREE;
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const reportsThisMonth = savedReports.filter(r => {
+    const d = new Date(r.lastUpdated);
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  }).length;
+
   const toggleItem = (itemId: string) => {
     if (!activeChecklist) return;
     const updated = {
@@ -110,6 +120,16 @@ const Checklists: React.FC<{ user: UserProfile, onUpdateUser: (u: UserProfile) =
     if (!activeChecklist) return;
     
     const existsIndex = savedReports.findIndex(r => r.id === activeChecklist.id);
+    const isNewReport = existsIndex < 0;
+
+    // Verificação de Limite para Plano Free
+    if (!isPremium && isNewReport) {
+      if (reportsThisMonth >= 5) {
+        alert("Limite mensal atingido! Usuários do plano gratuito podem gerar apenas 5 relatórios por mês. Assine o Specialist Pro para relatórios ilimitados.");
+        return;
+      }
+    }
+    
     let newReports;
     if (existsIndex >= 0) {
       newReports = [...savedReports];
@@ -207,6 +227,23 @@ const Checklists: React.FC<{ user: UserProfile, onUpdateUser: (u: UserProfile) =
             <div>
               <h2 className="text-4xl font-black text-white tracking-tighter">Inspeções Técnicas</h2>
               <p className="text-slate-400 font-medium">Crie novos registros ou gerencie seus documentos salvos.</p>
+              
+              {/* Indicador de Limite Mensal */}
+              <div className="mt-4 flex items-center gap-3">
+                {isPremium ? (
+                  <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-4 py-1.5 rounded-full">
+                    <Crown size={14} className="text-amber-500" />
+                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Relatórios Ilimitados</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 bg-blue-600/10 border border-blue-600/20 px-4 py-1.5 rounded-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                      Uso Mensal: {reportsThisMonth} / 5
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="flex bg-slate-900/80 backdrop-blur-md p-1.5 rounded-[22px] border border-slate-800 shadow-xl">
