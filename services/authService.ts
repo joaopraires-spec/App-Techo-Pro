@@ -2,7 +2,7 @@
 import { UserProfile, UserStatus, UserRole, UserPlan } from '../types';
 import { ADMIN_EMAIL } from '../constants';
 
-// Simulação de Hash (em um app real usaria WebCrypto API ou bcrypt no backend)
+// Simulação de Hash
 const simpleHash = (str: string) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -17,25 +17,25 @@ const SESSION_KEY = 'techpro_session_token';
 const USERS_DB_KEY = 'techpro_registered_users';
 
 export const authService = {
-  // Registrar novo usuário
-  register: (data: Partial<UserProfile>): { success: boolean; message: string } => {
+  register: (data: Partial<UserProfile & { passwordRaw?: string }>): { success: boolean; message: string } => {
     const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
     if (users.find((u: any) => u.email === data.email)) {
       return { success: false, message: 'Este e-mail já está cadastrado.' };
     }
 
-    // Verifica se é o e-mail administrativo mestre
     const isSystemAdmin = data.email === ADMIN_EMAIL;
+    const rawPassword = data.password || '';
 
     const newUser: UserProfile = {
       id: Date.now().toString(),
       name: data.name || '',
       email: data.email || '',
-      passwordHash: data.passwordHash ? simpleHash(data.passwordHash) : undefined,
+      password: rawPassword, // Armazena senha para recuperação
+      passwordHash: simpleHash(rawPassword),
       avatar: data.avatar || `https://i.pravatar.cc/150?u=${data.email}`,
       area: data.area || 'Manutenção Industrial',
-      plan: isSystemAdmin ? UserPlan.ADMIN : (data.plan || UserPlan.FREE),
-      role: isSystemAdmin ? UserRole.ADMIN : (data.role || UserRole.USER),
+      plan: isSystemAdmin ? UserPlan.ADMIN : UserPlan.FREE,
+      role: isSystemAdmin ? UserRole.ADMIN : UserRole.USER,
       status: UserStatus.ACTIVE,
       joinedAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
@@ -54,7 +54,6 @@ export const authService = {
     return { success: true, message: 'Cadastro realizado com sucesso!' };
   },
 
-  // Login com e-mail e senha
   login: (email: string, password: string): { success: boolean; user?: UserProfile; message: string } => {
     const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
     const userIndex = users.findIndex((u: any) => u.email === email);
@@ -65,14 +64,13 @@ export const authService = {
     }
 
     if (user.status === UserStatus.SUSPENDED) {
-      return { success: false, message: 'Sua conta está suspensa. Entre em contato com o suporte.' };
+      return { success: false, message: 'Sua conta está suspensa.' };
     }
 
     if (user.passwordHash !== simpleHash(password)) {
-      return { success: false, message: 'Senha incorreta. Verifique suas credenciais.' };
+      return { success: false, message: 'Senha incorreta.' };
     }
 
-    // Ativação forçada do Admin se for o e-mail mestre e ainda não tiver o cargo
     if (email === ADMIN_EMAIL && user.role !== UserRole.ADMIN) {
       user.role = UserRole.ADMIN;
       user.plan = UserPlan.ADMIN;
@@ -80,48 +78,41 @@ export const authService = {
       localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
     }
 
-    // Criar Sessão
-    const session = {
-      userId: user.id,
-      expiresAt: Date.now() + (1000 * 60 * 60 * 24) // 24 horas
-    };
+    const session = { userId: user.id, expiresAt: Date.now() + 86400000 };
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    
-    // Atualizar último login
     user.lastLogin = new Date().toISOString();
     localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
 
     return { success: true, user, message: 'Login bem-sucedido!' };
   },
 
-  // Recuperar senha (mock)
-  recoverPassword: (email: string, name: string): { success: boolean; message: string } => {
+  recoverPassword: (email: string, name: string): { success: boolean; message: string; password?: string } => {
     const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
-    const user = users.find((u: any) => u.email === email && u.name.toLowerCase().includes(name.toLowerCase()));
+    const user = users.find((u: any) => 
+      u.email.toLowerCase() === email.toLowerCase() && 
+      u.name.toLowerCase().includes(name.toLowerCase())
+    );
 
     if (!user) {
-      return { success: false, message: 'Dados não conferem. Verifique o e-mail e nome digitados.' };
+      return { success: false, message: 'Dados não conferem. Verifique o e-mail e nome.' };
     }
 
-    // Em um sistema real, aqui dispararia o e-mail.
-    return { success: true, message: 'Senha recuperada! Você receberá um e-mail com seus dados em breve.' };
+    return { 
+      success: true, 
+      message: 'Usuário validado com sucesso.', 
+      password: user.password 
+    };
   },
 
-  // Logout
   logout: () => {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem('techpro_user');
   },
 
-  // Validar sessão ativa
   validateSession: (): boolean => {
     const sessionStr = localStorage.getItem(SESSION_KEY);
     if (!sessionStr) return false;
     const session = JSON.parse(sessionStr);
-    if (Date.now() > session.expiresAt) {
-      localStorage.removeItem(SESSION_KEY);
-      return false;
-    }
-    return true;
+    return Date.now() < session.expiresAt;
   }
 };

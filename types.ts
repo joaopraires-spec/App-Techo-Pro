@@ -21,7 +21,8 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  passwordHash?: string; // Nunca armazenar texto puro
+  password?: string; // Senha original para recuperação conforme solicitado
+  passwordHash?: string; // Hash para validação de segurança
   avatar: string;
   area: string;
   plan: UserPlan;

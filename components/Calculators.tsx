@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CALCULATORS, LEVELS } from '../constants';
-import { Lock, Calculator as CalcIcon, Info, ChevronRight, Crown, Droplets, Zap, Activity, Cylinder, RotateCw, Waves } from 'lucide-react';
+import { Lock, Calculator as CalcIcon, Info, ChevronRight, Crown, Droplets, Zap, Activity, Cylinder, RotateCw, Waves, Settings2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { UserProfile } from '../types';
 
@@ -287,54 +287,75 @@ const Calculators: React.FC<{ isPremium: boolean; user: UserProfile; onUpdateUse
               <Link to="/profile" className="bg-amber-500 text-slate-950 px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] w-full md:w-auto inline-block active:scale-95 touch-manipulation">Liberar Agora</Link>
             </div>
           ) : (
-            <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-6 md:p-10 flex flex-col h-full shadow-2xl">
-              <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-8">
+            <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-6 md:p-10 flex flex-col h-full shadow-2xl animate-in fade-in duration-500">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-10">
                 <div className="order-2 md:order-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl md:text-2xl font-bold text-white">{activeCalc.name}</h3>
-                    {activeCalc.isPremium && <Crown size={20} className="text-amber-500" />}
+                    <h3 className="text-xl md:text-3xl font-black text-white tracking-tight">{activeCalc.name}</h3>
+                    {activeCalc.isPremium && <Crown size={24} className="text-amber-500" />}
                   </div>
-                  <p className="text-blue-500 font-mono text-xs md:text-sm font-bold bg-blue-500/10 px-3 py-1 rounded-lg inline-block">Fórmula: {activeCalc.formula}</p>
+                  <p className="text-blue-500 font-mono text-xs md:text-sm font-bold bg-blue-600/10 border border-blue-600/20 px-4 py-1.5 rounded-full inline-block">
+                    {activeCalc.formula}
+                  </p>
                 </div>
-                <div className="order-1 md:order-2 self-end md:self-auto bg-slate-800 px-4 py-2 rounded-xl text-blue-400 font-black uppercase tracking-widest text-[9px] md:text-[10px] border border-blue-600/20">
+                <div className="order-1 md:order-2 self-end md:self-auto bg-slate-800/80 backdrop-blur-sm px-4 py-2 rounded-2xl text-blue-400 font-black uppercase tracking-[0.2em] text-[8px] md:text-[10px] border border-blue-600/30 shadow-lg">
                   {activeCalc.illustration}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-8 items-center">
-                <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-10 items-stretch">
+                <div className="bg-slate-950/40 p-6 md:p-8 rounded-[32px] border border-slate-800/50 space-y-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Settings2 size={16} className="text-blue-500" />
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Variáveis de Entrada</h4>
+                  </div>
                   {activeCalc.inputs.map(input => (
-                    <div key={input.key}>
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">{input.label} ({input.unit})</label>
-                      <input 
-                        type="number" 
-                        inputMode="decimal"
-                        value={inputs[input.key]}
-                        onChange={(e) => handleInputChange(input.key, e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white font-bold focus:ring-2 focus:ring-blue-600 outline-none transition-all text-lg"
-                      />
+                    <div key={input.key} className="relative group/input">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">{input.label}</label>
+                      <div className="relative">
+                        <input 
+                          type="number" 
+                          inputMode="decimal"
+                          value={inputs[input.key]}
+                          onChange={(e) => handleInputChange(input.key, e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-5 pr-16 py-4 text-white font-bold focus:border-blue-500 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all text-xl shadow-inner placeholder:text-slate-800"
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-800 text-[10px] font-black text-blue-500 uppercase tracking-widest pointer-events-none group-focus-within/input:border-blue-600/50 transition-colors">
+                          {input.unit}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-[32px] p-8 flex flex-col items-center justify-center text-center shadow-inner relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-blue-600/50" />
+                <div className="bg-slate-950 border-2 border-slate-800/80 rounded-[40px] p-8 flex flex-col items-center justify-center text-center shadow-inner relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-cyan-500" />
                   
                   {/* Visual Simulation Component */}
-                  <SimulationDisplay calcId={activeCalc.id} inputs={inputs} />
+                  <div className="mb-8 w-full">
+                    <SimulationDisplay calcId={activeCalc.id} inputs={inputs} />
+                  </div>
 
-                  <span className="text-[10px] font-black text-slate-600 uppercase mb-4 tracking-[0.2em] relative z-10">Resultado Final</span>
-                  <div className="text-4xl md:text-5xl font-black text-white mb-2 relative z-10 tracking-tighter">
+                  <span className="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-[0.3em] relative z-10">Resultado Calculado</span>
+                  <div className="text-5xl md:text-6xl font-black text-white mb-3 relative z-10 tracking-tighter drop-shadow-2xl">
                     {calculateResult().toLocaleString('pt-BR', { maximumFractionDigits: 4 })}
                   </div>
-                  <span className="text-blue-500 font-black uppercase text-[10px] md:text-xs tracking-widest relative z-10">{activeCalc.resultUnit}</span>
+                  <div className="bg-blue-600/10 border border-blue-600/30 px-6 py-2 rounded-full relative z-10">
+                    <span className="text-blue-500 font-black uppercase text-xs md:text-sm tracking-[0.2em]">{activeCalc.resultUnit}</span>
+                  </div>
+                  
                   <div className="absolute inset-0 bg-blue-600 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity pointer-events-none" />
                 </div>
               </div>
 
-              <div className="mt-auto p-5 bg-slate-800/40 rounded-2xl border border-slate-700/50 flex items-start gap-4">
-                <Info size={20} className="text-blue-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-slate-400 italic leading-relaxed">{activeCalc.description}</p>
+              <div className="mt-auto p-6 bg-slate-800/40 rounded-3xl border border-slate-700/50 flex items-start gap-4 shadow-lg">
+                <div className="w-10 h-10 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-500 shrink-0">
+                  <Info size={20} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-white uppercase tracking-widest opacity-80">Nota Técnica</p>
+                  <p className="text-xs text-slate-400 italic leading-relaxed">{activeCalc.description}</p>
+                </div>
               </div>
             </div>
           )}

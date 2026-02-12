@@ -35,11 +35,11 @@ import {
   FileShield,
   Instagram,
   AlertTriangle,
-  // Fix: Added missing CheckCircle import
   CheckCircle,
   FileText,
   ShieldAlert,
-  HelpCircle
+  HelpCircle,
+  Loader2
 } from 'lucide-react';
 import { UserPlan, UserProfile, UserRole, UserStatus } from './types.ts';
 import { ADMIN_EMAIL, LEVELS } from './constants.ts';
@@ -57,6 +57,7 @@ import ReadingHistory from './components/ReadingHistory.tsx';
 import StudyAnalytics from './components/StudyAnalytics.tsx';
 import LGPD from './components/LGPD.tsx';
 import { authService } from './services/authService.ts';
+import { GoogleGenAI } from "@google/genai";
 
 const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg" | "xl", className?: string }) => {
   const sizes = { sm: "w-8 h-8", md: "w-10 h-10", lg: "w-12 h-12", xl: "w-16 h-16" };
@@ -121,6 +122,7 @@ const AppContent: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -144,46 +146,62 @@ const AppContent: React.FC = () => {
     setUser(null);
   };
 
-  const handleAuthSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAuthSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);
+    setIsLoading(true);
+
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
 
-    if (authMode === 'register') {
-      const password = formData.get('password') as string;
-      const name = formData.get('name') as string;
-      const area = formData.get('area') as string;
-      const res = authService.register({ name, email, passwordHash: password, area });
-      if (res.success) {
-        setAuthMode('login');
-        setSuccessMsg("Conta criada! Por favor, faça login.");
-      } else {
-        setErrorMsg(res.message);
-      }
-    } else if (authMode === 'login') {
-      const password = formData.get('password') as string;
-      const res = authService.login(email, password);
-      if (res.success && res.user) {
-        if (res.user.email === ADMIN_EMAIL) {
-          res.user.role = UserRole.ADMIN;
-          res.user.plan = UserPlan.ADMIN;
+    try {
+      if (authMode === 'register') {
+        const password = formData.get('password') as string;
+        const name = formData.get('name') as string;
+        const area = formData.get('area') as string;
+        const res = authService.register({ name, email, password, area });
+        if (res.success) {
+          setAuthMode('login');
+          setSuccessMsg("Conta criada! Por favor, faça login.");
+        } else {
+          setErrorMsg(res.message);
         }
-        setUser(res.user);
-        localStorage.setItem('techpro_user', JSON.stringify(res.user));
-      } else {
-        setErrorMsg(res.message);
+      } else if (authMode === 'login') {
+        const password = formData.get('password') as string;
+        const res = authService.login(email, password);
+        if (res.success && res.user) {
+          if (res.user.email === ADMIN_EMAIL) {
+            res.user.role = UserRole.ADMIN;
+            res.user.plan = UserPlan.ADMIN;
+          }
+          setUser(res.user);
+          localStorage.setItem('techpro_user', JSON.stringify(res.user));
+        } else {
+          setErrorMsg(res.message);
+        }
+      } else if (authMode === 'forgot') {
+        const name = formData.get('name') as string;
+        const res = authService.recoverPassword(email, name);
+        if (res.success) {
+          // Utilizar Gemini para gerar um e-mail profissional
+          const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+          const prompt = `Gere um corpo de e-mail corporativo e profissional para o usuário ${name} do app Tech Pro Industrial. Informe que a senha cadastrada é: "${res.password}". O e-mail deve ser formal, curto e encorajador.`;
+          const response = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
+            contents: prompt,
+          });
+          
+          setSuccessMsg(`SIMULAÇÃO DE E-MAIL ENVIADO:\n\n${response.text}`);
+          // Não redireciona imediatamente para o usuário ver a senha simulada
+        } else {
+          setErrorMsg(res.message);
+        }
       }
-    } else if (authMode === 'forgot') {
-      const name = formData.get('name') as string;
-      const res = authService.recoverPassword(email, name);
-      if (res.success) {
-        setSuccessMsg(res.message);
-        setTimeout(() => setAuthMode('login'), 3000);
-      } else {
-        setErrorMsg(res.message);
-      }
+    } catch (err) {
+      setErrorMsg("Ocorreu um erro inesperado. Tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -213,8 +231,13 @@ const AppContent: React.FC = () => {
                   </div>
                 )}
                 {successMsg && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2 mt-4 animate-pulse">
-                    <CheckCircle size={14} /> {successMsg}
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-2xl text-xs font-bold flex flex-col gap-3 mt-4 animate-pulse whitespace-pre-wrap">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle size={14} /> Solicitação Processada
+                    </div>
+                    <div className="bg-slate-950/50 p-3 rounded-xl font-mono text-slate-300 leading-relaxed border border-emerald-500/20">
+                      {successMsg}
+                    </div>
                   </div>
                 )}
               </div>
@@ -248,8 +271,12 @@ const AppContent: React.FC = () => {
                       </button>
                     </div>
                   )}
-                  <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95">
-                    {authMode === 'login' ? 'Entrar no Sistema' : authMode === 'register' ? 'Finalizar Cadastro' : 'Enviar Dados por E-mail'} <ChevronRight size={18} />
+                  <button 
+                    type="submit" 
+                    disabled={isLoading}
+                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : (authMode === 'login' ? 'Entrar no Sistema' : authMode === 'register' ? 'Finalizar Cadastro' : 'Enviar Dados por E-mail')} <ChevronRight size={18} />
                   </button>
                 </form>
 
@@ -259,8 +286,8 @@ const AppContent: React.FC = () => {
                       <HelpCircle size={14} /> Esqueci minha senha
                     </button>
                   )}
-                  <button onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setErrorMsg(null); setSuccessMsg(null); }} className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors">
-                    {authMode === 'login' ? 'Ainda não tem conta? Registre-se aqui' : 'Já possui cadastro? Faça login'}
+                  <button onClick={() => { setAuthMode(authMode === 'login' || authMode === 'forgot' ? 'register' : 'login'); setErrorMsg(null); setSuccessMsg(null); }} className="text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors">
+                    {authMode === 'login' || authMode === 'forgot' ? 'Ainda não tem conta? Registre-se aqui' : 'Já possui cadastro? Faça login'}
                   </button>
                 </div>
               </div>
