@@ -32,7 +32,8 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
-  FileShield
+  FileShield,
+  Instagram
 } from 'lucide-react';
 import { UserPlan, UserProfile } from './types.ts';
 import { ADMIN_EMAIL, LEVELS } from './constants.ts';
@@ -494,8 +495,20 @@ const AppContent: React.FC = () => {
             {isAdmin && <SidebarItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname.startsWith('/admin')} onClick={() => setIsSidebarOpen(false)} />}
           </nav>
 
-          <div className="p-4 border-t border-slate-800/50">
-            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-4 text-slate-500 hover:text-red-400 transition-all w-full text-sm font-bold active:scale-95"><LogOut size={20} /><span>Sair da Conta</span></button>
+          <div className="p-4 border-t border-slate-800/50 space-y-2">
+            <a 
+              href="https://www.instagram.com/techproapp/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-pink-500 transition-all w-full text-xs font-black uppercase tracking-widest bg-slate-800/20 rounded-xl border border-transparent hover:border-pink-500/30 active:scale-95"
+            >
+              <Instagram size={18} />
+              <span>Siga no Instagram</span>
+            </a>
+            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-4 text-slate-500 hover:text-red-400 transition-all w-full text-sm font-bold active:scale-95">
+              <LogOut size={20} />
+              <span>Sair da Conta</span>
+            </button>
           </div>
         </div>
       </aside>

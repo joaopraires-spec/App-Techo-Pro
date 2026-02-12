@@ -22,15 +22,15 @@ const categoryImages: Record<string, string> = {
   'Hidráulica': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
   'Mecânica': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop',
   'Informática': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
-  'Britagem / Mineração': 'https://images.unsplash.com/photo-1579450841234-491c2e43909c?q=80&w=2070&auto=format&fit=crop', // Caminhão CAT em solo vermelho
+  'Britagem / Mineração': 'https://images.unsplash.com/photo-1580519542036-c47de6196ba5?q=80&w=2071&auto=format&fit=crop',
   'Segurança': 'https://images.unsplash.com/photo-1584467541268-b040f83be3fd?q=80&w=2070&auto=format&fit=crop',
   'Inspeção e Confiabilidade': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=2070&auto=format&fit=crop',
   'Sistemas Térmicos': 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2070&auto=format&fit=crop',
   'Elétrica': 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=2070&auto=format&fit=crop',
   'Pneumática': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop',
-  'Automação': 'https://images.unsplash.com/photo-1558444479-c84851727d60?q=80&w=2070&auto=format&fit=crop',
+  'Automação': 'https://images.unsplash.com/photo-1518314916301-73c119885cb1?q=80&w=2070&auto=format&fit=crop',
   'Instrumentação': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=2070&auto=format&fit=crop',
-  'Fadiga dos Materiais': 'https://images.unsplash.com/photo-1535813543269-7328cf139544?q=80&w=2070&auto=format&fit=crop',
+  'Fadiga dos Materiais': 'https://images.unsplash.com/photo-1531944352104-aa3b02393211?q=80&w=2071&auto=format&fit=crop',
   'Magnetismo': 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?q=80&w=2069&auto=format&fit=crop',
   'Metalografia': 'https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2070&auto=format&fit=crop'
 };
