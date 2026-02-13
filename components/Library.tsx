@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { INITIAL_ARTICLES, CATEGORIES_FREE, CATEGORIES_PREMIUM, INITIAL_CATALOGS, LEVELS } from '../constants';
-import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle, Plus, Upload, Trash2, FolderPlus, File as FileIcon, X } from 'lucide-react';
+import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle, Plus, Upload, Trash2, FolderPlus, File as FileIcon, X, Settings2 } from 'lucide-react';
 import { Link, Routes, Route, useParams, useNavigate } from 'react-router-dom';
-import { UserProfile, Catalog } from '../types';
+import { UserProfile, Catalog, UserPlan } from '../types';
 
 const ArticleDetail: React.FC<{ 
   isPremium: boolean; 
@@ -294,107 +294,128 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
         </>
       ) : (
         <div className="space-y-8 animate-in fade-in duration-500">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-5 px-1 sm:px-0">
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                {selectedFolder && (
-                    <button 
-                        onClick={() => setSelectedFolder(null)}
-                        className="p-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all shadow-md active:scale-90"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-                )}
-                <h3 className="text-xl font-bold text-white tracking-tight truncate">
-                    {selectedFolder ? selectedFolder : 'Pastas Técnicas'}
-                </h3>
+          {!isPremium && !isAdmin ? (
+            <div className="max-w-2xl mx-auto py-12 sm:py-20 text-center space-y-8 bg-slate-900 border border-slate-800 rounded-[40px] p-6 md:p-12 shadow-2xl">
+              <div className="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-inner">
+                <Lock size={36} className="text-amber-500" />
               </div>
-              
-              {isAdmin && (
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
-                      <button 
-                        onClick={() => setIsFolderModalOpen(true)}
-                        className="flex-1 sm:flex-none px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-slate-700 active:scale-95 transition-all"
-                      >
-                          <FolderPlus size={18} /> Pasta
-                      </button>
-                      <button 
-                        onClick={() => setIsCatalogModalOpen(true)}
-                        className="flex-1 sm:flex-none px-5 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 active:scale-95 transition-all"
-                      >
-                          <Upload size={18} /> PDF
-                      </button>
-                  </div>
-              )}
-          </div>
-
-          {!selectedFolder ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 px-1 sm:px-0">
-                  {catalogCategories.map(cat => {
-                      const count = catalogs.filter(c => c.category === cat).length;
-                      return (
-                        <button 
-                            key={cat}
-                            onClick={() => setSelectedFolder(cat)}
-                            className="bg-slate-900 border border-slate-800 p-6 rounded-[32px] flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-all group active:scale-95 touch-manipulation shadow-lg"
-                        >
-                            <div className="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
-                                <Folder size={28} />
-                            </div>
-                            <div className="text-center w-full">
-                                <p className="font-bold text-white text-xs sm:text-sm line-clamp-1 px-1">{cat}</p>
-                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mt-1.5">{count} Arquivos</p>
-                            </div>
-                        </button>
-                      );
-                  })}
+              <div className="space-y-3">
+                <h2 className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-3">
+                  Acesso Restrito <Crown size={24} className="text-amber-500" />
+                </h2>
+                <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
+                  Os Catálogos Técnicos e Pastas de Documentos Industriais são exclusivos para assinantes Specialist Pro.
+                </p>
               </div>
+              <Link to="/profile" className="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 px-8 py-4.5 rounded-2xl font-black transition-all shadow-xl shadow-amber-500/30 uppercase tracking-widest text-xs active:scale-95">
+                Assinar Premium Agora
+              </Link>
+            </div>
           ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0">
-                  {catalogs.filter(c => c.category === selectedFolder).map(cat => (
-                      <div 
-                        key={cat.id}
-                        className="bg-slate-900 border border-slate-800 p-5 rounded-[24px] flex items-center justify-between group hover:border-emerald-500/50 transition-all shadow-lg active:scale-[0.99] touch-manipulation"
-                      >
-                          <div className="flex items-center gap-4 min-w-0">
-                              <div className="w-11 h-11 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 shrink-0 shadow-inner">
-                                  <FileText size={22} />
-                              </div>
-                              <div className="min-w-0">
-                                  <h4 className="font-bold text-white text-sm truncate pr-1">{cat.name}</h4>
-                                  <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Documento PDF • Verificado</p>
-                              </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                              {isAdmin && (
-                                  <button 
-                                    onClick={() => deleteCatalog(cat.id)}
-                                    className="p-2.5 text-slate-600 hover:text-red-500 transition-colors bg-slate-950 rounded-xl"
-                                  >
-                                      <Trash2 size={16} />
-                                  </button>
-                              )}
-                              <a 
-                                href={cat.fileUrl} 
-                                className="p-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl transition-all shadow-md active:scale-90"
-                                title="Download"
-                              >
-                                  <Download size={18} />
-                              </a>
-                          </div>
-                      </div>
-                  ))}
-                  {catalogs.filter(c => c.category === selectedFolder).length === 0 && (
-                      <div className="col-span-full py-24 text-center text-slate-500 flex flex-col items-center gap-4 bg-slate-900/30 border border-dashed border-slate-800 rounded-[40px] shadow-inner">
-                          <Folder size={48} className="opacity-20" />
-                          <p className="text-sm font-medium">Nenhum catálogo nesta pasta técnica ainda.</p>
+            <>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-5 px-1 sm:px-0">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    {selectedFolder && (
+                        <button 
+                            onClick={() => setSelectedFolder(null)}
+                            className="p-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all shadow-md active:scale-90"
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
+                    )}
+                    <h3 className="text-xl font-bold text-white tracking-tight truncate">
+                        {selectedFolder ? selectedFolder : 'Pastas Técnicas'}
+                    </h3>
+                  </div>
+                  
+                  {isAdmin && (
+                      <div className="flex items-center gap-3 w-full sm:w-auto">
+                          <button 
+                            onClick={() => setIsFolderModalOpen(true)}
+                            className="flex-1 sm:flex-none px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-slate-700 active:scale-95 transition-all"
+                          >
+                              <FolderPlus size={18} /> Pasta
+                          </button>
+                          <button 
+                            onClick={() => setIsCatalogModalOpen(true)}
+                            className="flex-1 sm:flex-none px-5 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 active:scale-95 transition-all"
+                          >
+                              <Upload size={18} /> PDF
+                          </button>
                       </div>
                   )}
               </div>
+
+              {!selectedFolder ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 px-1 sm:px-0">
+                      {catalogCategories.map(cat => {
+                          const count = catalogs.filter(c => c.category === cat).length;
+                          return (
+                            <button 
+                                key={cat}
+                                onClick={() => setSelectedFolder(cat)}
+                                className="bg-slate-900 border border-slate-800 p-6 rounded-[32px] flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-all group active:scale-95 touch-manipulation shadow-lg"
+                            >
+                                <div className="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
+                                    <Folder size={28} />
+                                </div>
+                                <div className="text-center w-full">
+                                    <p className="font-bold text-white text-xs sm:text-sm line-clamp-1 px-1">{cat}</p>
+                                    <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mt-1.5">{count} Arquivos</p>
+                                </div>
+                            </button>
+                          );
+                      })}
+                  </div>
+              ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0">
+                      {catalogs.filter(c => c.category === selectedFolder).map(cat => (
+                          <div 
+                            key={cat.id}
+                            className="bg-slate-900 border border-slate-800 p-5 rounded-[24px] flex items-center justify-between group hover:border-emerald-500/50 transition-all shadow-lg active:scale-[0.99] touch-manipulation"
+                          >
+                              <div className="flex items-center gap-4 min-w-0">
+                                  <div className="w-11 h-11 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 shrink-0 shadow-inner">
+                                      <FileText size={22} />
+                                  </div>
+                                  <div className="min-w-0">
+                                      <h4 className="font-bold text-white text-sm truncate pr-1">{cat.name}</h4>
+                                      <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Documento PDF • Verificado</p>
+                                  </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                  {isAdmin && (
+                                      <button 
+                                        onClick={() => deleteCatalog(cat.id)}
+                                        className="p-2.5 text-slate-600 hover:text-red-500 transition-colors bg-slate-950 rounded-xl"
+                                      >
+                                          <Trash2 size={16} />
+                                      </button>
+                                  )}
+                                  <a 
+                                    href={cat.fileUrl} 
+                                    className="p-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl transition-all shadow-md active:scale-90"
+                                    title="Download"
+                                  >
+                                      <Download size={18} />
+                                  </a>
+                              </div>
+                          </div>
+                      ))}
+                      {catalogs.filter(c => c.category === selectedFolder).length === 0 && (
+                          <div className="col-span-full py-24 text-center text-slate-500 flex flex-col items-center gap-4 bg-slate-900/30 border border-dashed border-slate-800 rounded-[40px] shadow-inner">
+                              <Folder size={48} className="opacity-20" />
+                              <p className="text-sm font-medium">Nenhum catálogo nesta pasta técnica ainda.</p>
+                          </div>
+                      )}
+                  </div>
+              )}
+            </>
           )}
         </div>
       )}
 
-      {/* Modais omitidos no resumo, mas permanecem no código original com ajustes de padding para mobile */}
+      {/* Modais */}
       {isCatalogModalOpen && (
           <div className="fixed inset-0 bg-slate-950/90 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
               <div className="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-[32px] p-6 sm:p-8 relative shadow-2xl animate-in fade-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto custom-scrollbar">
