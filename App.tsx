@@ -8,7 +8,7 @@ import {
   Shield, AlertTriangle, ArrowRight, Mail, Key,
   ChevronRight, ChevronDown, Activity, Droplets, CheckCircle2, Briefcase,
   Eye, EyeOff, Star, Crown, LayoutGrid, Users, Trophy, ChevronLeft,
-  Headphones, Instagram, ExternalLink
+  Headphones, Instagram, ExternalLink, Sparkles
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -319,7 +319,7 @@ const AppContent: React.FC = () => {
              )}
           </div>
 
-          <nav className="space-y-1 mb-8">
+          <nav className="space-y-1 mb-4 flex-1">
             <NavItem to="/" icon={LayoutGrid} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             <NavItem to="/level" icon={Trophy} label="Carreira" active={location.pathname === '/level'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             <NavItem to="/library" icon={BookOpen} label="Conteúdos" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
@@ -346,6 +346,21 @@ const AppContent: React.FC = () => {
 
             {user.role === UserRole.ADMIN && <NavItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname === '/admin'} onClick={() => setIsSidebarOpen(false)} isSpecial={true} isMinimized={isMinimized} />}
           </nav>
+
+          {/* Premium Upgrade Nudge - Sidebar */}
+          {user.plan === UserPlan.FREE && !isMinimized && (
+            <Link 
+              to="/profile" 
+              className="mx-1 mb-6 p-4 bg-gradient-to-br from-amber-600 to-amber-400 rounded-2xl flex items-center gap-3 shadow-xl shadow-amber-950/20 group active:scale-95 transition-all animate-pulse"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              <Crown size={20} className="text-white fill-white/20" />
+              <div className="min-w-0">
+                <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none">Upgrade Pro</p>
+                <p className="text-[8px] text-amber-100 font-bold uppercase tracking-tighter mt-1 truncate">Seja Specialist</p>
+              </div>
+            </Link>
+          )}
 
           <div className={`mt-auto pt-6 border-t border-slate-800/40 ${isMinimized ? 'w-full flex justify-center' : ''}`}>
             <button onClick={handleLogout} className={`flex items-center gap-3 w-full px-4 py-3.5 text-slate-400 hover:text-red-400 font-medium rounded-xl hover:bg-red-500/5 transition-all ${isMinimized ? 'justify-center px-0' : ''}`}>

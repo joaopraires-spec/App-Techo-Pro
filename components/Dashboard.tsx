@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { UserProfile } from '../types';
+import { UserProfile, UserPlan } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, CheckSquare, Flame, TrendingUp, 
   ChevronRight, Target, Clock, Star, Calculator,
   Zap, Cpu, Globe, Signal, ShieldCheck, Activity,
-  Gauge, Award, Radio, Settings2, Instagram, ExternalLink
+  Gauge, Award, Radio, Settings2, Instagram, ExternalLink,
+  Crown, Sparkles
 } from 'lucide-react';
 import { getDailyTip } from '../services/gemini';
 
@@ -93,6 +94,27 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-16 animate-in fade-in slide-in-from-bottom-5 duration-700">
       
+      {/* Premium Subtle Nudge Notification */}
+      {user.plan === UserPlan.FREE && (
+        <div 
+          onClick={() => navigate('/profile')} 
+          className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-2xl flex items-center justify-between group cursor-pointer mb-2 animate-in slide-in-from-top-4 duration-500"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-slate-900 shadow-lg group-hover:scale-110 transition-transform">
+              <Sparkles size={16} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest leading-none">Oportunidade Premium</p>
+              <p className="text-[9px] text-slate-400 font-medium mt-1 truncate">Libere calculadoras avançadas e catálogos técnicos. Ver vantagens.</p>
+            </div>
+          </div>
+          <button className="p-2 bg-slate-900/80 rounded-xl text-amber-500 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all">
+            <ChevronRight size={14} />
+          </button>
+        </div>
+      )}
+
       {/* 1. Header Operativo */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
         <div className="space-y-2 flex-1">

@@ -243,6 +243,17 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
         </div>
       </div>
 
+      {/* Subtle Premium Callout in Library Header for Free Users */}
+      {!isPremium && (
+        <div className="bg-amber-500/5 border border-amber-500/10 p-4 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in duration-700">
+          <div className="flex items-center gap-3">
+            <Crown size={20} className="text-amber-500 shrink-0" />
+            <p className="text-xs font-medium text-slate-400">Você está acessando as categorias base. <span className="text-amber-500 font-bold">Assine Specialist Pro</span> para desbloquear Britagem, Inspeção e Automação.</p>
+          </div>
+          <Link to="/profile" className="px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Ver Vantagens</Link>
+        </div>
+      )}
+
       {/* Tabs Switcher */}
       <div className="flex bg-slate-900/50 p-1.5 rounded-2xl border border-slate-800 w-full max-w-md mx-auto shadow-inner">
         <button 
