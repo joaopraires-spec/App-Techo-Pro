@@ -220,7 +220,7 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
           onClick={() => setViewTab('catalogs')}
           className={`flex-1 py-3.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${viewTab === 'catalogs' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-slate-500 hover:text-white'}`}
         >
-          <Folder size={16} /> Catálogos
+          <Folder size={16} /> Catálogos <Crown size={14} className={viewTab === 'catalogs' ? 'text-white/80' : 'text-amber-500'} />
         </button>
       </div>
 
@@ -323,8 +323,9 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
                             <ArrowLeft size={20} />
                         </button>
                     )}
-                    <h3 className="text-xl font-bold text-white tracking-tight truncate">
+                    <h3 className="text-xl font-bold text-white tracking-tight truncate flex items-center gap-2">
                         {selectedFolder ? selectedFolder : 'Pastas Técnicas'}
+                        {!selectedFolder && <Crown size={20} className="text-amber-500" />}
                     </h3>
                   </div>
                   
@@ -354,8 +355,11 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
                             <button 
                                 key={cat}
                                 onClick={() => setSelectedFolder(cat)}
-                                className="bg-slate-900 border border-slate-800 p-6 rounded-[32px] flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-all group active:scale-95 touch-manipulation shadow-lg"
+                                className="bg-slate-900 border border-slate-800 p-6 rounded-[32px] flex flex-col items-center justify-center gap-4 hover:border-blue-500 transition-all group active:scale-95 touch-manipulation shadow-lg relative"
                             >
+                                <div className="absolute top-4 right-4 text-amber-500/50">
+                                  <Crown size={12} />
+                                </div>
                                 <div className="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
                                     <Folder size={28} />
                                 </div>
