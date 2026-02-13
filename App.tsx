@@ -7,7 +7,7 @@ import {
   History, BarChart3, Phone, Award, RefreshCw,
   Shield, AlertTriangle, ArrowRight, Mail, Key,
   ChevronRight, ChevronDown, Activity, Droplets, CheckCircle2, Briefcase,
-  Eye, EyeOff, Star, Crown, LayoutGrid, Users, Trophy
+  Eye, EyeOff, Star, Crown, LayoutGrid, Users, Trophy, ChevronLeft
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -27,7 +27,7 @@ import LGPD from './components/LGPD';
 import { authService } from './services/authService';
 import { UserProfile, UserRole, UserPlan } from './types';
 
-const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg" | "xl", className?: string }) => {
+const TechProLogo = ({ size = "md", className = "", isMinimized = false }: { size?: "sm" | "md" | "lg" | "xl", className?: string, isMinimized?: boolean }) => {
   const sizes = {
     sm: "w-8 h-8 text-[10px]",
     md: "w-10 h-10 text-xs",
@@ -37,22 +37,25 @@ const TechProLogo = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg
 
   return (
     <div className={`${className} flex items-center gap-3`}>
-      <div className={`${sizes[size]} bg-blue-600 rounded-xl flex items-center justify-center font-black text-white shadow-lg shadow-blue-600/30`}>
+      <div className={`${sizes[size]} bg-blue-600 rounded-xl flex items-center justify-center font-black text-white shadow-lg shadow-blue-600/30 shrink-0`}>
         TP
       </div>
-      <div className="flex flex-col">
-        <h1 className="font-bold text-white tracking-tight leading-none text-base">TechPro</h1>
-        <p className="text-[9px] text-slate-500 font-medium tracking-tight mt-0.5">Manutenção Industrial</p>
-      </div>
+      {!isMinimized && (
+        <div className="flex flex-col animate-in fade-in duration-300">
+          <h1 className="font-bold text-white tracking-tight leading-none text-base">TechPro</h1>
+          <p className="text-[9px] text-slate-500 font-medium tracking-tight mt-0.5">Manutenção Industrial</p>
+        </div>
+      )}
     </div>
   );
 };
 
-const NavItem = ({ to, icon: Icon, label, active, onClick, isSpecial }: any) => (
+const NavItem = ({ to, icon: Icon, label, active, onClick, isSpecial, isMinimized }: any) => (
   <Link 
     to={to} 
     onClick={onClick}
-    className={`flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all mb-1 ${
+    title={isMinimized ? label : ""}
+    className={`flex items-center ${isMinimized ? 'justify-center' : 'justify-between'} w-full px-4 py-3.5 rounded-xl transition-all mb-1 ${
       active 
         ? 'bg-[#1e293b]/60 text-blue-400 border border-slate-700/30' 
         : isSpecial 
@@ -62,9 +65,9 @@ const NavItem = ({ to, icon: Icon, label, active, onClick, isSpecial }: any) => 
   >
     <div className="flex items-center gap-3">
       <Icon size={20} className={active ? "text-blue-500" : isSpecial ? "text-amber-500" : "text-slate-400"} />
-      <span className="text-sm font-medium">{label}</span>
+      {!isMinimized && <span className="text-sm font-medium animate-in fade-in duration-300">{label}</span>}
     </div>
-    <ChevronRight size={16} className={active ? "text-blue-500" : "text-slate-600"} />
+    {!isMinimized && <ChevronRight size={16} className={active ? "text-blue-500" : "text-slate-600"} />}
   </Link>
 );
 
@@ -74,6 +77,7 @@ const AppContent: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'recover'>('login');
   
   const [email, setEmail] = useState('');
@@ -250,50 +254,61 @@ const AppContent: React.FC = () => {
       </header>
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 w-[285px] bg-[#0f172a] border-r border-slate-800/40 z-[70] transform transition-transform duration-300 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
-        <div className="h-full flex flex-col p-6 overflow-y-auto no-scrollbar">
-          <div className="flex items-center justify-between mb-8">
-            <TechProLogo />
+      <aside className={`fixed inset-y-0 left-0 bg-[#0f172a] border-r border-slate-800/40 z-[70] transform transition-all duration-300 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} ${isMinimized ? 'w-[80px]' : 'w-[285px]'}`}>
+        
+        {/* Minimize Toggle Button (Desktop Only) */}
+        <button 
+          onClick={() => setIsMinimized(!isMinimized)}
+          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full items-center justify-center text-slate-400 hover:text-white transition-all z-[80] shadow-md"
+        >
+          {isMinimized ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
+
+        <div className={`h-full flex flex-col p-6 overflow-y-auto no-scrollbar ${isMinimized ? 'items-center px-4' : ''}`}>
+          <div className={`flex items-center justify-between mb-8 ${isMinimized ? 'justify-center' : ''}`}>
+            <TechProLogo isMinimized={isMinimized} />
             <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500"><X size={20} /></button>
           </div>
 
           {/* Profile Card Sidebar */}
-          <div className="mb-6 p-4 bg-slate-900/30 rounded-2xl border border-slate-800/20 flex items-center gap-4">
-             <div className="w-12 h-12 rounded-full overflow-hidden border border-slate-700 shrink-0">
+          <div className={`mb-6 p-4 bg-slate-900/30 rounded-2xl border border-slate-800/20 flex items-center gap-4 transition-all ${isMinimized ? 'justify-center p-2' : ''}`}>
+             <div className={`w-12 h-12 rounded-full overflow-hidden border border-slate-700 shrink-0 ${isMinimized ? 'w-10 h-10' : ''}`}>
                <img src={user.avatar} className="w-full h-full object-cover" alt="" />
              </div>
-             <div className="min-w-0">
-               <p className="text-sm font-bold text-white truncate">{user.name}</p>
-               <div className="flex items-center gap-1.5 mt-0.5">
-                 <Trophy size={12} className="text-amber-500" />
-                 <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Nível {user.level}</span>
+             {!isMinimized && (
+               <div className="min-w-0 animate-in fade-in duration-300">
+                 <p className="text-sm font-bold text-white truncate">{user.name}</p>
+                 <div className="flex items-center gap-1.5 mt-0.5">
+                   <Trophy size={12} className="text-amber-500" />
+                   <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Nível {user.level}</span>
+                 </div>
                </div>
-             </div>
+             )}
           </div>
 
           <nav className="space-y-1 mb-8">
-            <NavItem to="/" icon={LayoutGrid} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/level" icon={Trophy} label="Carreira" active={location.pathname === '/level'} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/library" icon={BookOpen} label="Conteúdos" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/forum" icon={MessageSquare} label="Fórum" active={location.pathname === '/forum'} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/calculators" icon={Calculator} label="Calculadoras" active={location.pathname === '/calculators'} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/conversions" icon={RefreshCw} label="Conversões" active={location.pathname === '/conversions'} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/checklists" icon={ClipboardCheck} label="Checklists" active={location.pathname === '/checklists'} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/profile" icon={User} label="Perfil" active={location.pathname === '/profile'} onClick={() => setIsSidebarOpen(false)} />
-            {user.role === UserRole.ADMIN && <NavItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname === '/admin'} onClick={() => setIsSidebarOpen(false)} isSpecial={true} />}
+            <NavItem to="/" icon={LayoutGrid} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/level" icon={Trophy} label="Carreira" active={location.pathname === '/level'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/library" icon={BookOpen} label="Conteúdos" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/forum" icon={MessageSquare} label="Fórum" active={location.pathname === '/forum'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/calculators" icon={Calculator} label="Calculadoras" active={location.pathname === '/calculators'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/conversions" icon={RefreshCw} label="Conversões" active={location.pathname === '/conversions'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/checklists" icon={ClipboardCheck} label="Checklists" active={location.pathname === '/checklists'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/profile" icon={User} label="Perfil" active={location.pathname === '/profile'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            {user.role === UserRole.ADMIN && <NavItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname === '/admin'} onClick={() => setIsSidebarOpen(false)} isSpecial={true} isMinimized={isMinimized} />}
           </nav>
 
-          <div className="mt-auto pt-6 border-t border-slate-800/40">
-            <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3.5 text-slate-400 hover:text-red-400 font-medium rounded-xl hover:bg-red-500/5 transition-all">
+          <div className={`mt-auto pt-6 border-t border-slate-800/40 ${isMinimized ? 'w-full flex justify-center' : ''}`}>
+            <button onClick={handleLogout} className={`flex items-center gap-3 w-full px-4 py-3.5 text-slate-400 hover:text-red-400 font-medium rounded-xl hover:bg-red-500/5 transition-all ${isMinimized ? 'justify-center px-0' : ''}`}>
               <LogOut size={20} />
-              <span className="text-sm">Sair</span>
+              {!isMinimized && <span className="text-sm animate-in fade-in duration-300">Sair</span>}
             </button>
           </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-h-screen pt-24 lg:pt-8 pb-8 px-4 md:px-8 lg:px-10 overflow-y-auto custom-scrollbar relative z-10">
+      <main className={`flex-1 min-h-screen pt-24 lg:pt-8 pb-8 px-4 md:px-8 lg:px-10 overflow-y-auto custom-scrollbar relative z-10 transition-all duration-300 ${isMinimized ? 'lg:pl-[80px]' : 'lg:pl-[285px]'}`}>
         <Routes>
           <Route path="/" element={<Dashboard user={user} />} />
           <Route path="/library/*" element={<Library isPremium={user.plan !== UserPlan.FREE} isAdmin={user.role === UserRole.ADMIN} user={user} onUpdateUser={setUser} />} />
