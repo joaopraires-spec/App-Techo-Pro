@@ -7,7 +7,8 @@ import {
   History, BarChart3, Phone, Award, RefreshCw,
   Shield, AlertTriangle, ArrowRight, Mail, Key,
   ChevronRight, ChevronDown, Activity, Droplets, CheckCircle2, Briefcase,
-  Eye, EyeOff, Star, Crown, LayoutGrid, Users, Trophy, ChevronLeft
+  Eye, EyeOff, Star, Crown, LayoutGrid, Users, Trophy, ChevronLeft,
+  Headphones
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -326,6 +327,7 @@ const AppContent: React.FC = () => {
             <NavItem to="/calculators" icon={Calculator} label="Calculadoras" active={location.pathname === '/calculators'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             <NavItem to="/conversions" icon={RefreshCw} label="Conversões" active={location.pathname === '/conversions'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             <NavItem to="/checklists" icon={ClipboardCheck} label="Checklists" active={location.pathname === '/checklists'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            <NavItem to="/contact" icon={Headphones} label="Contato" active={location.pathname === '/contact'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             <NavItem to="/profile" icon={User} label="Perfil" active={location.pathname === '/profile'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             {user.role === UserRole.ADMIN && <NavItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname === '/admin'} onClick={() => setIsSidebarOpen(false)} isSpecial={true} isMinimized={isMinimized} />}
           </nav>

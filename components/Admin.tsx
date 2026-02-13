@@ -5,7 +5,7 @@ import {
   ShieldCheck, Users, CreditCard, Trash2, UserCog, Search, 
   BarChart3, MessageSquare, TrendingUp, CheckSquare, X, Send, 
   UserMinus, Calculator as CalcIcon, BookOpen, Activity, AlertTriangle,
-  Lock, CheckCircle, Calendar, ShieldAlert, ChevronDown
+  Lock, CheckCircle, Calendar, ShieldAlert, ChevronDown, Headphones
 } from 'lucide-react';
 
 interface AdminUserView extends UserProfile {}
@@ -15,6 +15,7 @@ interface ChatMessage {
   sender: 'admin' | 'user';
   text: string;
   timestamp: string;
+  date?: string;
 }
 
 type FilterPeriod = 'weekly' | 'monthly' | 'semestral' | 'annual' | 'all';
@@ -23,7 +24,10 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<AdminUserView | null>(null);
   const [chatMessage, setChatMessage] = useState('');
-  const [userChats, setUserChats] = useState<Record<string, ChatMessage[]>>({});
+  const [userChats, setUserChats] = useState<Record<string, ChatMessage[]>>(() => {
+    const saved = localStorage.getItem('techpro_global_chats');
+    return saved ? JSON.parse(saved) : {};
+  });
   const [allUsers, setAllUsers] = useState<AdminUserView[]>([]);
   const [analyticsPeriod, setAnalyticsPeriod] = useState<FilterPeriod>('all');
 
@@ -38,7 +42,11 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
     loadRealUsers();
   }, []);
 
-  // Compilação de dados reais baseada no período selecionado
+  // Sincroniza chats sempre que houver mudança no localStorage ou estado
+  useEffect(() => {
+    localStorage.setItem('techpro_global_chats', JSON.stringify(userChats));
+  }, [userChats]);
+
   const getCompiledInsights = (period: FilterPeriod) => {
     const multipliers: Record<FilterPeriod, number> = {
       weekly: 0.1,
@@ -49,14 +57,8 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
     };
     
     const factor = multipliers[period];
-
-    // Cálculo real de Checklists do Storage
     const totalReports = JSON.parse(localStorage.getItem('techpro_saved_reports') || '[]').length;
-    
-    // Agregação de cálculos realizados por toda a base
     const totalCalculations = allUsers.reduce((acc, u) => acc + (u.calculationsCount || 0), 0);
-
-    // Mapeamento de artigos lidos (Simulação de popularidade baseada na base real)
     const readArticlesCount = allUsers.reduce((acc, u) => acc + (u.readArticlesIds?.length || 0), 0);
 
     return {
@@ -107,7 +109,8 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
       id: Date.now().toString(),
       sender: 'admin',
       text: chatMessage,
-      timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      date: new Date().toLocaleDateString('pt-BR')
     };
     setUserChats(prev => ({ ...prev, [selectedUser.id]: [...(prev[selectedUser.id] || []), newMessage] }));
     setChatMessage('');
@@ -129,10 +132,9 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
         </div>
       </div>
 
-      {/* NOVO: PAINEL DE INSIGHTS GLOBAIS - ATUALIZADO EM TEMPO REAL */}
+      {/* Painel de Insights Globais */}
       <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 shadow-2xl space-y-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] pointer-events-none" />
-        
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-500 border border-blue-600/20">
@@ -143,7 +145,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
               <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Métricas Agregadas de todos os usuários</p>
             </div>
           </div>
-
           <div className="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto no-scrollbar shadow-inner">
             {(['weekly', 'monthly', 'semestral', 'annual', 'all'] as const).map((p) => (
               <button
@@ -158,9 +159,7 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
             ))}
           </div>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-          {/* Card: Conteúdos Mais Lidos */}
           <div className="bg-slate-950/50 border border-slate-800 p-6 rounded-3xl space-y-4 hover:border-blue-500/30 transition-all group">
             <div className="flex items-center gap-2 mb-2">
               <BookOpen size={16} className="text-blue-500" />
@@ -175,8 +174,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
               ))}
             </div>
           </div>
-
-          {/* Card: Fóruns Mais Comentados */}
           <div className="bg-slate-950/50 border border-slate-800 p-6 rounded-3xl space-y-4 hover:border-emerald-500/30 transition-all group">
             <div className="flex items-center gap-2 mb-2">
               <MessageSquare size={16} className="text-emerald-500" />
@@ -191,8 +188,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
               ))}
             </div>
           </div>
-
-          {/* Card: Checklists Gerados */}
           <div className="bg-slate-950/50 border border-slate-800 p-6 rounded-3xl flex flex-col justify-center text-center group hover:border-violet-600/30 transition-all">
             <div className="w-12 h-12 bg-violet-600/10 rounded-2xl flex items-center justify-center text-violet-500 mx-auto mb-4 group-hover:bg-violet-600 group-hover:text-white transition-all shadow-lg">
               <CheckSquare size={24} />
@@ -200,8 +195,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Checklists Gerados</p>
             <h4 className="text-4xl font-black text-white">{insights.checklistsCount}</h4>
           </div>
-
-          {/* Card: Calculadora Mais Usada */}
           <div className="bg-slate-950/50 border border-slate-800 p-6 rounded-3xl flex flex-col justify-center text-center group hover:border-amber-500/30 transition-all">
             <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 mx-auto mb-4 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-lg">
               <CalcIcon size={24} />
@@ -213,7 +206,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
         </div>
       </div>
 
-      {/* Cards de Métricas Rápidas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
           <Users className="text-blue-500 mb-4" />
@@ -265,48 +257,62 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Usuário</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Plano</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Mensagens</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {filteredUsers.map(u => (
-                <tr key={u.id} className="hover:bg-slate-800/30 transition-colors group cursor-pointer" onClick={() => setSelectedUser(u)}>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={u.avatar} className="w-10 h-10 rounded-xl object-cover border border-slate-700" alt="" />
-                      <div>
-                        <p className="text-sm font-bold text-white">{u.name}</p>
-                        <p className="text-[10px] text-slate-500">{u.email}</p>
+              {filteredUsers.map(u => {
+                const chatCount = userChats[u.id]?.length || 0;
+                return (
+                  <tr key={u.id} className="hover:bg-slate-800/30 transition-colors group cursor-pointer" onClick={() => setSelectedUser(u)}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <img src={u.avatar} className="w-10 h-10 rounded-xl object-cover border border-slate-700" alt="" />
+                        <div>
+                          <p className="text-sm font-bold text-white">{u.name}</p>
+                          <p className="text-[10px] text-slate-500">{u.email}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase border ${
-                      u.status === UserStatus.ACTIVE ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30' :
-                      'bg-red-500/10 text-red-500 border-red-500/30'
-                    }`}>
-                      {u.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{u.plan}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-end gap-3">
-                       <button 
-                         onClick={() => updateUserData(u.id, { status: u.status === UserStatus.ACTIVE ? UserStatus.SUSPENDED : UserStatus.ACTIVE })}
-                         className={`p-2 rounded-lg transition-colors ${u.status === UserStatus.ACTIVE ? 'text-slate-600 hover:text-red-500' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
-                         title={u.status === UserStatus.ACTIVE ? "Suspender" : "Ativar"}
-                       >
-                         {u.status === UserStatus.ACTIVE ? <Lock size={16} /> : <CheckCircle size={16} />}
-                       </button>
-                       <button onClick={() => deleteUser(u.id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors">
-                         <Trash2 size={16} />
-                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase border ${
+                        u.status === UserStatus.ACTIVE ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30' :
+                        'bg-red-500/10 text-red-500 border-red-500/30'
+                      }`}>
+                        {u.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{u.plan}</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      {chatCount > 0 ? (
+                        <div className="flex items-center justify-end gap-2 text-blue-500">
+                          <span className="text-xs font-black">{chatCount}</span>
+                          <Headphones size={14} />
+                        </div>
+                      ) : (
+                        <span className="text-[9px] text-slate-700 font-black uppercase tracking-widest">Vazio</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-3">
+                         <button 
+                           onClick={() => updateUserData(u.id, { status: u.status === UserStatus.ACTIVE ? UserStatus.SUSPENDED : UserStatus.ACTIVE })}
+                           className={`p-2 rounded-lg transition-colors ${u.status === UserStatus.ACTIVE ? 'text-slate-600 hover:text-red-500' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
+                           title={u.status === UserStatus.ACTIVE ? "Suspender" : "Ativar"}
+                         >
+                           {u.status === UserStatus.ACTIVE ? <Lock size={16} /> : <CheckCircle size={16} />}
+                         </button>
+                         <button onClick={() => deleteUser(u.id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors">
+                           <Trash2 size={16} />
+                         </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -340,7 +346,6 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                     </div>
                     <Lock size={16} className="text-slate-700" />
                   </div>
-                  
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl">
                       <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Role Atual</p>
@@ -363,33 +368,9 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                       />
                     </div>
                   </div>
-
-                  <div className="p-6 bg-slate-950 border border-slate-800 rounded-2xl space-y-4">
-                    <div className="flex items-center justify-between">
-                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Plano & Expiração</p>
-                       <Calendar size={16} className="text-amber-500" />
-                    </div>
-                    <div className="flex gap-2">
-                       <select 
-                        value={selectedUser.plan} 
-                        onChange={e => updateUserData(selectedUser.id, { plan: e.target.value as UserPlan })}
-                        className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs font-bold text-white outline-none"
-                      >
-                        <option value={UserPlan.FREE}>Free</option>
-                        <option value={UserPlan.MONTHLY}>Mensal</option>
-                        <option value={UserPlan.ANNUAL}>Anual</option>
-                      </select>
-                      <input 
-                        type="date" 
-                        value={selectedUser.planExpiryDate || ''} 
-                        onChange={e => updateUserData(selectedUser.id, { planExpiryDate: e.target.value })}
-                        className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs font-bold text-white outline-none"
-                      />
-                    </div>
-                  </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-4 pt-6">
                   <button 
                     onClick={() => updateUserData(selectedUser.id, { status: selectedUser.status === UserStatus.ACTIVE ? UserStatus.SUSPENDED : UserStatus.ACTIVE })}
                     className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${
@@ -400,50 +381,65 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                   >
                     {selectedUser.status === UserStatus.ACTIVE ? 'Suspender Acesso' : 'Ativar Conta'}
                   </button>
-                  <button 
-                    onClick={() => deleteUser(selectedUser.id)}
-                    className="p-4 bg-slate-950 border border-slate-800 rounded-2xl text-slate-600 hover:text-red-500 hover:border-red-500/50 transition-all"
-                  >
+                  <button onClick={() => deleteUser(selectedUser.id)} className="p-4 bg-slate-950 border border-slate-800 rounded-2xl text-slate-600 hover:text-red-500 transition-all">
                     <Trash2 size={18} />
                   </button>
                 </div>
               </div>
 
-              <div className="lg:w-1/2 bg-slate-950/50 flex flex-col h-[600px] lg:h-auto">
-                 <div className="p-8 border-b border-slate-800 bg-slate-900/50">
+              <div className="lg:w-1/2 bg-slate-950/50 flex flex-col h-[600px] lg:h-auto relative">
+                 <div className="p-8 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
                     <h4 className="text-lg font-bold text-white flex items-center gap-3">
-                      <MessageSquare className="text-blue-500" /> Histórico de Consultoria
+                      <MessageSquare className="text-blue-500" /> Console de Suporte
                     </h4>
+                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Transmissão Ativa</span>
                  </div>
 
-                 <div className="flex-1 p-8 overflow-y-auto space-y-4 no-scrollbar">
+                 <div className="flex-1 p-8 overflow-y-auto space-y-6 no-scrollbar">
                     {(userChats[selectedUser.id] || []).map(msg => (
                       <div key={msg.id} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] p-4 rounded-2xl text-sm ${msg.sender === 'admin' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700'}`}>
-                          <p>{msg.text}</p>
-                          <p className={`text-[9px] mt-2 font-black ${msg.sender === 'admin' ? 'text-blue-200' : 'text-slate-500'}`}>{msg.timestamp}</p>
+                        <div className={`max-w-[85%] p-5 rounded-3xl text-sm relative shadow-xl ${
+                          msg.sender === 'admin' 
+                            ? 'bg-blue-600 text-white rounded-tr-none' 
+                            : 'bg-slate-900 text-slate-200 border border-slate-800 rounded-tl-none'
+                        }`}>
+                          <div className="whitespace-pre-wrap">{msg.text}</div>
+                          <div className={`flex items-center gap-2 mt-3 pt-2 border-t ${
+                            msg.sender === 'admin' ? 'border-white/10 text-blue-200' : 'border-slate-800 text-slate-600'
+                          }`}>
+                            <span className="text-[9px] font-black uppercase">{msg.date}</span>
+                            <div className="w-1 h-1 rounded-full bg-current opacity-30" />
+                            <span className="text-[9px] font-black uppercase">{msg.timestamp}</span>
+                          </div>
                         </div>
                       </div>
                     ))}
                     {(!userChats[selectedUser.id] || userChats[selectedUser.id].length === 0) && (
-                      <div className="h-full flex flex-col items-center justify-center text-slate-700 text-center space-y-4">
-                        <MessageSquare size={64} className="opacity-5" />
-                        <p className="text-xs font-black uppercase tracking-widest">Sem mensagens recentes</p>
+                      <div className="h-full flex flex-col items-center justify-center text-slate-700 text-center space-y-6">
+                        <Headphones size={80} className="opacity-10" />
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-[0.3em]">Frequência Livre</p>
+                          <p className="text-xs font-medium text-slate-500">Aguardando solicitação técnica deste usuário.</p>
+                        </div>
                       </div>
                     )}
                  </div>
 
-                 <form onSubmit={handleSendMessage} className="p-8 border-t border-slate-800">
+                 <form onSubmit={handleSendMessage} className="p-8 border-t border-slate-800 bg-slate-900/40">
                     <div className="relative">
                        <input 
                          type="text" 
                          value={chatMessage}
                          onChange={e => setChatMessage(e.target.value)}
-                         placeholder="Enviar comando ou mensagem suporte..."
-                         className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600"
+                         placeholder="Digite o parecer técnico ou resposta..."
+                         className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-5 text-white text-sm outline-none focus:ring-2 focus:ring-blue-600 transition-all shadow-inner"
                        />
-                       <button type="submit" disabled={!chatMessage.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center transition-all disabled:opacity-50">
-                          <Send size={18} />
+                       <button 
+                         type="submit" 
+                         disabled={!chatMessage.trim()} 
+                         className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center transition-all disabled:opacity-20 shadow-lg"
+                       >
+                          <Send size={20} />
                        </button>
                     </div>
                  </form>
