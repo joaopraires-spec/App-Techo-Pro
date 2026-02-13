@@ -191,9 +191,9 @@ export interface LevelInfo {
 }
 
 export const LEVELS: LevelInfo[] = [
-  { level: 1, minXp: 0, title: 'Assistente Técnico', medal: '🥉', message: 'Iniciando a jornada profissional.', features: ['Artigos Free', 'Calculadoras Básicas'] },
-  { level: 2, minXp: 1000, title: 'Técnico de Manutenção', medal: '🥈', message: 'Habilidades básicas consolidadas.', features: ['Checklists Customizados'] },
-  { level: 3, minXp: 2500, title: 'Técnico Especialista', medal: '🥇', message: 'Referência em diagnósticos de campo.', features: ['Relatórios PDF'] },
-  { level: 4, minXp: 5000, title: 'Inspetor de Confiabilidade', medal: '💠', message: 'Foco em análise de falhas e RCM.', features: ['Acesso Avançado'] },
-  { level: 5, minXp: 10000, title: 'Engenheiro de Campo Pro', medal: '💎', message: 'Nível máximo de proficiência técnica.', features: ['Consultoria Interna'] }
+  { level: 1, minXp: 0, title: 'Auxiliar', medal: '🥉', message: 'Iniciando a jornada profissional na manutenção.', features: ['Artigos Básicos', 'Calculadoras de Campo'] },
+  { level: 2, minXp: 1000, title: 'Técnico III', medal: '🥈', message: 'Habilidades fundamentais consolidadas.', features: ['Checklists Customizados', 'Catálogos Técnicos'] },
+  { level: 3, minXp: 2500, title: 'Técnico II', medal: '🥇', message: 'Referência operacional e diagnóstica.', features: ['Relatórios PDF', 'Calculadoras Avançadas'] },
+  { level: 4, minXp: 5000, title: 'Técnico I', medal: '💠', message: 'Liderança técnica e análise de falhas crítica.', features: ['Suporte Prioritário', 'Acesso Total'] },
+  { level: 5, minXp: 10000, title: 'Especialista', medal: '💎', message: 'Nível máximo de proficiência e consultoria.', features: ['Consultoria Interna', 'Certificação Specialist'] }
 ];

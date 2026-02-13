@@ -7,7 +7,7 @@ import {
   History, BarChart3, Phone, Award, RefreshCw,
   Shield, AlertTriangle, ArrowRight, Mail, Key,
   ChevronRight, ChevronDown, Activity, Droplets, CheckCircle2, Briefcase,
-  Eye, EyeOff, Star, Crown, LayoutGrid, Users
+  Eye, EyeOff, Star, Crown, LayoutGrid, Users, Trophy
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -235,7 +235,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-slate-100 flex font-sans overflow-x-hidden">
-      {/* Header Mobile - Fiel à Identidade */}
+      {/* Header Mobile */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0a0f1e]/90 backdrop-blur-md border-b border-slate-800/40 flex items-center justify-between px-4 z-40">
         <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-400 active:bg-slate-800 rounded-lg transition-colors">
           <Menu size={24} />
@@ -249,7 +249,7 @@ const AppContent: React.FC = () => {
         </div>
       </header>
 
-      {/* Sidebar - Otimizada 285px conforme Screenshot */}
+      {/* Sidebar Navigation */}
       <aside className={`fixed inset-y-0 left-0 w-[285px] bg-[#0f172a] border-r border-slate-800/40 z-[70] transform transition-transform duration-300 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
         <div className="h-full flex flex-col p-6 overflow-y-auto no-scrollbar">
           <div className="flex items-center justify-between mb-8">
@@ -257,23 +257,23 @@ const AppContent: React.FC = () => {
             <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500"><X size={20} /></button>
           </div>
 
-          {/* Profile Card Sidebar - Screenshot 1 Style */}
+          {/* Profile Card Sidebar */}
           <div className="mb-6 p-4 bg-slate-900/30 rounded-2xl border border-slate-800/20 flex items-center gap-4">
              <div className="w-12 h-12 rounded-full overflow-hidden border border-slate-700 shrink-0">
                <img src={user.avatar} className="w-full h-full object-cover" alt="" />
              </div>
              <div className="min-w-0">
-               <p className="text-sm font-bold text-white truncate">Tech Pro App</p>
+               <p className="text-sm font-bold text-white truncate">{user.name}</p>
                <div className="flex items-center gap-1.5 mt-0.5">
-                 <Crown size={12} className="text-amber-500" />
-                 <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Premium</span>
+                 <Trophy size={12} className="text-amber-500" />
+                 <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Nível {user.level}</span>
                </div>
              </div>
           </div>
 
           <nav className="space-y-1 mb-8">
             <NavItem to="/" icon={LayoutGrid} label="Dashboard" active={location.pathname === '/'} onClick={() => setIsSidebarOpen(false)} />
-            <NavItem to="/profile" icon={Crown} label="Premium" active={location.pathname === '/profile' && user.plan !== UserPlan.ADMIN} onClick={() => setIsSidebarOpen(false)} />
+            <NavItem to="/level" icon={Trophy} label="Carreira" active={location.pathname === '/level'} onClick={() => setIsSidebarOpen(false)} />
             <NavItem to="/library" icon={BookOpen} label="Conteúdos" active={location.pathname.startsWith('/library')} onClick={() => setIsSidebarOpen(false)} />
             <NavItem to="/forum" icon={MessageSquare} label="Fórum" active={location.pathname === '/forum'} onClick={() => setIsSidebarOpen(false)} />
             <NavItem to="/calculators" icon={Calculator} label="Calculadoras" active={location.pathname === '/calculators'} onClick={() => setIsSidebarOpen(false)} />
@@ -292,6 +292,7 @@ const AppContent: React.FC = () => {
         </div>
       </aside>
 
+      {/* Main Content Area */}
       <main className="flex-1 min-h-screen pt-24 lg:pt-8 pb-8 px-4 md:px-8 lg:px-10 overflow-y-auto custom-scrollbar relative z-10">
         <Routes>
           <Route path="/" element={<Dashboard user={user} />} />
@@ -301,6 +302,7 @@ const AppContent: React.FC = () => {
           <Route path="/checklists" element={<Checklists user={user} onUpdateUser={setUser} />} />
           <Route path="/forum" element={<Forum user={user} />} />
           <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+          <Route path="/level" element={<ProfessionalLevel user={user} />} />
           <Route path="/admin" element={user.role === UserRole.ADMIN ? <Admin user={user} /> : <Navigate to="/" />} />
           <Route path="/contact" element={<Contact user={user} />} />
           <Route path="*" element={<Navigate to="/" />} />
