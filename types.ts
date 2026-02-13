@@ -64,6 +64,8 @@ export interface Article {
   content: string;
   readTime: number; 
   imageUrl: string;
+  isNew?: boolean; // Campo para identificar conteúdos recentes
+  updatedAt?: string; // Data de atualização/publicação
 }
 
 export interface Catalog {

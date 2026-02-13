@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { INITIAL_ARTICLES, CATEGORIES_FREE, CATEGORIES_PREMIUM, INITIAL_CATALOGS, LEVELS } from '../constants';
-import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle, Plus, Upload, Trash2, FolderPlus, File as FileIcon, X, Settings2, RotateCcw } from 'lucide-react';
+import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle, Plus, Upload, Trash2, FolderPlus, File as FileIcon, X, Settings2, RotateCcw, Sparkles } from 'lucide-react';
 import { Link, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { UserProfile, Catalog, UserPlan } from '../types';
 
@@ -108,6 +108,7 @@ const ArticleDetail: React.FC<{
             <div className="flex items-center gap-2 mb-2 md:mb-3">
               <span className="bg-blue-600/20 border border-blue-600/30 text-blue-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">{article.category}</span>
               {article.isPremium && <Crown size={14} className="text-amber-500 drop-shadow-md" />}
+              {article.isNew && <span className="bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-lg flex items-center gap-1"><Sparkles size={8}/> Novo</span>}
             </div>
             <h1 className="text-xl sm:text-2xl md:text-4xl font-black text-white tracking-tight leading-tight flex items-center flex-wrap gap-2">
               {article.title}
@@ -159,6 +160,7 @@ const ArticleDetail: React.FC<{
 const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserProfile }> = ({ isPremium, isAdmin, user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [onlyRecent, setOnlyRecent] = useState(false);
   const [viewTab, setViewTab] = useState<'articles' | 'catalogs'>('articles');
   
   const [catalogs, setCatalogs] = useState<Catalog[]>(INITIAL_CATALOGS);
@@ -171,7 +173,8 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
   const filteredArticles = INITIAL_ARTICLES.filter(art => {
     const matchesSearch = art.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeCategory ? art.category === activeCategory : true;
-    return matchesSearch && matchesCategory;
+    const matchesRecent = onlyRecent ? art.isNew : true;
+    return matchesSearch && matchesCategory && matchesRecent;
   });
 
   const articleCategories = [...new Set(INITIAL_ARTICLES.map(a => a.category))];
@@ -258,23 +261,34 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
 
       {viewTab === 'articles' ? (
         <>
-          <div className="flex overflow-x-auto gap-2.5 pb-3 no-scrollbar whitespace-nowrap px-1 sm:px-0 scroll-smooth">
-            <button 
-              onClick={() => setActiveCategory(null)}
-              className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shrink-0 ${!activeCategory ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/10' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700 shadow-sm'}`}
-            >
-              Todos
-            </button>
-            {articleCategories.map(cat => (
+          <div className="flex flex-col sm:flex-row gap-4 px-1 sm:px-0">
+            <div className="flex overflow-x-auto gap-2.5 pb-3 no-scrollbar whitespace-nowrap scroll-smooth flex-1">
               <button 
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shrink-0 flex items-center gap-2 ${activeCategory === cat ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/10' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700 shadow-sm'}`}
+                onClick={() => { setActiveCategory(null); setOnlyRecent(false); }}
+                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shrink-0 ${(!activeCategory && !onlyRecent) ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/10' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700 shadow-sm'}`}
               >
-                {cat}
-                {CATEGORIES_PREMIUM.includes(cat) && <Crown size={12} className={activeCategory === cat ? 'text-blue-200' : 'text-amber-500'} />}
+                Todos
               </button>
-            ))}
+              
+              {/* Novo filtro 'Recentemente Publicados' */}
+              <button 
+                onClick={() => setOnlyRecent(!onlyRecent)}
+                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shrink-0 flex items-center gap-2 ${onlyRecent ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-900/10' : 'bg-slate-900 border-slate-800 text-emerald-500/80 hover:border-emerald-700 shadow-sm'}`}
+              >
+                <Sparkles size={14} /> Recentes
+              </button>
+
+              {articleCategories.map(cat => (
+                <button 
+                  key={cat}
+                  onClick={() => { setActiveCategory(cat); setOnlyRecent(false); }}
+                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shrink-0 flex items-center gap-2 ${activeCategory === cat ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/10' : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700 shadow-sm'}`}
+                >
+                  {cat}
+                  {CATEGORIES_PREMIUM.includes(cat) && <Crown size={12} className={activeCategory === cat ? 'text-blue-200' : 'text-amber-500'} />}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
@@ -286,11 +300,19 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
                 <Link 
                   key={article.id}
                   to={`/library/article/${article.id}`}
-                  className="bg-slate-900 border border-slate-800 rounded-[28px] overflow-hidden group hover:border-blue-500 transition-all active:scale-95 touch-manipulation flex flex-col shadow-lg"
+                  className="bg-slate-900 border border-slate-800 rounded-[28px] overflow-hidden group hover:border-blue-500 transition-all active:scale-95 touch-manipulation flex flex-col shadow-lg relative"
                 >
                   <div className="h-40 relative overflow-hidden">
                     <img src={article.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+                    
+                    {/* Badge de Novo Conteúdo */}
+                    {article.isNew && (
+                      <div className="absolute top-4 left-4 bg-emerald-500 text-white px-2 py-1 rounded-lg font-black text-[8px] uppercase tracking-widest shadow-lg flex items-center gap-1 animate-in slide-in-from-top-2 duration-300">
+                        <Sparkles size={10} /> Novo
+                      </div>
+                    )}
+
                     {article.isPremium && (
                       <div className="absolute top-4 right-4 bg-amber-500 text-slate-950 p-1.5 rounded-xl shadow-xl drop-shadow-lg">
                         <Crown size={14} />
@@ -323,6 +345,19 @@ const LibraryList: React.FC<{ isPremium: boolean; isAdmin: boolean; user: UserPr
               );
             })}
           </div>
+          
+          {filteredArticles.length === 0 && (
+            <div className="py-24 text-center space-y-4 bg-slate-900/30 border border-dashed border-slate-800 rounded-[40px]">
+              <Search size={48} className="text-slate-700 mx-auto" />
+              <p className="text-slate-500 font-medium">Nenhum artigo encontrado para esta filtragem.</p>
+              <button 
+                onClick={() => { setOnlyRecent(false); setActiveCategory(null); setSearchTerm(''); }}
+                className="text-blue-500 font-black text-xs uppercase tracking-widest"
+              >
+                Limpar Todos os Filtros
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <div className="space-y-8 animate-in fade-in duration-500">

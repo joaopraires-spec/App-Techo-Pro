@@ -37,7 +37,7 @@ const categoryImages: Record<string, string> = {
 
 const TECHNICAL_CONTENT: Record<string, string> = {
   'Hidráulica': "Este módulo aborda os fundamentos da mecânica dos fluidos aplicada a sistemas de potência. Estudaremos o Princípio de Pascal e como a multiplicação de força ocorre em circuitos fechados. Analisaremos a diferença entre fluxo laminar e turbulento (Número de Reynolds) e o impacto da viscosidade (ISO VG) na eficiência volumétrica de bombas de pistão. Discutiremos também a cavitação, o efeito 'diesel' em cilindros e as técnicas avançadas de contagem de partículas (ISO 4406) para garantir a longevidade dos componentes.",
-  'Mecânica': "Foco em elementos de máquinas e sistemas de transmissão. Discutiremos o cálculo de vida útil de rolamentos (L10h) sob diferentes cargas radiais e axiais. Abordaremos o alinhamento de precisão (comparador centesimal e laser) e a importância da compensação térmica. O estudo inclui análise de lubrificantes, aditivação EP (Extrema Pressão) e técnicas de montagem por interferência térmica, garantindo que o ajuste entre eixo e furo atenda às tolerâncias ISO.",
+  'Mecânica': "Foco em elements de máquinas e sistemas de transmissão. Discutiremos o cálculo de vida útil de rolamentos (L10h) sob diferentes cargas radiais e axiais. Abordaremos o alinhamento de precisão (comparador centesimal e laser) e a importância da compensação térmica. O estudo inclui análise de lubrificantes, aditivação EP (Extrema Pressão) e técnicas de montagem por interferência térmica, garantindo que o ajuste entre eixo e furo atenda às tolerâncias ISO.",
   'Informática': "Convergência entre TI (Tecnologia da Informação) e TO (Tecnologia de Operação). Este módulo detalha a arquitetura de redes industriais, comparando protocolos determinísticos como Profinet e EtherNet/IP com Modbus TCP. Exploraremos a segurança cibernética em ambientes fabris, o uso de firewalls industriais e a implementação de gateways IIoT para coleta de dados em nuvem via MQTT ou OPC-UA, visando a Manutenção Preditiva 4.0.",
   'Segurança': "Gestão de riscos e conformidade com as normas regulamentadoras (NR-12, NR-10 e NR-35). Analisaremos o método HRN (Hazard Rating Number) para quantificação de riscos em máquinas. Detalharemos os protocolos de bloqueio e etiquetagem (LOTO - Lockout Tagout), a especificação técnica de dispositivos de intertravamento categoria 4 e a importância da análise ergonômica do posto de trabalho para prevenir doenças ocupacionais.",
   'Britagem / Mineração': "Engenharia de processamento mineral. Estudaremos o ciclo de vida de mandíbulas e mantos de britadores cônicos, focando na dureza Brinell e tenacidade ao impacto. Analisaremos a curva granulométrica resultante do ajuste do CSS (Closed Side Setting) e como o 'tramping' de metais pode causar falhas catastróficas. Discutiremos também a eficiência de peneiramento e o cálculo de carga circulante em circuitos fechados de moagem.",
@@ -67,7 +67,9 @@ const generateArticles = () => {
         isPremium: CATEGORIES_PREMIUM.includes(cat),
         readTime: 25,
         imageUrl: imageUrl,
-        content: `${baseContent}\n\nNo Módulo ${i}, aprofundamos a aplicação prática destes conceitos em cenários reais de manutenção e engenharia de campo, focando em diagnósticos de precisão e metodologias de análise de falha raíz (RCFA).`
+        content: `${baseContent}\n\nNo Módulo ${i}, aprofundamos a aplicação prática destes conceitos em cenários reais de manutenção e engenharia de campo, focando em diagnósticos de precisão e metodologias de análise de falha raíz (RCFA).`,
+        isNew: i === 1, // Marcar o primeiro artigo de cada categoria como 'Novo'
+        updatedAt: i === 1 ? new Date().toISOString() : undefined
       });
     }
   });
