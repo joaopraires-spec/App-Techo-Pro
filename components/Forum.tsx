@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { UserProfile, UserPlan, ForumPost } from '../types';
-import { MessageSquare, Plus, Search, User as UserIcon, Calendar, ArrowRight, X, Trash2, Pencil, ShieldAlert, ArrowLeft, Send, Check, Trophy } from 'lucide-react';
+import { MessageSquare, Plus, Search, User as UserIcon, Calendar, ArrowRight, X, Trash2, Pencil, ShieldAlert, ArrowLeft, Send, Check, Trophy, AlertTriangle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { LEVELS } from '../constants';
 
@@ -19,7 +19,7 @@ interface PostReply {
 
 const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
   const location = useLocation();
-  const isAdmin = user.plan === UserPlan.ADMIN;
+  const isAdmin = user.role === 'admin';
   
   // Função para pegar o título do nível baseado no XP (simulado para outros autores)
   const getAuthorLevelTitle = (xp: number = 0) => {
@@ -123,6 +123,24 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
     }
   };
 
+  const deleteReply = (replyId: string) => {
+    if (window.confirm('Deseja excluir esta mensagem permanentemente?')) {
+      const replyToDelete = replies.find(r => r.id === replyId);
+      if (replyToDelete) {
+        setReplies(replies.filter(r => r.id !== replyId));
+        setPosts(posts.map(p => p.id === replyToDelete.postId ? { ...p, replies: Math.max(0, p.replies - 1) } : p));
+      }
+    }
+  };
+
+  const clearForum = () => {
+    if (window.confirm('AVISO: Você está prestes a apagar TODOS os tópicos e mensagens do fórum. Esta ação é irreversível. Deseja continuar?')) {
+      setPosts([]);
+      setReplies([]);
+      setSelectedPostId(null);
+    }
+  };
+
   if (selectedPostId && activePost) {
     return (
       <div className="space-y-8 max-w-4xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -130,7 +148,16 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
           <ArrowLeft size={18} /> Voltar
         </button>
 
-        <div className="bg-slate-900 border border-slate-800 p-8 rounded-[32px] shadow-2xl">
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-[32px] shadow-2xl relative">
+          {isAdmin && (
+            <button 
+              onClick={() => deletePost(activePost.id)}
+              className="absolute top-6 right-6 p-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-lg"
+              title="Excluir Tópico"
+            >
+              <Trash2 size={20} />
+            </button>
+          )}
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-white text-xl">
               {activePost.author.charAt(0)}
@@ -175,11 +202,18 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
                       <p className="text-[9px] text-slate-500 uppercase tracking-widest">{reply.date}</p>
                     </div>
                   </div>
-                  {(reply.authorEmail === user.email || isAdmin) && (
-                    <button onClick={() => { setEditingReplyId(reply.id); setEditText(reply.content); }} className="opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-blue-400 transition-all">
-                      <Pencil size={16} />
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    {(reply.authorEmail === user.email || isAdmin) && (
+                      <button onClick={() => { setEditingReplyId(reply.id); setEditText(reply.content); }} className="p-2 text-slate-500 hover:text-blue-400 transition-all">
+                        <Pencil size={16} />
+                      </button>
+                    )}
+                    {isAdmin && (
+                      <button onClick={() => deleteReply(reply.id)} className="p-2 text-slate-500 hover:text-red-500 transition-all">
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {editingReplyId === reply.id ? (
                   <form onSubmit={saveEdit} className="space-y-3">
@@ -221,9 +255,19 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
           </h2>
           <p className="text-slate-400">Troca de experiências e suporte técnico entre profissionais.</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg">
-          <Plus size={20} /> Nova Discussão
-        </button>
+        <div className="flex items-center gap-3">
+          {isAdmin && (
+            <button 
+              onClick={clearForum}
+              className="bg-red-500/10 text-red-500 hover:bg-red-600 hover:text-white border border-red-500/20 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all"
+            >
+              <AlertTriangle size={18} /> Limpar Fórum
+            </button>
+          )}
+          <button onClick={() => setShowForm(true)} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg">
+            <Plus size={20} /> Nova Discussão
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -245,7 +289,7 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
                 </div>
                 {isAdmin && (
                   <div className="flex gap-2">
-                    <button onClick={() => deletePost(post.id)} className="text-slate-500 hover:text-red-500"><Trash2 size={18} /></button>
+                    <button onClick={() => deletePost(post.id)} className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all"><Trash2 size={18} /></button>
                   </div>
                 )}
               </div>
@@ -258,6 +302,12 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
               </div>
             </div>
           ))}
+          {posts.length === 0 && (
+            <div className="py-20 text-center space-y-4 bg-slate-900/50 border border-dashed border-slate-800 rounded-[40px]">
+              <MessageSquare size={48} className="mx-auto text-slate-800" />
+              <p className="text-slate-500">O fórum está vazio no momento.</p>
+            </div>
+          )}
         </div>
         <div className="space-y-6">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
@@ -272,7 +322,7 @@ const Forum: React.FC<{ user: UserProfile }> = ({ user }) => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-slate-950/90 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-slate-950/90 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
           <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl p-8 relative shadow-2xl">
             <button onClick={() => setShowForm(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white"><X size={24} /></button>
             <h3 className="text-2xl font-bold text-white mb-6">Novo Tópico Técnico</h3>

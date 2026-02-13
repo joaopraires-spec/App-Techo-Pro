@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { INITIAL_ARTICLES, CATEGORIES_FREE, CATEGORIES_PREMIUM, INITIAL_CATALOGS, LEVELS } from '../constants';
-import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle, Plus, Upload, Trash2, FolderPlus, File as FileIcon, X, Settings2 } from 'lucide-react';
+import { Search, Lock, BookOpen, Clock, Tag, FileText, ChevronRight, Folder, Crown, Droplets, ArrowLeft, CheckCircle2, MessageSquare, Download, Circle, Plus, Upload, Trash2, FolderPlus, File as FileIcon, X, Settings2, RotateCcw } from 'lucide-react';
 import { Link, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { UserProfile, Catalog, UserPlan } from '../types';
 
@@ -44,6 +44,28 @@ const ArticleDetail: React.FC<{
           currentMinutesToday: user.readingGoals.currentMinutesToday + article.readTime
         }
       });
+    }
+  };
+
+  const handleUnmarkAsRead = () => {
+    if (isRead && articleId) {
+      const newXp = Math.max(0, user.xp - 50);
+      let newLevel = user.level;
+      // Recalcular nível para baixo se necessário
+      LEVELS.forEach(l => { if (newXp >= l.minXp) newLevel = l.level; });
+
+      onUpdateUser({
+        ...user,
+        xp: newXp,
+        level: newLevel,
+        readArticlesIds: user.readArticlesIds.filter(id => id !== articleId),
+        startedArticlesIds: [...(user.startedArticlesIds || []), articleId],
+        readingGoals: {
+          ...user.readingGoals,
+          currentMinutesToday: Math.max(0, user.readingGoals.currentMinutesToday - article.readTime)
+        }
+      });
+      alert('Artigo desmarcado como lido. O XP foi revertido.');
     }
   };
 
@@ -104,16 +126,26 @@ const ArticleDetail: React.FC<{
           <div className="whitespace-pre-wrap leading-relaxed opacity-90 text-sm sm:text-base">{article.content}</div>
           
           <div className="flex flex-col sm:flex-row gap-4 pt-8 no-print">
-            <button 
-              onClick={handleMarkAsRead}
-              disabled={isRead}
-              className={`flex-1 py-4.5 rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 ${isRead ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-none' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/30 border border-blue-500/50'}`}
-            >
-              {isRead ? <><CheckCircle2 size={18} /> Conteúdo Concluído</> : 'Marcar como Lido (+50 XP)'}
-            </button>
+            <div className="flex-1 flex flex-col gap-3">
+              <button 
+                onClick={handleMarkAsRead}
+                disabled={isRead}
+                className={`w-full py-4.5 rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 ${isRead ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-none' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/30 border border-blue-500/50'}`}
+              >
+                {isRead ? <><CheckCircle2 size={18} /> Conteúdo Concluído</> : 'Marcar como Lido (+50 XP)'}
+              </button>
+              {isRead && (
+                <button 
+                  onClick={handleUnmarkAsRead}
+                  className="w-full py-3 bg-slate-950 border border-slate-800 text-slate-500 hover:text-red-400 hover:border-red-500/30 rounded-2xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95"
+                >
+                  <RotateCcw size={14} /> Desmarcar como lido (Reverter XP)
+                </button>
+              )}
+            </div>
             <button 
               onClick={handleOpenForum}
-              className="flex-1 py-4.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all border border-slate-700 shadow-md active:scale-95"
+              className="flex-1 h-fit py-4.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all border border-slate-700 shadow-md active:scale-95"
             >
               <MessageSquare size={18} /> Discutir Soluções
             </button>
