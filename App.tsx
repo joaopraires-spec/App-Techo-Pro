@@ -28,22 +28,44 @@ import { authService } from './services/authService';
 import { UserProfile, UserRole, UserPlan } from './types';
 
 const TechProLogo = ({ size = "md", className = "", isMinimized = false }: { size?: "sm" | "md" | "lg" | "xl", className?: string, isMinimized?: boolean }) => {
-  const sizes = {
-    sm: "w-8 h-8 text-[10px]",
-    md: "w-10 h-10 text-xs",
-    lg: "w-12 h-12 text-sm",
-    xl: "w-14 h-14 text-base"
+  const pixelSizes = {
+    sm: "32px",
+    md: "40px",
+    lg: "64px",
+    xl: "96px"
   };
 
   return (
     <div className={`${className} flex items-center gap-3`}>
-      <div className={`${sizes[size]} bg-blue-600 rounded-xl flex items-center justify-center font-black text-white shadow-lg shadow-blue-600/30 shrink-0`}>
-        TP
+      <div style={{ width: pixelSizes[size], height: pixelSizes[size] }} className="shrink-0 relative flex items-center justify-center">
+        {/* SVG Recreating the Hexagon Logo precisely from the provided image */}
+        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-2xl">
+          {/* Blue Hexagon Background */}
+          <path d="M50 5 L93.3 30 L93.3 70 L50 95 L6.7 70 L6.7 30 Z" fill="#2563eb" />
+          
+          {/* Grey Inner Decorative Line */}
+          <path d="M50 14 L85 34 L85 66 L50 86 L15 34 L15 34 Z" fill="none" stroke="#94a3b8" strokeWidth="2" opacity="0.3" />
+          
+          {/* White Stylized TP Symbol from image */}
+          <path 
+            d="M32 38 H68 M50 38 V65 M50 50 C62 50 68 55 68 62 C68 69 62 74 50 74" 
+            fill="none" 
+            stroke="white" 
+            strokeWidth="10" 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+          />
+          
+          {/* Yellow Decorative Dots at vertices */}
+          <circle cx="6.7" cy="30" r="4.5" fill="#fbbf24" />
+          <circle cx="93.3" cy="30" r="4.5" fill="#fbbf24" />
+          <circle cx="50" cy="95" r="4.5" fill="#fbbf24" />
+        </svg>
       </div>
       {!isMinimized && (
-        <div className="flex flex-col animate-in fade-in duration-300">
-          <h1 className="font-bold text-white tracking-tight leading-none text-base">TechPro</h1>
-          <p className="text-[9px] text-slate-500 font-medium tracking-tight mt-0.5">Manutenção Industrial</p>
+        <div className="flex flex-col animate-in fade-in duration-500">
+          <h1 className="font-black text-white tracking-tighter leading-none text-lg">TechPro</h1>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Industrial Ecosystem</p>
         </div>
       )}
     </div>
@@ -89,7 +111,6 @@ const AppContent: React.FC = () => {
   const [gender, setGender] = useState<'Masculino' | 'Feminino' | 'Não Aplicável (N/A)' | ''>('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [recoveryPass, setRecoveryPass] = useState('');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -164,45 +185,54 @@ const AppContent: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-6 flex flex-col items-center">
-          <TechProLogo size="lg" />
+      <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+        {/* Theme-compliant Background Image: Industrial/Engineering Drawings */}
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 scale-105"
+          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop)' }}
+        />
+        {/* Dark Overlay with Blur to ensure legibility */}
+        <div className="absolute inset-0 z-0 bg-slate-950/80 backdrop-blur-[2px]" />
 
-          <div className="bg-slate-900 p-7 rounded-[32px] border border-slate-800 space-y-5 shadow-2xl w-full max-h-[85vh] overflow-y-auto no-scrollbar">
-            <div className="text-center pb-2 border-b border-slate-800/50 mb-4">
-              <h2 className="text-2xl font-bold text-white tracking-tight">
-                {authMode === 'login' ? 'Login Specialist' : authMode === 'register' ? 'Novo Cadastro' : 'Recuperar Senha'}
+        <div className="w-full max-w-md space-y-8 flex flex-col items-center relative z-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
+          {/* Logo updated to official hexagon design */}
+          <TechProLogo size="xl" />
+
+          <div className="bg-slate-900/90 p-8 rounded-[40px] border border-slate-800 shadow-2xl w-full max-h-[85vh] overflow-y-auto no-scrollbar backdrop-blur-md">
+            <div className="text-center pb-4 border-b border-slate-800/50 mb-6">
+              <h2 className="text-2xl font-black text-white tracking-tight">
+                {authMode === 'login' ? 'Acesso Industrial' : authMode === 'register' ? 'Novo Especialista' : 'Recuperar Senha'}
               </h2>
-              <p className="text-slate-500 text-xs mt-1">Acesse a plataforma industrial definitiva.</p>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1.5">Ecossistema de Alta Performance</p>
             </div>
 
-            {errorMsg && <div className="p-3 bg-red-500/10 text-red-400 text-xs rounded-xl border border-red-500/20 flex items-center gap-2"><AlertTriangle size={14} /> {errorMsg}</div>}
-            {successMsg && <div className="p-3 bg-emerald-500/10 text-emerald-400 text-xs rounded-xl border border-emerald-500/20 flex items-center gap-2"><CheckCircle2 size={14} /> {successMsg}</div>}
+            {errorMsg && <div className="p-4 bg-red-500/10 text-red-400 text-xs rounded-2xl border border-red-500/20 flex items-center gap-3 mb-4 animate-in shake duration-300"><AlertTriangle size={16} /> {errorMsg}</div>}
+            {successMsg && <div className="p-4 bg-emerald-500/10 text-emerald-400 text-xs rounded-2xl border border-emerald-500/20 flex items-center gap-3 mb-4"><CheckCircle2 size={16} /> {successMsg}</div>}
 
             <form onSubmit={handleAuthSubmit} className="space-y-4">
               {authMode === 'register' && (
                 <>
                   <div className="relative"><User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <input type="text" placeholder="Nome Completo" required className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3.5 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={name} onChange={e => setName(e.target.value)} />
+                    <input type="text" placeholder="Nome Completo" required className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={name} onChange={e => setName(e.target.value)} />
                   </div>
                   <div className="relative"><Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <input type="text" placeholder="Cargo / Especialidade" required className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3.5 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={area} onChange={e => setArea(e.target.value)} />
+                    <input type="text" placeholder="Área de Atuação" required className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={area} onChange={e => setArea(e.target.value)} />
                   </div>
                 </>
               )}
 
               <div className="relative"><Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                <input type="email" placeholder="E-mail" required className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3.5 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={email} onChange={e => setEmail(e.target.value)} />
+                <input type="email" placeholder="E-mail" required className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={email} onChange={e => setEmail(e.target.value)} />
               </div>
 
               {authMode === 'register' && (
                 <>
                   <div className="relative"><Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <input type="tel" placeholder="Telefone (XX) XXXXX-XXXX" required className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3.5 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={phone} onChange={handlePhoneChange} />
+                    <input type="tel" placeholder="Telefone" required className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={phone} onChange={handlePhoneChange} />
                   </div>
                   <div className="relative"><Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <select required className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-10 py-3.5 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 appearance-none" value={gender} onChange={e => setGender(e.target.value as any)}>
-                      <option value="" disabled>Selecione o Sexo</option>
+                    <select required className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-10 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 appearance-none" value={gender} onChange={e => setGender(e.target.value as any)}>
+                      <option value="" disabled>Sexo</option>
                       <option value="Masculino">Masculino</option>
                       <option value="Feminino">Feminino</option>
                       <option value="Não Aplicável (N/A)">Não Aplicável (N/A)</option>
@@ -213,23 +243,25 @@ const AppContent: React.FC = () => {
               )}
 
               <div className="relative"><Key className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                <input type={showPassword ? "text" : "password"} placeholder="Senha" required className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-12 py-3.5 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={password} onChange={e => setPassword(e.target.value)} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                <input type={showPassword ? "text" : "password"} placeholder="Senha" required className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-12 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={password} onChange={e => setPassword(e.target.value)} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-white">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
               </div>
 
               {authMode === 'register' && (
                 <div className="relative"><Key className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <input type={showConfirmPassword ? "text" : "password"} placeholder="Confirmar Senha" required className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-12 py-3.5 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
-                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                  <input type={showConfirmPassword ? "text" : "password"} placeholder="Confirmar Senha" required className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-12 py-4 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 transition-all" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-white">{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                 </div>
               )}
 
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 mt-2">
-                {authMode === 'login' ? 'Entrar Agora' : 'Finalizar Cadastro'} <ArrowRight size={18} />
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4.5 rounded-2xl shadow-xl shadow-blue-900/30 active:scale-95 transition-all flex items-center justify-center gap-3 mt-4 uppercase tracking-widest text-xs">
+                {authMode === 'login' ? 'Entrar' : 'Cadastrar'} <ArrowRight size={18} />
               </button>
             </form>
-            <div className="pt-4 text-center">
-              <button onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} className="text-xs text-blue-500 font-bold uppercase tracking-widest">{authMode === 'login' ? 'Criar nova conta' : 'Já possuo conta'}</button>
+            <div className="pt-6 text-center">
+              <button onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} className="text-[10px] text-blue-500 font-black uppercase tracking-[0.2em] transition-all hover:text-blue-400">
+                {authMode === 'login' ? 'Não possui conta? Registre-se' : 'Já possui conta? Faça login'}
+              </button>
             </div>
           </div>
         </div>
@@ -245,7 +277,7 @@ const AppContent: React.FC = () => {
           <Menu size={24} />
         </button>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black text-white text-[10px] shadow-lg shadow-blue-600/20">TP</div>
+          <TechProLogo size="sm" isMinimized={true} />
           <span className="font-bold text-white text-sm">TechPro</span>
         </div>
         <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-800 shadow-md">
@@ -266,7 +298,7 @@ const AppContent: React.FC = () => {
 
         <div className={`h-full flex flex-col p-6 overflow-y-auto no-scrollbar ${isMinimized ? 'items-center px-4' : ''}`}>
           <div className={`flex items-center justify-between mb-8 ${isMinimized ? 'justify-center' : ''}`}>
-            <TechProLogo isMinimized={isMinimized} />
+            <TechProLogo isMinimized={isMinimized} size="md" />
             <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500"><X size={20} /></button>
           </div>
 
