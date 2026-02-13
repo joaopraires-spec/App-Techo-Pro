@@ -8,7 +8,7 @@ import {
   Camera, Image as ImageIcon, Calendar, Edit3, Save, Copy,
   FolderOpen, FileText, LayoutList, ChevronRight, Check,
   ArrowLeft, ClipboardCheck, History, Clock, MoreVertical,
-  AlertTriangle, Crown, Trophy, Activity, Hash
+  AlertTriangle, Crown, Trophy, Activity, Hash, ShieldCheck
 } from 'lucide-react';
 
 const TEMPLATE_MODELS: Partial<Checklist>[] = [

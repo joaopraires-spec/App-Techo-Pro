@@ -6,7 +6,7 @@ import {
   BookOpen, CheckSquare, Flame, TrendingUp, 
   ChevronRight, Target, Clock, Star, Calculator,
   Zap, Cpu, Globe, Signal, ShieldCheck, Activity,
-  Gauge, Award, Radio, Settings2
+  Gauge, Award, Radio, Settings2, Instagram
 } from 'lucide-react';
 import { getDailyTip } from '../services/gemini';
 
@@ -180,7 +180,6 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
               </div>
               <div className="space-y-1">
                 <MissionItem icon={Cpu} title="Desenho de Fabricação e Montagem" time="12" onClick={() => navigate('/library')} />
-                {/* Fix: Added missing Settings2 import from lucide-react */}
                 <MissionItem icon={Settings2} title="Leitura e Interpretação de Desenho Técnico" time="11" onClick={() => navigate('/library')} />
               </div>
             </div>
@@ -213,6 +212,21 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Protocolo Validado</span>
                </div>
                <Zap size={16} className="text-amber-500 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Invitation to Instagram - New UI Component */}
+          <div className="bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] rounded-[32px] p-6 shadow-2xl shadow-pink-900/20 group hover:scale-[1.02] transition-all cursor-pointer overflow-hidden relative" 
+               onClick={() => window.open('https://www.instagram.com/techproapp?igsh=dmNwOGluMWw2b3N6&utm_source=qr', '_blank')}>
+            <div className="absolute top-0 right-0 p-8 opacity-20 transform translate-x-4 -translate-y-4">
+              <Instagram size={80} />
+            </div>
+            <div className="relative z-10 space-y-1">
+               <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">Comunidade Global</p>
+               <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-2">
+                 Siga-nos no Instagram <Instagram size={18} />
+               </h3>
+               <p className="text-xs text-white/90 font-medium pt-2 max-w-[180px]">Dicas diárias, vídeos técnicos e bastidores da Tech Pro.</p>
             </div>
           </div>
 

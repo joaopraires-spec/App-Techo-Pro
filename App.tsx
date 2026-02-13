@@ -8,7 +8,7 @@ import {
   Shield, AlertTriangle, ArrowRight, Mail, Key,
   ChevronRight, ChevronDown, Activity, Droplets, CheckCircle2, Briefcase,
   Eye, EyeOff, Star, Crown, LayoutGrid, Users, Trophy, ChevronLeft,
-  Headphones
+  Headphones, Instagram, ExternalLink
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -329,6 +329,21 @@ const AppContent: React.FC = () => {
             <NavItem to="/checklists" icon={ClipboardCheck} label="Checklists" active={location.pathname === '/checklists'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             <NavItem to="/contact" icon={Headphones} label="Contato" active={location.pathname === '/contact'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
             <NavItem to="/profile" icon={User} label="Perfil" active={location.pathname === '/profile'} onClick={() => setIsSidebarOpen(false)} isMinimized={isMinimized} />
+            
+            {/* Instagram Link Invitation in Sidebar */}
+            <a 
+              href="https://www.instagram.com/techproapp?igsh=dmNwOGluMWw2b3N6&utm_source=qr" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={`flex items-center ${isMinimized ? 'justify-center' : 'justify-between'} w-full px-4 py-3.5 rounded-xl transition-all mb-1 text-slate-300 hover:text-white hover:bg-pink-600/10 border border-transparent hover:border-pink-500/20`}
+            >
+              <div className="flex items-center gap-3">
+                <Instagram size={20} className="text-pink-500" />
+                {!isMinimized && <span className="text-sm font-medium animate-in fade-in duration-300">Instagram</span>}
+              </div>
+              {!isMinimized && <ExternalLink size={14} className="text-slate-600" />}
+            </a>
+
             {user.role === UserRole.ADMIN && <NavItem to="/admin" icon={ShieldCheck} label="Admin" active={location.pathname === '/admin'} onClick={() => setIsSidebarOpen(false)} isSpecial={true} isMinimized={isMinimized} />}
           </nav>
 
