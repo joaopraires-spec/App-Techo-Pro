@@ -6,7 +6,7 @@ import {
   BookOpen, CheckSquare, Flame, TrendingUp, 
   ChevronRight, Target, Clock, Star, Calculator,
   Zap, Cpu, Globe, Signal, ShieldCheck, Activity,
-  Gauge, Award, Radio, Settings2, Instagram
+  Gauge, Award, Radio, Settings2, Instagram, ExternalLink
 } from 'lucide-react';
 import { getDailyTip } from '../services/gemini';
 
@@ -86,15 +86,27 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
   const streak = user.readingGoals?.streak || 0;
   const xp = user.xp || 0;
 
+  const handleInstagramClick = () => {
+    window.open('https://www.instagram.com/techproapp?igsh=dmNwOGluMWw2b3N6&utm_source=qr', '_blank');
+  };
+
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-16 animate-in fade-in slide-in-from-bottom-5 duration-700">
       
       {/* 1. Header Operativo */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1">
           <div className="flex items-center gap-3">
              <span className="bg-blue-600 text-white text-[8px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-md shadow-lg shadow-blue-900/20">Modo Ativo</span>
              <span className="text-slate-600 text-[10px] font-black uppercase tracking-widest font-mono">ID: TP-{user.id.slice(-4).toUpperCase()}</span>
+             <button 
+               onClick={handleInstagramClick}
+               className="p-1.5 bg-pink-600/10 text-pink-500 rounded-lg hover:bg-pink-600 hover:text-white transition-all active:scale-90 flex items-center gap-1.5 ml-auto md:ml-0"
+               title="Siga-nos no Instagram"
+             >
+               <Instagram size={14} />
+               <span className="text-[8px] font-black uppercase tracking-widest">Follow</span>
+             </button>
           </div>
           <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter leading-tight">
             Bem-vindo, <span className="text-blue-500">{user.name.split(' ')[0]}</span>.
@@ -217,7 +229,7 @@ const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
 
           {/* Invitation to Instagram - New UI Component */}
           <div className="bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] rounded-[32px] p-6 shadow-2xl shadow-pink-900/20 group hover:scale-[1.02] transition-all cursor-pointer overflow-hidden relative" 
-               onClick={() => window.open('https://www.instagram.com/techproapp?igsh=dmNwOGluMWw2b3N6&utm_source=qr', '_blank')}>
+               onClick={handleInstagramClick}>
             <div className="absolute top-0 right-0 p-8 opacity-20 transform translate-x-4 -translate-y-4">
               <Instagram size={80} />
             </div>

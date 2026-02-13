@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-// Added ChevronDown to the lucide-react imports to fix the error on line 207.
-import { Send, CheckCircle2, Phone, ListFilter, AlertCircle, Mail, Briefcase, User as UserIcon, MessageSquare, ShieldCheck, ChevronDown } from 'lucide-react';
+import { Send, CheckCircle2, Phone, ListFilter, AlertCircle, Mail, Briefcase, User as UserIcon, MessageSquare, ShieldCheck, ChevronDown, Instagram, ExternalLink } from 'lucide-react';
 
 const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
@@ -269,6 +268,22 @@ const Contact: React.FC<{ user: UserProfile }> = ({ user }) => {
            </div>
         </div>
       </form>
+
+      {/* Convite Instagram Rodapé */}
+      <div 
+        onClick={() => window.open('https://www.instagram.com/techproapp?igsh=dmNwOGluMWw2b3N6&utm_source=qr', '_blank')}
+        className="bg-slate-900 border border-slate-800 p-6 rounded-[32px] flex items-center justify-center gap-4 hover:border-pink-500/50 transition-all cursor-pointer group shadow-xl"
+      >
+        <div className="w-10 h-10 bg-gradient-to-tr from-pink-600 to-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+          <Instagram size={22} />
+        </div>
+        <div className="text-left">
+           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Acompanhe as novidades</p>
+           <h4 className="text-sm font-bold text-white group-hover:text-pink-500 transition-colors flex items-center gap-2">
+             Siga @techproapp no Instagram <ExternalLink size={14} className="opacity-50" />
+           </h4>
+        </div>
+      </div>
     </div>
   );
 };

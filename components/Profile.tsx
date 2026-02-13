@@ -9,7 +9,7 @@ import {
   BarChart, History, Target, MessageSquare, BookOpen, 
   Calculator, RefreshCw, ChevronRight, User as UserIcon,
   Trophy, TrendingUp, Layout, Crown, CheckSquare, Upload, Image as ImageIcon,
-  Lock, Phone, Calendar, AlertCircle
+  Lock, Phone, Calendar, AlertCircle, Instagram
 } from 'lucide-react';
 
 const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }> = ({ user, setUser }) => {
@@ -303,6 +303,26 @@ const Profile: React.FC<{ user: UserProfile; setUser: (u: UserProfile) => void }
                 </div>
                 <Link to="/level" className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 border border-slate-700">Ver Jornada Completa</Link>
              </div>
+           </div>
+
+           {/* Convite Instagram */}
+           <div 
+             onClick={() => window.open('https://www.instagram.com/techproapp?igsh=dmNwOGluMWw2b3N6&utm_source=qr', '_blank')}
+             className="bg-gradient-to-br from-pink-600 to-orange-500 p-6 rounded-[32px] shadow-xl cursor-pointer hover:scale-[1.02] transition-all group relative overflow-hidden"
+           >
+              <div className="absolute top-0 right-0 p-4 opacity-20 transform translate-x-2 -translate-y-2">
+                <Instagram size={48} />
+              </div>
+              <div className="relative z-10 flex items-center gap-4">
+                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
+                    <Instagram size={24} />
+                 </div>
+                 <div>
+                    <h4 className="text-sm font-black text-white uppercase tracking-widest">Siga a Tech Pro</h4>
+                    <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">@techproapp</p>
+                 </div>
+                 <ExternalLink size={16} className="text-white/50 ml-auto group-hover:text-white transition-colors" />
+              </div>
            </div>
         </div>
       </div>
