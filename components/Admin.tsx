@@ -5,7 +5,8 @@ import {
   ShieldCheck, Users, CreditCard, Trash2, UserCog, Search, 
   BarChart3, MessageSquare, TrendingUp, CheckSquare, X, Send, 
   UserMinus, Calculator as CalcIcon, BookOpen, Activity, AlertTriangle,
-  Lock, CheckCircle, Calendar, ShieldAlert, ChevronDown, Headphones
+  Lock, CheckCircle, Calendar, ShieldAlert, ChevronDown, Headphones,
+  Crown
 } from 'lucide-react';
 
 interface AdminUserView extends UserProfile {}
@@ -346,6 +347,28 @@ const Admin: React.FC<{ user: UserProfile }> = ({ user }) => {
                     </div>
                     <Lock size={16} className="text-slate-700" />
                   </div>
+
+                  {/* Gerenciamento de Plano Manual */}
+                  <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl flex items-center gap-4">
+                    <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 border border-amber-500/20">
+                      <Crown size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Plano de Assinatura</p>
+                      <select 
+                        value={selectedUser.plan} 
+                        onChange={e => updateUserData(selectedUser.id, { plan: e.target.value as UserPlan })}
+                        className="bg-transparent text-sm font-bold text-white border-none outline-none w-full appearance-none cursor-pointer"
+                      >
+                        <option value={UserPlan.FREE}>{UserPlan.FREE}</option>
+                        <option value={UserPlan.MONTHLY}>{UserPlan.MONTHLY}</option>
+                        <option value={UserPlan.ANNUAL}>{UserPlan.ANNUAL}</option>
+                        <option value={UserPlan.ADMIN}>{UserPlan.ADMIN}</option>
+                      </select>
+                    </div>
+                    <ChevronDown size={14} className="text-slate-500" />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl">
                       <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Role Atual</p>
