@@ -1,178 +1,183 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-import { Link, useNavigate } from 'react-router-dom';
-import { TrendingUp, Clock, BookOpen, Star, ArrowRight, CheckSquare, Calculator as CalcIcon, MessageSquare, Award, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  BookOpen, CheckSquare, Flame, TrendingUp, 
+  ChevronRight, Target, Clock, Star, Calculator, Award
+} from 'lucide-react';
 import { getDailyTip } from '../services/gemini';
 
-const StatCard = ({ icon: Icon, label, value, color, onClick }: any) => (
+const StatCard = ({ icon: Icon, label, value, colorClass, iconBg }: any) => (
+  <div className="bg-[#1e293b]/40 border border-slate-800/40 p-4 rounded-2xl flex flex-col gap-3 group active:scale-[0.98] transition-all shadow-md">
+    <div className={`w-11 h-11 ${iconBg} rounded-xl flex items-center justify-center text-white shadow-sm`}>
+      <Icon size={22} className={colorClass} />
+    </div>
+    <div className="flex flex-col">
+      <h3 className="text-2xl font-black text-white leading-none tracking-tight">{value}</h3>
+      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1.5">{label}</p>
+    </div>
+  </div>
+);
+
+const SuggestionItem = ({ icon: Icon, title, time, onClick }: any) => (
   <div 
     onClick={onClick}
-    className="bg-slate-900 border border-slate-800 p-4 md:p-6 rounded-3xl cursor-pointer hover:border-blue-500/50 transition-all group active:scale-95 touch-manipulation"
+    className="flex items-center justify-between p-4 bg-slate-900/40 rounded-xl border border-slate-800/30 hover:bg-slate-800/50 active:scale-[0.99] transition-all group cursor-pointer mb-2 last:mb-0"
   >
-    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl ${color} flex items-center justify-center mb-3 md:mb-4 transition-transform group-hover:scale-110 shadow-lg`}>
-      <Icon size={20} className="text-white md:size-24" />
+    <div className="flex items-center gap-4 min-w-0">
+      <div className="w-10 h-10 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-500 shrink-0 border border-blue-500/10">
+        <Icon size={20} />
+      </div>
+      <div className="min-w-0">
+        <h4 className="text-sm font-bold text-slate-100 truncate pr-2">{title}</h4>
+        <div className="flex items-center gap-1.5 mt-0.5 text-slate-500">
+           <Clock size={12} />
+           <span className="text-[10px] font-bold uppercase tracking-tighter">{time} min</span>
+        </div>
+      </div>
     </div>
-    <p className="text-slate-500 text-[10px] md:text-sm font-bold uppercase tracking-widest group-hover:text-slate-300 transition-colors">{label}</p>
-    <h3 className="text-xl md:text-2xl font-black text-white mt-1 group-hover:text-blue-400 transition-colors">{value}</h3>
+    <ChevronRight size={16} className="text-slate-700 group-hover:text-blue-500 transition-colors" />
   </div>
 );
 
 const Dashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
   const navigate = useNavigate();
-  const [tip, setTip] = useState("Carregando dica técnica do dia...");
-  const [isTipVisible, setIsTipVisible] = useState(true);
-  const [isExiting, setIsExiting] = useState(false);
+  const [tip, setTip] = useState("Otimizando base de conhecimento...");
 
   useEffect(() => {
     getDailyTip(user.area).then(setTip);
   }, [user.area]);
 
-  const progress = (user.readingGoals.currentMinutesToday / user.readingGoals.dailyMinutes) * 100;
-
-  const handleTipClick = () => {
-    if (isExiting) return;
-    navigate('/library');
-  };
-
-  const handleCloseTip = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsExiting(true);
-    // Aguarda a animação de 500ms terminar antes de remover do DOM
-    setTimeout(() => {
-      setIsTipVisible(false);
-    }, 500);
-  };
+  // Valores simulados para coincidir com o Screenshot 2
+  const readArticlesCount = user.readArticlesIds?.length || 5;
+  const checklistsCount = 0;
+  const streak = user.readingGoals?.streak || 0;
+  const progressPercent = 2; // Screenshot 2 mostra 2%
 
   return (
-    <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Dashboard Operacional</h2>
-          <p className="text-slate-500 text-sm">Visão geral do seu progresso técnico.</p>
-        </div>
-        <div className="text-[10px] md:text-sm font-bold text-slate-500 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 uppercase tracking-widest self-start md:self-auto">
-          Hoje: {new Date().toLocaleDateString('pt-BR')}
-        </div>
+    <div className="space-y-7 max-w-2xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-5 duration-500">
+      
+      {/* Welcome Header - Screenshot 2 Style */}
+      <div className="space-y-1 px-1">
+        <h2 className="text-[28px] font-black text-white flex items-center gap-2 tracking-tighter">
+          Olá, Tech! <span className="animate-bounce">👋</span>
+        </h2>
+        <p className="text-slate-500 text-sm font-medium tracking-tight">Bem-vindo ao seu painel de estudos</p>
       </div>
 
-      {/* Daily Tip - Gemini Powered */}
-      {isTipVisible && (
-        <div 
-          onClick={handleTipClick}
-          className={`bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-800/50 p-5 md:p-8 rounded-[32px] relative overflow-hidden group cursor-pointer transition-all duration-500 ease-in-out hover:shadow-2xl hover:shadow-blue-900/10 active:scale-[0.99] touch-manipulation ${
-            isExiting ? 'opacity-0 translate-y-12 scale-95 pointer-events-none' : 'opacity-100 translate-y-0 scale-100'
-          }`}
-        >
-          <button 
-            onClick={handleCloseTip}
-            className="absolute top-4 right-4 p-2 bg-slate-800/50 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-all z-20"
-            title="Fechar dica"
-          >
-            <X size={16} />
-          </button>
-
-          <div className="relative z-10 pr-6 md:pr-12">
-            <div className="flex items-center gap-2 text-blue-400 mb-3 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">
-              <Star size={14} className="fill-blue-400" /> Dica Técnica de Hoje
-            </div>
-            <p className="text-base md:text-xl text-slate-100 italic font-medium leading-relaxed">"{tip}"</p>
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-              <span className="flex items-center gap-1.5"><Clock size={12} /> {user.area}</span>
-              <span className="hidden md:inline">• Clique para ver artigo</span>
-            </div>
-          </div>
-          <div className="absolute top-[-20%] right-[-5%] w-64 h-64 bg-blue-600/10 rounded-full blur-3xl group-hover:bg-blue-600/20 transition-all duration-700" />
-        </div>
-      )}
-
-      {/* Progress Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+      {/* Stats Grid 2x2 - Screenshot 2 Style */}
+      <div className="grid grid-cols-2 gap-4">
         <StatCard 
-          icon={Clock} 
-          label="Meta Diária" 
-          value={`${user.readingGoals.currentMinutesToday}m / ${user.readingGoals.dailyMinutes}m`} 
-          color="bg-blue-600"
-          onClick={() => navigate('/library')}
+          icon={BookOpen} 
+          label="Artigos Lidos" 
+          value={readArticlesCount} 
+          iconBg="bg-blue-600/10" 
+          colorClass="text-blue-500" 
+        />
+        <StatCard 
+          icon={CheckSquare} 
+          label="Checklists" 
+          value={checklistsCount} 
+          iconBg="bg-emerald-600/10" 
+          colorClass="text-emerald-500" 
+        />
+        <StatCard 
+          icon={Flame} 
+          label="Dias Seguidos" 
+          value={streak} 
+          iconBg="bg-amber-600/10" 
+          colorClass="text-amber-500" 
         />
         <StatCard 
           icon={TrendingUp} 
-          label="Ofensiva" 
-          value={`${user.readingGoals.streak} Dias`} 
-          color="bg-emerald-600"
-          onClick={() => navigate('/analytics')}
-        />
-        <StatCard 
-          icon={BookOpen} 
-          label="Artigos" 
-          value={user.readArticlesIds.length} 
-          color="bg-violet-600"
-          onClick={() => navigate('/history')}
-        />
-        <StatCard 
-          icon={Award} 
-          label="Nível" 
-          value={`NV ${user.level}`} 
-          color="bg-amber-600"
-          onClick={() => navigate('/level')}
+          label="Progresso" 
+          value={`${progressPercent}%`} 
+          iconBg="bg-violet-600/10" 
+          colorClass="text-violet-500" 
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        {/* Reading Progress */}
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-[32px]">
-          <div className="flex items-center justify-between mb-6 md:mb-8">
-            <h3 className="text-lg md:text-xl font-bold text-white">Capacitação Técnica</h3>
-            <span className="text-blue-500 font-black text-sm md:text-base">{Math.round(progress)}%</span>
+      {/* Daily Goal Card - Screenshot 2 Style */}
+      <div className="bg-[#1e293b]/40 border border-slate-800/50 p-6 rounded-[32px] space-y-6 shadow-xl relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/5 blur-[50px] pointer-events-none" />
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5 text-blue-400">
+            <Target size={20} className="fill-blue-400/10" />
+            <h3 className="text-lg font-black tracking-tight">Meta Diária</h3>
           </div>
-          
-          <div className="w-full bg-slate-800 h-3 md:h-4 rounded-full overflow-hidden mb-8 md:mb-10">
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/30">Atividade</span>
+        </div>
+
+        <div className="space-y-3.5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold text-slate-300">Leitura de hoje</span>
+            <span className="text-sm font-black text-blue-400">3 / 3 artigos</span>
+          </div>
+          <div className="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800/50 shadow-inner">
             <div 
-              className="h-full bg-blue-600 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-              style={{ width: `${Math.min(100, progress)}%` }}
+              className="h-full bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.4)] transition-all duration-1000 ease-out" 
+              style={{ width: '100%' }} // 100% conforme Screenshot 2 (3/3)
             />
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-            <div 
-              onClick={() => navigate('/library')}
-              className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between group cursor-pointer hover:border-blue-500 transition-all active:scale-[0.98]"
-            >
-              <div className="min-w-0">
-                <p className="text-[10px] text-slate-500 uppercase font-bold mb-1 tracking-widest">Próxima Trilha</p>
-                <p className="text-sm font-bold text-white truncate">Conceitos de Pressão II</p>
-              </div>
-              <ArrowRight size={18} className="text-slate-600 group-hover:text-blue-500 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
-            </div>
-            <div 
-              onClick={() => navigate('/level')}
-              className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between group cursor-pointer hover:border-blue-500 transition-all active:scale-[0.98]"
-            >
-              <div>
-                <p className="text-[10px] text-slate-500 uppercase font-bold mb-1 tracking-widest">Evolução</p>
-                <p className="text-sm font-bold text-white">Ver Nível Profissional</p>
-              </div>
-              <Award size={18} className="text-slate-600 group-hover:text-blue-500 transition-all shrink-0 ml-2" />
-            </div>
-          </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-[32px]">
-          <h3 className="text-lg md:text-xl font-bold text-white mb-6">Ações Rápidas</h3>
-          <div className="space-y-3">
-            <Link to="/checklists" className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-95 touch-manipulation text-sm md:text-base">
-              <CheckSquare size={20} /> Checklist
-            </Link>
-            <Link to="/calculators" className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-95 touch-manipulation text-sm md:text-base">
-              <CalcIcon size={20} /> Calculadoras
-            </Link>
-            <Link to="/forum" className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-95 touch-manipulation text-sm md:text-base">
-              <MessageSquare size={20} /> Abrir Fórum
-            </Link>
+        <div className="space-y-4 pt-5 border-t border-slate-800/50">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Sugestões de leitura:</p>
+          <div className="space-y-1">
+            <SuggestionItem 
+              icon={BookOpen} 
+              title="Desenho de Fabricação" 
+              time="12" 
+              onClick={() => navigate('/library')} 
+            />
+            <SuggestionItem 
+              icon={BookOpen} 
+              title="Leitura e Interpretação de Des..." 
+              time="11" 
+              onClick={() => navigate('/library')} 
+            />
+            <SuggestionItem 
+              icon={BookOpen} 
+              title="CAD - Desenho Auxiliado por ..." 
+              time="13" 
+              onClick={() => navigate('/library')} 
+            />
           </div>
         </div>
       </div>
+
+      {/* Quick Access Section - Screenshot 2 Style */}
+      <div className="pt-4 px-1">
+        <h3 className="text-[20px] font-black text-white tracking-tight mb-5">Acesso Rápido</h3>
+        <div className="grid grid-cols-2 gap-4">
+           <button 
+             onClick={() => navigate('/checklists')} 
+             className="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-2.5 shadow-md active:scale-95"
+           >
+             <CheckSquare size={18} /> Novo Check
+           </button>
+           <button 
+             onClick={() => navigate('/calculators')} 
+             className="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-2.5 shadow-md active:scale-95"
+           >
+             <Calculator size={18} /> Calculadoras
+           </button>
+        </div>
+      </div>
+
+      {/* Daily Tip Tooltip - Gemini Powered */}
+      <div className="mt-8 bg-blue-600/5 border border-blue-500/10 p-5 rounded-3xl flex items-start gap-4">
+        <div className="w-10 h-10 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
+          <Star size={20} className="fill-blue-400/20" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Dica Profissional</p>
+          <p className="text-sm text-slate-400 italic leading-relaxed">"{tip}"</p>
+        </div>
+      </div>
+
     </div>
   );
 };

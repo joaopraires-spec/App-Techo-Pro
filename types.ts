@@ -22,10 +22,11 @@ export interface UserProfile {
   name: string;
   email: string;
   phone: string; // Telefone com DDD
+  gender?: 'Masculino' | 'Feminino' | 'Não Aplicável (N/A)'; // Novo campo solicitado
   password?: string; // Senha original para recuperação conforme solicitado
   passwordHash?: string; // Hash para validação de segurança
   avatar: string;
-  area: string;
+  area: string; // Cargo / Especialidade
   plan: UserPlan;
   role: UserRole;
   status: UserStatus;

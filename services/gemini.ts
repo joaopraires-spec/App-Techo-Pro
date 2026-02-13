@@ -7,16 +7,14 @@ import { GoogleGenAI } from "@google/genai";
  * @returns A short technical tip.
  */
 export const getDailyTip = async (category: string = "Engenharia Mecânica") => {
-  // Always initialize GoogleGenAI with the API_KEY from process.env right before use.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
+  // Inicialização local para garantir resiliência contra erros de conexão precoce
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Gere uma dica técnica curta (máximo 3 linhas) para profissionais de campo sobre ${category}. Seja extremamente profissional e prático.`,
+      contents: `Gere uma dica técnica curta (máximo 3 linhas) para profissionais de campo sobre ${category}. Seja extremamente profissional e prático. Não use markdown.`,
     });
-    // Access .text property directly as per guidelines.
-    return response.text || "Mantenha sempre suas ferramentas limpas e calibradas.";
+    return response.text?.trim() || "Mantenha sempre suas ferramentas limpas e calibradas.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Verifique sempre a integridade dos EPIs antes de iniciar qualquer operação técnica.";
@@ -29,16 +27,13 @@ export const getDailyTip = async (category: string = "Engenharia Mecânica") => 
  * @returns A 3-line technical summary.
  */
 export const getArticleSummary = async (articleTitle: string) => {
-  // Always initialize GoogleGenAI with the API_KEY from process.env right before use.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Resuma em 3 linhas os principais pontos técnicos de um artigo com o título: "${articleTitle}". Foco em aplicação prática.`,
+      contents: `Resuma em 3 linhas os principais pontos técnicos de um artigo com o título: "${articleTitle}". Foco em aplicação prática. Não use markdown.`,
     });
-    // Access .text property directly as per guidelines.
-    return response.text || "Resumo indisponível no momento.";
+    return response.text?.trim() || "Resumo indisponível no momento.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Resumo técnico padrão para fins de visualização rápida de campo.";

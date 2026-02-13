@@ -30,7 +30,8 @@ export const authService = {
       id: Date.now().toString(),
       name: data.name || '',
       email: data.email || '',
-      phone: data.phone || '', // Novo campo
+      phone: data.phone || '',
+      gender: data.gender, // Campo preservado no armazenamento
       password: rawPassword, // Armazena senha para recuperação
       passwordHash: simpleHash(rawPassword),
       avatar: data.avatar || `https://i.pravatar.cc/150?u=${data.email}`,
