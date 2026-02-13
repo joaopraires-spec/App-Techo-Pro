@@ -131,11 +131,15 @@ const Checklists: React.FC<{ user: UserProfile, onUpdateUser: (u: UserProfile) =
     doc.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const completedCount = activeChecklist?.items.filter(i => i.completed).length || 0;
+  const totalItems = activeChecklist?.items.length || 0;
+  const complianceRate = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
+
   return (
     <div className="max-w-7xl mx-auto pb-20 page-fade-in relative">
       {/* Print Watermark (Only visible when printing) */}
       <div className="hidden print:flex fixed inset-0 items-center justify-center opacity-[0.05] pointer-events-none z-[-1] select-none">
-        <p className="text-[120px] font-black uppercase rotate-[-45deg] text-slate-900 whitespace-nowrap">
+        <p className="text-[100px] font-black uppercase rotate-[-45deg] text-slate-900 whitespace-nowrap">
           TECH PRO INDUSTRIAL
         </p>
       </div>
@@ -225,115 +229,134 @@ const Checklists: React.FC<{ user: UserProfile, onUpdateUser: (u: UserProfile) =
                  <Save size={16} /> Salvar Relatório
                </button>
                <button onClick={() => { handleSaveReport(); window.print(); }} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg active:scale-95 transition-all flex items-center gap-2">
-                 <FileDown size={16} /> Exportar Laboratório (PDF)
+                 <FileDown size={16} /> Exportar Relatório (PDF)
                </button>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-[40px] p-6 sm:p-10 md:p-14 shadow-2xl print:bg-white print:text-black print:border-none print:p-0 relative overflow-hidden">
+          <div className="bg-slate-900 border border-slate-800 rounded-[40px] p-6 sm:p-10 md:p-14 shadow-2xl print:bg-white print:text-black print:border-none print:p-8 print:shadow-none print:m-0 relative overflow-hidden">
             {/* Header Formal do Relatório */}
-            <div className="mb-12 border-b-2 border-slate-800 pb-8 print:border-slate-300">
+            <div className="mb-10 border-b-4 border-blue-600 pb-8 print:border-slate-800">
               <div className="flex flex-col md:flex-row items-start justify-between gap-8">
-                <div className="space-y-4 flex-1 w-full">
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white print:bg-slate-900">
-                      <ShieldCheck size={28} />
+                <div className="space-y-6 flex-1 w-full">
+                  <div className="flex items-center gap-5 mb-2">
+                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white print:bg-slate-900 print:rounded-lg">
+                      <ShieldCheck size={36} />
                     </div>
                     <div>
-                      <h3 className="text-3xl font-black text-white print:text-slate-900 tracking-tighter uppercase">Relatório de Inspeção</h3>
-                      <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] print:text-slate-400">Tech Pro Industrial • Protocolo de Auditoria</p>
+                      <h3 className="text-3xl sm:text-4xl font-black text-white print:text-slate-900 tracking-tighter uppercase leading-tight">Relatório de Inspeção Técnica</h3>
+                      <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] print:text-slate-500">Tech Pro Industrial • Protocolo Oficial de Auditoria</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 mt-10 bg-slate-950/40 p-6 rounded-3xl border border-slate-800 print:bg-slate-50 print:border-slate-200 print:rounded-xl">
                     <div className="space-y-1">
                       <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Profissional Responsável</label>
-                      <p className="text-sm font-bold text-white print:text-black border-b border-slate-800/50 pb-1 print:border-slate-200">
+                      <p className="text-base font-bold text-white print:text-black">
                         {activeChecklist?.inspectorName}
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Cargo / Especialidade</label>
-                      <p className="text-sm font-bold text-white print:text-black border-b border-slate-800/50 pb-1 print:border-slate-200">
+                      <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Especialidade / Cargo</label>
+                      <p className="text-base font-bold text-white print:text-black">
                         {activeChecklist?.role}
                       </p>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Equipamento / Sistema</label>
                       <input 
-                        className="bg-transparent text-sm font-bold text-white print:text-black border-b border-slate-800/50 pb-1 print:border-slate-200 w-full outline-none focus:border-blue-500 transition-colors no-print"
+                        className="bg-transparent text-base font-bold text-white border-b border-slate-700 w-full outline-none focus:border-blue-500 transition-colors no-print pb-1"
                         value={activeChecklist?.title}
                         onChange={(e) => setActiveChecklist(prev => prev ? {...prev, title: e.target.value} : null)}
                       />
-                      <p className="hidden print:block text-sm font-bold text-black border-b border-slate-200 pb-1">
+                      <p className="hidden print:block text-base font-bold text-black border-b border-slate-300 pb-1">
                         {activeChecklist?.title}
                       </p>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Localização Operacional</label>
                       <input 
-                        className="bg-transparent text-sm font-bold text-white print:text-black border-b border-slate-800/50 pb-1 print:border-slate-200 w-full outline-none focus:border-blue-500 transition-colors no-print"
+                        className="bg-transparent text-base font-bold text-white border-b border-slate-700 w-full outline-none focus:border-blue-500 transition-colors no-print pb-1"
                         value={activeChecklist?.location}
                         onChange={(e) => setActiveChecklist(prev => prev ? {...prev, location: e.target.value} : null)}
                       />
-                      <p className="hidden print:block text-sm font-bold text-black border-b border-slate-200 pb-1">
+                      <p className="hidden print:block text-base font-bold text-black border-b border-slate-300 pb-1">
                         {activeChecklist?.location}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-8 mt-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Data da Inspeção</label>
-                      <p className="text-sm font-bold text-blue-500 print:text-black">
-                        {new Date(activeChecklist?.lastUpdated || '').toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Hora do Registro</label>
-                      <p className="text-sm font-bold text-blue-500 print:text-black">
-                        {new Date(activeChecklist?.lastUpdated || '').toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="hidden md:flex flex-col items-end text-right space-y-2 shrink-0">
-                  <div className="w-20 h-20 bg-slate-800/50 rounded-2xl flex items-center justify-center text-slate-600 border border-slate-700 print:border-slate-200 print:text-slate-900 print:bg-white">
-                    <Activity size={40} />
+                <div className="hidden md:flex flex-col items-end text-right space-y-4 shrink-0">
+                  <div className="w-24 h-24 bg-slate-800/50 rounded-[32px] flex flex-col items-center justify-center text-slate-400 border border-slate-700 print:border-slate-300 print:text-slate-900 print:bg-white print:rounded-2xl">
+                    <span className="text-2xl font-black text-white print:text-black leading-none">{complianceRate}%</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest mt-1 opacity-60">Status</span>
+                  </div>
+                  <div className="space-y-1 text-right">
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Data & Hora</p>
+                    <p className="text-xs font-bold text-blue-500 print:text-black">
+                      {new Date(activeChecklist?.lastUpdated || '').toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">ID do Documento</p>
-                    <p className="text-[10px] font-mono font-bold text-white print:text-black">TP-DOC-{activeChecklist?.id.slice(-6).toUpperCase()}</p>
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">ID de Auditoria</p>
+                    <p className="text-[10px] font-mono font-bold text-white print:text-black">TP-AUDIT-{activeChecklist?.id.slice(-8).toUpperCase()}</p>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Resumo de Conformidade (Especial para Print) */}
+            <div className="mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4 print:grid-cols-3">
+               <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 print:bg-transparent print:border-slate-200">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Itens Verificados</p>
+                  <p className="text-xl font-black text-white print:text-black">{totalItems}</p>
+               </div>
+               <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 print:bg-transparent print:border-slate-200">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Em Conformidade</p>
+                  <p className="text-xl font-black text-emerald-500 print:text-emerald-700">{completedCount}</p>
+               </div>
+               <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 print:bg-transparent print:border-slate-200">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Pendências / Não Conformidades</p>
+                  <p className="text-xl font-black text-red-500 print:text-red-700">{totalItems - completedCount}</p>
+               </div>
+            </div>
+
             {/* Listagem de Itens */}
             <div className="space-y-6 mb-12">
-              <div className="flex items-center gap-2 mb-4">
-                <LayoutList size={18} className="text-blue-500 no-print" />
-                <h4 className="text-sm font-black text-white print:text-slate-900 uppercase tracking-widest">Critérios Técnicos Verificados</h4>
+              <div className="flex items-center gap-3 mb-6 pb-2 border-b border-slate-800 print:border-slate-200">
+                <LayoutList size={22} className="text-blue-500 no-print" />
+                <h4 className="text-lg font-black text-white print:text-slate-900 uppercase tracking-widest">Memória de Inspeção e Ensaios</h4>
               </div>
 
-              <div className="grid grid-cols-1 gap-3">
-                {activeChecklist?.items.map(item => (
-                  <div key={item.id} className={`flex items-center gap-4 p-5 rounded-2xl border transition-all ${item.completed ? 'bg-emerald-600/5 border-emerald-600/20' : 'bg-slate-950 border-slate-800'} print:bg-transparent print:border-slate-100 print:py-3`}>
+              <div className="grid grid-cols-1 gap-2">
+                {activeChecklist?.items.map((item, index) => (
+                  <div key={item.id} className={`flex items-center gap-4 p-5 rounded-2xl border transition-all ${item.completed ? 'bg-emerald-600/5 border-emerald-600/20' : 'bg-slate-950 border-slate-800'} print:bg-transparent print:border-slate-100 print:py-3 print:rounded-none print:border-x-0 print:border-t-0 print:border-b`}>
                     <div className="no-print">
                       <button onClick={() => toggleItem(item.id)} className="shrink-0 transition-transform active:scale-90">
-                        {item.completed ? <CheckCircle2 className="text-emerald-500" size={24} /> : <Circle className="text-slate-800" size={24} />}
+                        {item.completed ? <CheckCircle2 className="text-emerald-500" size={26} /> : <Circle className="text-slate-800" size={26} />}
                       </button>
                     </div>
+                    
+                    <span className="text-slate-700 font-mono text-[10px] w-6 shrink-0 print:text-slate-400">{(index + 1).toString().padStart(2, '0')}</span>
+                    
                     {/* Visual de Check para o Print */}
                     <div className="hidden print:block shrink-0">
-                      <div className={`w-5 h-5 border-2 rounded flex items-center justify-center ${item.completed ? 'bg-black border-black text-white' : 'border-slate-300'}`}>
-                        {item.completed && <Check size={14} />}
+                      <div className={`w-6 h-6 border-2 rounded flex items-center justify-center ${item.completed ? 'bg-black border-black text-white' : 'border-slate-400'}`}>
+                        {item.completed ? <Check size={16} /> : null}
                       </div>
                     </div>
+
                     <span className={`text-sm font-bold flex-1 ${item.completed ? 'text-slate-400' : 'text-slate-200'} print:text-slate-800`}>
                       {item.text}
                     </span>
+
+                    <div className="hidden print:block">
+                       <span className={`text-[10px] font-black uppercase tracking-widest ${item.completed ? 'text-emerald-600' : 'text-red-500'}`}>
+                          {item.completed ? 'Conforme' : 'Não Conforme'}
+                       </span>
+                    </div>
+
                     <div className="no-print">
                       <button onClick={() => deleteItem(item.id)} className="p-2 text-slate-700 hover:text-red-500 transition-colors">
                         <Trash2 size={16} />
@@ -343,46 +366,55 @@ const Checklists: React.FC<{ user: UserProfile, onUpdateUser: (u: UserProfile) =
                 ))}
               </div>
 
-              <div className="no-print flex gap-2 mt-6">
+              <div className="no-print flex gap-3 mt-8">
                 <input 
                   type="text" 
                   value={newItemText}
                   onChange={(e) => setNewItemText(e.target.value)}
-                  placeholder="Adicionar novo critério de inspeção..."
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-5 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-blue-600 shadow-inner"
+                  placeholder="Adicionar novo critério técnico para inspeção..."
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm outline-none focus:ring-2 focus:ring-blue-600 shadow-inner"
                   onKeyPress={(e) => e.key === 'Enter' && addItem()}
                 />
-                <button onClick={addItem} className="bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl active:scale-95 transition-all">
-                  <Plus size={20} />
+                <button onClick={addItem} className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-2xl active:scale-95 transition-all shadow-lg shadow-blue-900/20">
+                  <Plus size={24} />
                 </button>
               </div>
             </div>
 
+            {/* Espaço para Observações no Print */}
+            <div className="hidden print:block mb-20 space-y-3">
+               <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Parecer Técnico / Observações Adicionais:</h4>
+               <div className="border border-slate-200 rounded-xl h-32 w-full"></div>
+            </div>
+
             {/* Rodapé e Assinaturas */}
-            <div className="mt-20 pt-12 border-t-2 border-slate-800 print:border-slate-300">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+            <div className="mt-16 pt-12 border-t-2 border-slate-800 print:border-slate-800 print:mt-10 print:pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 print:grid-cols-2 print:gap-20">
                 <div className="text-center space-y-3">
-                  <div className="border-b border-slate-800 h-10 print:border-black"></div>
+                  <div className="border-b border-slate-800 h-12 print:border-slate-800"></div>
                   <div>
-                    <p className="text-[10px] font-black text-white print:text-black uppercase tracking-widest">{activeChecklist?.inspectorName}</p>
-                    <p className="text-[8px] text-slate-500 uppercase tracking-widest">{activeChecklist?.role} (Especialista)</p>
+                    <p className="text-[10px] font-black text-white print:text-slate-900 uppercase tracking-widest leading-none">{activeChecklist?.inspectorName}</p>
+                    <p className="text-[8px] text-slate-500 uppercase tracking-widest mt-1">Inspetor Responsável (Especialista)</p>
+                    <p className="hidden print:block text-[7px] text-slate-400 font-mono mt-1">Assinado digitalmente em {new Date(activeChecklist?.lastUpdated || '').toLocaleDateString('pt-BR')}</p>
                   </div>
                 </div>
                 <div className="text-center space-y-3">
-                  <div className="border-b border-slate-800 h-10 print:border-black"></div>
+                  <div className="border-b border-slate-800 h-12 print:border-slate-800"></div>
                   <div>
-                    <p className="text-[10px] font-black text-white print:text-black uppercase tracking-widest">Supervisor / Auditor</p>
-                    <p className="text-[8px] text-slate-500 uppercase tracking-widest">Validação de Campo</p>
+                    <p className="text-[10px] font-black text-white print:text-slate-900 uppercase tracking-widest leading-none">Supervisor Industrial</p>
+                    <p className="text-[8px] text-slate-500 uppercase tracking-widest mt-1">Validação e Encerramento de Ordem</p>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-16 flex flex-col md:flex-row items-center justify-between gap-6 opacity-30 print:opacity-100 print:mt-10">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-blue-500 print:text-black" />
-                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Documento Certificado Tech Pro</span>
+              <div className="mt-16 flex flex-col md:flex-row items-center justify-between gap-6 opacity-30 print:opacity-100 print:mt-12 print:gap-4">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck size={16} className="text-blue-500 print:text-slate-900" />
+                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.4em] print:text-slate-800">Documento Verificado • Sistema Tech Pro v1.0.4</span>
                 </div>
-                <p className="text-[8px] font-mono text-slate-500">Hash de Verificação: {Math.random().toString(16).slice(2, 10).toUpperCase()}</p>
+                <div className="text-right">
+                   <p className="text-[8px] font-mono text-slate-500 print:text-slate-400">HASH DE INTEGRIDADE: {Math.random().toString(16).slice(2, 14).toUpperCase()}-{activeChecklist?.id.slice(-4).toUpperCase()}</p>
+                </div>
               </div>
             </div>
           </div>
